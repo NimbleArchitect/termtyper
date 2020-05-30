@@ -1,4 +1,4 @@
-
+let prevlistitem = -1;
 let currentlistitem = -1;
 let currentlistlength = -1;
 let listselect = undefined;
@@ -20,11 +20,11 @@ function addNodes(data) {
         
         var divtxt = document.createElement('div');
         divtxt.id = "data";
-        divtxt.textContent = obj.txt;
+        divtxt.textContent = obj.name;
         
         var divhash = document.createElement('div');
         divhash.id = "hash";
-        divhash.textContent = obj.id;
+        divhash.textContent = obj.hash;
 
         var li = document.createElement("li");
         li.appendChild(divtxt);
@@ -35,33 +35,48 @@ function addNodes(data) {
     
     listselect = document.querySelector('#myUL');
     list = listselect.querySelectorAll('li');
-    currentlistitem = 0;
+    currentlistitem = -1;
     currentlistlength = json.length;
 }
 
 function movelist(direction) {
-    if (currentlistitem == -1) return;
+    if (direction == 0) return;
+    if (currentlistitem <= -2) return;
+    
+    prevlistitem = currentlistitem;
+    currentlistitem += direction;
 
-    if (currentlistitem == currentlistlength) {
-        if (direction == 1) currentlistitem = -1;
-    } else if (currentlistitem == 0) {
-        if (direction == -1) currentlistitem = currentlistlength + 1;
+    //rolled to far forward, set back to start
+    if (currentlistitem >= (currentlistlength) ) {
+        currentlistitem = -1;
+    }
+    if (currentlistitem <= -2) {
+        currentlistitem = currentlistlength - 1;
     }
 
-    currentlistitem += direction;
+    if (currentlistitem == -1) {
+        list[prevlistitem].className = ""    
+    }
+
+    if (prevlistitem != -1) {
+        list[prevlistitem].className = ""
+    }
+    list[currentlistitem].className = "selected"
 }
 
 function searchFor() {
     switch (event.keyCode) {
 
         case 38: // up
-            console.log("up")
+            //console.log("up")
             movelist(-1);
+            //console.log(list[currentlistitem].innerText)
             break;
         
         case 40: // down
-            console.log("down")
+            //console.log("down")
             movelist(1);
+            //console.log(list[currentlistitem].innerText)
             break;
             
         case 13:
@@ -75,16 +90,15 @@ function searchFor() {
                 return addNodes(result);
             })
             break;
-            
     }
 }
 
 function typesnippet() {
-    if (currentlistitem != 0) {
-        hashid = list[currentlistitem -1].querySelector('#hash').innerText
-        console.log( hashid );
+    if (currentlistitem != -1) {
+        hashid = list[currentlistitem].querySelector('#hash').innerText
+        //console.log( hashid );
         //console.log( list[currentlistitem -1]
-        writesnip("")
+        writesnip(hashid)
     } else {
         //console.log("search");
     }

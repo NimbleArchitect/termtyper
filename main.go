@@ -8,15 +8,20 @@
 package main
 
 import (
-	//"fmt"
+	"database/sql"
+	"encoding/json"
+	"fmt"
 	"github.com/atotto/clipboard"
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/zserge/webview"
+	"time"
 )
 
 const debug = true
 
 var w webview.WebView
 var action int
+var database *sql.DB
 
 func main() {
 
@@ -25,8 +30,16 @@ func main() {
 	Move along nothing to see here
 	</body></html>`
 
-	searchandpaste()
+	database, _ = opendb()
+	// if ok == true {
+	// 	//defer database.Close()
+	// }
+	if database.Ping() != nil {
+		fmt.Println("99")
+	}
 
+	searchandpaste()
+	database.Close()
 }
 
 func searchandpaste() {
@@ -44,9 +57,19 @@ func searchandpaste() {
 }
 
 func searchsnip(data string) string {
+	if len(data) <= 0 {
+		return ""
+	}
 	//time.Sleep(4 * time.Second)
 	//println("running from js: " + data)
-	return `[{"id": 1456, "txt": "mike"}, {"id": 25672, "txt":"dave"}]`
+
+	snips := dbfind("name", data)
+	for _, itm := range snips {
+		itm.Text = ""
+	}
+	str, _ := json.Marshal(snips)
+	//fmt.Println("json: " + string(str))
+	return string(str)
 }
 
 func copysnip(data string) error {
@@ -54,7 +77,10 @@ func copysnip(data string) error {
 	return nil
 }
 
-func writesnip(data string) error {
+func writesnip(hash string) error {
+	//fmt.Println("** " + hash)
+	snips := dbgetID(hash)
+	data := snips.Text
 	go typeSnippet(data)
 	return nil
 }
@@ -62,4 +88,101 @@ func writesnip(data string) error {
 func closesnip() error {
 	go w.Terminate()
 	return nil
+}
+
+func opendb() (*sql.DB, bool) {
+	db, err := sql.Open("sqlite3", "/home/rich/data/src/go/src/snippets/snippets.db")
+	if err != nil {
+		fmt.Println("ERROR opening database")
+	}
+	//ok := db.Ping()
+	//panic(err)
+	statement, _ := db.Prepare("CREATE TABLE IF NOT EXISTS snips (id INTEGER PRIMARY KEY, created INTEGER, name TEXT, code TEXT)")
+	statement.Exec()
+
+	// tx, _ := db.Begin()
+	// stmt, _ := tx.Prepare("insert into snips (created,name,code) values (?,?,?)")
+	// _, err = stmt.Exec(time.Now(), "whoami", "which whoami")
+
+	// tx.Commit()
+
+	return db, true
+}
+
+type Snipitem struct {
+	ID   int       `json:"hash"`
+	Time time.Time `json:"time,omitempty"`
+	Name string    `json:"name,omitempty"`
+	Text string    `json:"text,omitempty"`
+}
+
+//type Snips []Snipitem
+func dbgetID(hash string) Snipitem {
+
+	qry := string("SELECT * FROM snips WHERE ID = " + hash)
+	rows, err := database.Query(qry)
+	if err != nil {
+		fmt.Println("ERROR: unable to query db")
+		panic(err)
+	}
+
+	var snip Snipitem
+	var id int
+	var name string
+	var code string
+	var created string
+
+	for rows.Next() {
+		err = rows.Scan(&id, &created, &name, &code)
+		if err != nil {
+			panic(err)
+		}
+
+		snip = Snipitem{
+			ID:   id,
+			Time: time.Now(),
+			Name: name,
+			Text: code,
+		}
+	}
+
+	rows.Close() //good habit to close
+	return snip
+}
+
+func dbfind(field string, searchfor string) []Snipitem {
+
+	// query
+	qry := string("SELECT * FROM snips WHERE " + field + " LIKE '%" + searchfor + "%'")
+	rows, err := database.Query(qry)
+
+	if err != nil {
+		fmt.Println("ERROR: unable to query db")
+		panic(err)
+	}
+
+	var snip []Snipitem
+	var id int
+	var name string
+	var code string
+	var created string
+
+	for rows.Next() {
+		err = rows.Scan(&id, &created, &name, &code)
+		if err != nil {
+			panic(err)
+		}
+
+		snipitem := Snipitem{
+			ID:   id,
+			Time: time.Now(),
+			Name: name,
+			Text: code,
+		}
+
+		snip = append(snip, snipitem)
+	}
+
+	rows.Close() //good habit to close
+	return snip
 }
