@@ -53,6 +53,7 @@ func searchandpaste() {
 	w.Bind("toclipboard", copysnip)
 	w.Bind("writesnip", writesnip)
 	w.Bind("closesnip", closesnip)
+	w.Bind("savesnip", savesnip)
 	w.Run()
 }
 
@@ -107,6 +108,16 @@ func opendb() (*sql.DB, bool) {
 	// tx.Commit()
 
 	return db, true
+}
+
+func savesnip(title string, code string) {
+	tx, _ := database.Begin()
+	stmt, _ := tx.Prepare("insert into snips (created,name,code) values (?,?,?)")
+	_, err := stmt.Exec(time.Now(), title, code)
+	if err != nil {
+		fmt.Print("error saving")
+	}
+	tx.Commit()
 }
 
 type Snipitem struct {

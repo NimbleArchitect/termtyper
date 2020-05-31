@@ -10,7 +10,7 @@ import (
 func typeSnippet(text string) {
 	w.Minimize()
 	time.Sleep(1 * time.Second)
-	robotgo.TypeStr("Hello World")
+	robotgo.TypeStr(text)
 	time.Sleep(1 * time.Second)
 	w.Terminate()
 }

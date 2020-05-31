@@ -103,3 +103,11 @@ function typesnippet() {
         //console.log("search");
     }
 }
+
+function saveform() {
+    let txttitle = document.getElementById('title').value;
+    let txtcode = document.getElementById('code').value;
+
+    savesnip(txttitle, txtcode);
+    window.history.back();
+}
