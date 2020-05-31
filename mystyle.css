@@ -1,12 +1,24 @@
-#myInput {
-	background-image: url('search.png'); /* Add a search icon to input */
-	background-position: 10px 12px; /* Position the search icon */
-	background-repeat: no-repeat; /* Do not repeat the icon image */
-	width: 100%; /* Full-width */
-	font-size: 16px; /* Increase font-size */
-	padding: 12px 20px 12px 40px; /* Add some padding */
-	border: 1px solid #ddd; /* Add a grey border */
-	margin-bottom: 2px; /* Add some space below the input */
+body {
+	overflow: hidden;
+	display: inline-block;
+	width: 99.5%;
+	height: 99.5%;
+	padding: 0;
+	margin: 0;
+	background-color: darkgray;
+}
+
+#searchbox {
+	background-image: url('search.png');
+	background-position: 10px 12px;
+	background-repeat: no-repeat;
+	width: 88%;
+	font-size: 14px;
+	padding: 12px 20px 12px 40px;
+	border: 1px solid #ddd;
+	margin: 0px;
+	margin-bottom: 2px;
+	background-color: lightgray;
 }
 
 #myUL {
@@ -20,6 +32,7 @@
 	/*background-color: #eee; /* Add a hover effect to all links, except for headers */
 	display: block;
 	color: black;
+	/* background: lightgray; */
 	text-align: left;
 	text-decoration: none;
 	padding: 8px 20px 8px 40px; /* Add some padding */
@@ -33,16 +46,19 @@
 
 #searchcombo {
 	display: block;
-	border: 1px solid #ddd;
+	height: 250px;
+	overflow: auto;	
 }
 
 #searchdetails {
 	display: block;
 	border: 1px solid #ddd;
+	background-color: darkgray;
 }
+
 .selected{
-    color: blue;
-    border-left: 4px solid blue;
+	/* border-left: 2px solid blue; */
+	background-color: lightskyblue;
 }
 
 .button {
@@ -57,10 +73,22 @@
 	margin-bottom:  10px;
   }
 
-  #addnew {
+  #box-search {
+	display: block;
+	border: 2px solid lightgrey;
+	background-color: darkgray;
+	padding: 15px;
+	margin: 15px;
+	top: 15px;
+	left: 15px;
+	bottom: 15px;
+	right: 15px;
+  }
+
+  #box-addnew {
 	display: none;
-	border: 2px solid blue;
-	background: white;
+	border: 2px solid lightgrey;
+	background-color: darkgray;
 	position: absolute;
 	padding: 15px;
 	margin: 15px;
@@ -71,7 +99,7 @@
   }
 
   #code {
-	width: 100%; /* Full-width */
+	width: 88%; /* Full-width */
 	height: 150px;
 	font-size: 16px; /* Increase font-size */
 	padding: 12px 20px 12px 20px; /* Add some padding */
@@ -80,7 +108,7 @@
   }
 
   #title {
-	width: 100%; /* Full-width */
+	width: 88%; /* Full-width */
 	font-size: 14px; /* Increase font-size */
 	padding: 12px 20px 12px 20px; /* Add some padding */
 	border: 1px solid #ddd; /* Add a grey border */

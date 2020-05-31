@@ -1,18 +1,27 @@
-<html><head>
-<link rel="stylesheet" type="text/css" href="mystyle.css">
-<script type="text/javascript" src="utils.js"></script>
+<!DOCTYPE html>
+<html lang="en"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, height=device-height, user-scalable=no, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="mystyle.css">
+    <script type="text/javascript" src="utils.js"></script>
 </head><body>
-<button id="myBtn" class="button" onclick="document.getElementById('addnew').style.display='block'">New</button>
-<input type="text" id="myInput" onkeyup="searchFor()" placeholder="Search for names.." autofocus>
-<div id="searchcombo"><ul id="myUL"></ul></div>
-<div id="addnew">
-<form>
-    <label for="title">title:</label><br>
-    <input type="text" id="title" name="title"><br>
-    <label for="code">code:</label><br>
-    <textarea id="code" name="code"></textarea>
-    <button id="myBtn" class="button" onclick="document.getElementById('addnew').style.display=''">Cancel</button>
-    <button id="myBtn" class="button" onclick="saveform()">Save</button>
+<div id="box-search">
+    <button id="myBtn" class="button" onclick="document.getElementById('box-addnew').style.display='block'">New</button>
+    <input type="text" id="searchbox" onkeyup="searchFor()" placeholder="Search for names.." autofocus>
+    <div id="searchcombo">
+        <ul id="myUL"></ul>
+    </div>
+</div>
+<div id="box-addnew">
+    <form>
+        <label for="title">title:</label><br>
+        <input type="text" id="title" name="title"><br>
+        <label for="code">code:</label><br>
+        <textarea id="code" name="code"></textarea>
+        <div>
+            <button id="myBtn" class="button" onclick="document.getElementById('box-addnew').style.display=''">Cancel</button>
+            <button id="myBtn" class="button" onclick="saveform()">Save</button>
+        </div>
     </form> 
 </div>
 </body></html>
