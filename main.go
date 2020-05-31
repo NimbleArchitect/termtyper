@@ -8,12 +8,14 @@
 package main
 
 import (
+	"bufio"
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/NimbleArchitect/webview"
 	"github.com/atotto/clipboard"
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/zserge/webview"
+	"strings"
 	"time"
 )
 
@@ -79,10 +81,19 @@ func copysnip(data string) error {
 }
 
 func writesnip(hash string) error {
+	var code []string
 	//fmt.Println("** " + hash)
 	snips := dbgetID(hash)
 	data := snips.Text
-	go typeSnippet(data)
+
+	scanner := bufio.NewScanner(strings.NewReader(data))
+
+	for scanner.Scan() {
+		singleline := scanner.Text()
+		code = append(code, singleline)
+	}
+
+	go typeSnippet(code)
 	return nil
 }
 

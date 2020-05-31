@@ -41,8 +41,8 @@
 	border: 1px solid #ddd;
 }
 .selected{
-    color:blue;
-    border-left:4px solid blue;
+    color: blue;
+    border-left: 4px solid blue;
 }
 
 .button {
@@ -55,4 +55,34 @@
 	display: inline-block;
 	font-size: 14px;
 	margin-bottom:  10px;
+  }
+
+  #addnew {
+	display: none;
+	border: 2px solid blue;
+	background: white;
+	position: absolute;
+	padding: 15px;
+	margin: 15px;
+	top: 15px;
+	left: 15px;
+	bottom: 15px;
+	right: 15px;
+  }
+
+  #code {
+	width: 100%; /* Full-width */
+	height: 150px;
+	font-size: 16px; /* Increase font-size */
+	padding: 12px 20px 12px 20px; /* Add some padding */
+	border: 1px solid #ddd; /* Add a grey border */
+	margin-bottom: 2px; /* Add some space below the input */
+  }
+
+  #title {
+	width: 100%; /* Full-width */
+	font-size: 14px; /* Increase font-size */
+	padding: 12px 20px 12px 20px; /* Add some padding */
+	border: 1px solid #ddd; /* Add a grey border */
+	margin-bottom: 2px; /* Add some space below the input */
   }

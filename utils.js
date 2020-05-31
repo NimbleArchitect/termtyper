@@ -13,7 +13,8 @@ document.addEventListener('keyup', (e) => {
 function addNodes(data) {
 	document.getElementById("myUL").innerHTML = "";
 	var ul = document.getElementById("myUL");
-	let json = JSON.parse(data);
+    let json = JSON.parse(data);
+    if (json == null) return 
 	
 	for (var key in json) {
         let obj = json[key];
@@ -109,5 +110,5 @@ function saveform() {
     let txtcode = document.getElementById('code').value;
 
     savesnip(txttitle, txtcode);
-    window.history.back();
+    document.getElementById('addnew').style.display=''
 }

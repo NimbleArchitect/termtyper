@@ -2,10 +2,17 @@
 <link rel="stylesheet" type="text/css" href="mystyle.css">
 <script type="text/javascript" src="utils.js"></script>
 </head><body>
-<button id="myBtn" class="button" onclick="window.location.href='newitem.html'">New</button>
+<button id="myBtn" class="button" onclick="document.getElementById('addnew').style.display='block'">New</button>
 <input type="text" id="myInput" onkeyup="searchFor()" placeholder="Search for names.." autofocus>
 <div id="searchcombo"><ul id="myUL"></ul></div>
-<div id="searchdetails">
-
+<div id="addnew">
+<form>
+    <label for="title">title:</label><br>
+    <input type="text" id="title" name="title"><br>
+    <label for="code">code:</label><br>
+    <textarea id="code" name="code"></textarea>
+    <button id="myBtn" class="button" onclick="document.getElementById('addnew').style.display=''">Cancel</button>
+    <button id="myBtn" class="button" onclick="saveform()">Save</button>
+    </form> 
 </div>
 </body></html>
