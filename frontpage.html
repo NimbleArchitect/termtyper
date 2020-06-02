@@ -1,16 +1,20 @@
 <!DOCTYPE html>
 <html lang="en"><head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, height=device-height, user-scalable=no, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="mystyle.css">
     <script type="text/javascript" src="utils.js"></script>
 </head><body>
 <div id="box-search">
     <button id="myBtn" class="button" onclick="document.getElementById('box-addnew').style.display='block'">New</button>
-    <input type="text" id="searchbox" onkeyup="searchFor()" placeholder="Search for names.." autofocus>
-    <div id="searchcombo">
-        <ul id="myUL"></ul>
-    </div>
+    <form autocomplete="off" action="#">
+        <div class="autocomplete">
+          <input id="searchbox" type="text" name="searchbox" placeholder="Search for names.." autofocus>
+        </div>
+      </form>
+    <script>
+    autocomplete(document.getElementById("searchbox"));
+    </script>
 </div>
 <div id="box-addnew">
     <form>

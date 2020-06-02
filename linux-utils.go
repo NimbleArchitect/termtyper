@@ -3,24 +3,46 @@
 package main
 
 import (
-	"github.com/go-vgo/robotgo"
+	//"bufio"
+	// "fmt"
+	//"github.com/go-vgo/robotgo"
+	// "io"
+	"log"
+	"os"
+	"os/exec"
 	"time"
 )
 
 func typeSnippet(text []string) {
 	w.Minimize()
-	time.Sleep(1 * time.Second)
 
+	time.Sleep(1 * time.Second)
 	count := len(text)
 	for i := 0; i < count; i++ {
-		//fmt.Println(scanner.Text())
-		singleline := text[i]
-		robotgo.TypeStr(singleline)
+		sendline(text[i])
 		if i < (count - 1) {
-			robotgo.KeyTap("enter")
-			time.Sleep(100 * time.Millisecond)
+			sendline("{ENTER}")
 		}
 	}
-	time.Sleep(1 * time.Second)
+
 	w.Terminate()
+}
+
+//TODO: convert this to a proper sendkeys command using X11
+func sendline(singleline string) {
+	//start hacky python program
+	cmd := exec.Command("./key.py")
+	cmd.Stderr = os.Stderr
+	stdin, err := cmd.StdinPipe()
+	if nil != err {
+		log.Fatalf("Error obtaining stdin: %s", err.Error())
+	}
+	if err := cmd.Start(); nil != err {
+		log.Fatalf("Error starting program: %s, %s", cmd.Path, err.Error())
+	}
+
+	go func() {
+		stdin.Write([]byte(singleline + "\n"))
+	}()
+	cmd.Wait()
 }

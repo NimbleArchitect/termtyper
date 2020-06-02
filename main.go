@@ -112,12 +112,6 @@ func opendb() (*sql.DB, bool) {
 	statement, _ := db.Prepare("CREATE TABLE IF NOT EXISTS snips (id INTEGER PRIMARY KEY, created INTEGER, name TEXT, code TEXT)")
 	statement.Exec()
 
-	// tx, _ := db.Begin()
-	// stmt, _ := tx.Prepare("insert into snips (created,name,code) values (?,?,?)")
-	// _, err = stmt.Exec(time.Now(), "whoami", "which whoami")
-
-	// tx.Commit()
-
 	return db, true
 }
 
