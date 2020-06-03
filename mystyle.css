@@ -53,6 +53,12 @@ body {
 	width: 88%; /* Full-width */
 }
 
+#faded {
+	color: darkgray;
+	float: right;
+	height: 2em;
+}
+
 /*the container must be positioned relative:*/
 .autocomplete {
 	display: inline-block;

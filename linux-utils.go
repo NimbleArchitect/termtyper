@@ -3,10 +3,6 @@
 package main
 
 import (
-	//"bufio"
-	// "fmt"
-	//"github.com/go-vgo/robotgo"
-	// "io"
 	"log"
 	"os"
 	"os/exec"
@@ -31,7 +27,8 @@ func typeSnippet(text []string) {
 //TODO: convert this to a proper sendkeys command using X11
 func sendline(singleline string) {
 	//start hacky python program
-	cmd := exec.Command("./key.py")
+	execpath := getprogPath()
+	cmd := exec.Command(execpath + "/key.py")
 	cmd.Stderr = os.Stderr
 	stdin, err := cmd.StdinPipe()
 	if nil != err {

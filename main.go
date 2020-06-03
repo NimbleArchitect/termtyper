@@ -8,22 +8,35 @@
 package main
 
 import (
-	"bufio"
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"github.com/NimbleArchitect/webview"
-	"github.com/atotto/clipboard"
 	_ "github.com/mattn/go-sqlite3"
-	"strings"
+	"os"
+	"path/filepath"
+	"regexp"
 	"time"
 )
 
 const debug = true
 
+type Snipitem struct {
+	ID       int       `json:"hash"`
+	Time     time.Time `json:"time,omitempty"`
+	Name     string    `json:"name,omitempty"`
+	Code     string    `json:"code,omitempty"`
+	TagCount int       `json:"tags,omitempty"`
+}
+
+type SnipVars struct {
+	Name  string `json:"name,omitempty"`
+	Value string `json:"value,omitempty"`
+}
+
 var w webview.WebView
 var action int
 var database *sql.DB
+var datapath string
 
 func main() {
 
@@ -32,108 +45,86 @@ func main() {
 	Move along nothing to see here
 	</body></html>`
 
-	database, _ = opendb()
+	datapath, err := os.UserHomeDir()
+	if err != nil {
+		panic("Unable to get users profile folder")
+	}
+
+	if _, err := os.Stat(datapath + "/.snippets"); err != nil {
+		err = os.Mkdir(datapath+"/.snippets", 0770)
+		if err != nil {
+			panic("unable to create folder ~/.snippets")
+		}
+	}
+
+	database, _ = opendb(datapath + "/.snippets/snippets.db")
 	// if ok == true {
 	// 	//defer database.Close()
 	// }
 	if database.Ping() != nil {
 		fmt.Println("99")
 	}
-
-	searchandpaste()
+	execpath := getprogPath()
+	searchandpaste(execpath)
 	database.Close()
 }
 
-func searchandpaste() {
+func getprogPath() string {
+	var dirAbsPath string
+	ex, err := os.Executable()
+	if err == nil {
+		dirAbsPath = filepath.Dir(ex)
+		fmt.Println(dirAbsPath)
+		return dirAbsPath
+	}
+
+	exReal, err := filepath.EvalSymlinks(ex)
+	if err != nil {
+		panic(err)
+	}
+	dirAbsPath = filepath.Dir(exReal)
+	fmt.Println(dirAbsPath)
+	return dirAbsPath
+}
+
+func searchandpaste(datapath string) {
 	w = webview.New(debug)
 	defer w.Destroy()
 	w.SetTitle("snip search")
 	w.SetSize(600, 400, webview.HintNone)
 	//w.Navigate("data:text/html," + html)
-	w.Navigate("file:///home/rich/data/src/go/src/snippets/frontpage.html")
-	w.Bind("searchsnip", searchsnip)
-	w.Bind("toclipboard", copysnip)
-	w.Bind("writesnip", writesnip)
-	w.Bind("closesnip", closesnip)
-	w.Bind("savesnip", savesnip)
+	w.Navigate("file://" + datapath + "/frontpage.html")
+	w.Bind("snipSearch", snip_search)
+	w.Bind("toclipboard", snip_copy)
+	w.Bind("snipWrite", snip_write)
+	w.Bind("snipClose", snip_close)
+	w.Bind("snipSave", snip_save)
+	w.Bind("snipGetVarList", snip_getvars)
 	w.Run()
 }
 
-func searchsnip(data string) string {
-	if len(data) <= 0 {
-		return ""
-	}
-	//time.Sleep(4 * time.Second)
-	//println("running from js: " + data)
+func opendb(dbpath string) (*sql.DB, bool) {
+	fmt.Println("* open: " + dbpath)
+	db, err := sql.Open("sqlite3", dbpath)
 
-	snips := dbfind("name", data)
-	for _, itm := range snips {
-		itm.Text = ""
-	}
-	str, _ := json.Marshal(snips)
-	//fmt.Println("json: " + string(str))
-	return string(str)
-}
-
-func copysnip(data string) error {
-	clipboard.WriteAll(data)
-	return nil
-}
-
-func writesnip(hash string) error {
-	var code []string
-	//fmt.Println("** " + hash)
-	snips := dbgetID(hash)
-	data := snips.Text
-
-	scanner := bufio.NewScanner(strings.NewReader(data))
-
-	for scanner.Scan() {
-		singleline := scanner.Text()
-		code = append(code, singleline)
-	}
-
-	go typeSnippet(code)
-	return nil
-}
-
-func closesnip() error {
-	go w.Terminate()
-	return nil
-}
-
-func opendb() (*sql.DB, bool) {
-	db, err := sql.Open("sqlite3", "/home/rich/data/src/go/src/snippets/snippets.db")
 	if err != nil {
 		fmt.Println("ERROR opening database")
 	}
-	//ok := db.Ping()
-	//panic(err)
-	statement, _ := db.Prepare("CREATE TABLE IF NOT EXISTS snips (id INTEGER PRIMARY KEY, created INTEGER, name TEXT, code TEXT)")
-	statement.Exec()
+	ok := db.Ping()
+	if ok != nil {
+		panic(err)
+	}
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS snips (id INTEGER PRIMARY KEY, created INTEGER, name TEXT, code TEXT)")
 
 	return db, true
 }
 
-func savesnip(title string, code string) {
-	tx, _ := database.Begin()
-	stmt, _ := tx.Prepare("insert into snips (created,name,code) values (?,?,?)")
-	_, err := stmt.Exec(time.Now(), title, code)
-	if err != nil {
-		fmt.Print("error saving")
-	}
-	tx.Commit()
-}
-
-type Snipitem struct {
-	ID   int       `json:"hash"`
-	Time time.Time `json:"time,omitempty"`
-	Name string    `json:"name,omitempty"`
-	Text string    `json:"text,omitempty"`
-}
-
-//type Snips []Snipitem
 func dbgetID(hash string) Snipitem {
+	var snip Snipitem
+	var id int
+	var name string
+	var code string
+	var created string
 
 	qry := string("SELECT * FROM snips WHERE ID = " + hash)
 	rows, err := database.Query(qry)
@@ -142,23 +133,18 @@ func dbgetID(hash string) Snipitem {
 		panic(err)
 	}
 
-	var snip Snipitem
-	var id int
-	var name string
-	var code string
-	var created string
-
 	for rows.Next() {
 		err = rows.Scan(&id, &created, &name, &code)
 		if err != nil {
 			panic(err)
 		}
-
+		tags := len(getVars(code))
 		snip = Snipitem{
-			ID:   id,
-			Time: time.Now(),
-			Name: name,
-			Text: code,
+			ID:       id,
+			Time:     time.Now(),
+			Name:     name,
+			Code:     code,
+			TagCount: tags,
 		}
 	}
 
@@ -167,6 +153,11 @@ func dbgetID(hash string) Snipitem {
 }
 
 func dbfind(field string, searchfor string) []Snipitem {
+	var snip []Snipitem
+	var id int
+	var name string
+	var code string
+	var created string
 
 	// query
 	qry := string("SELECT * FROM snips WHERE " + field + " LIKE '%" + searchfor + "%'")
@@ -177,23 +168,18 @@ func dbfind(field string, searchfor string) []Snipitem {
 		panic(err)
 	}
 
-	var snip []Snipitem
-	var id int
-	var name string
-	var code string
-	var created string
-
 	for rows.Next() {
 		err = rows.Scan(&id, &created, &name, &code)
 		if err != nil {
 			panic(err)
 		}
-
+		tags := len(getVars(code))
 		snipitem := Snipitem{
-			ID:   id,
-			Time: time.Now(),
-			Name: name,
-			Text: code,
+			ID:       id,
+			Time:     time.Now(),
+			Name:     name,
+			Code:     code,
+			TagCount: tags,
 		}
 
 		snip = append(snip, snipitem)
@@ -201,4 +187,15 @@ func dbfind(field string, searchfor string) []Snipitem {
 
 	rows.Close() //good habit to close
 	return snip
+}
+
+func getVars(text string) []string {
+	var matches []string
+
+	if len(text) > 0 {
+		regexstring := regexp.MustCompile("{:[A-Za-z! ]+?:}")
+		matches = regexstring.FindAllString(text, -1)
+	}
+
+	return matches
 }
