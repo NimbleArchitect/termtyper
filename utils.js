@@ -128,14 +128,15 @@ function autocomplete(inp) {
     /*execute a function when someone clicks in the document:*/
     document.addEventListener("click", function (e) {
         let hash = e.target.children.namedItem("hash").value;
+        snipWrite(hash);
         let varlist = snipGetVarList(hash);
-        closeAllLists(e.target);
         if (varlist.length == 0) {
             snipWrite(hash);
         } else {
             //ask for vars to be filled in
             
         }
+        closeAllLists(e.target);
 
     });
   }
