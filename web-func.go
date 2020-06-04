@@ -20,6 +20,8 @@ func snip_close() error {
 }
 
 func snip_search(data string) string {
+	var foundSnips []Snipitem
+
 	if len(data) <= 0 {
 		return ""
 	}
@@ -28,8 +30,10 @@ func snip_search(data string) string {
 	for _, itm := range snips {
 		itmarg := getArguments(itm.Code)
 		itm.Argument = itmarg
+		foundSnips = append(foundSnips, itm)
+		fmt.Println(foundSnips)
 	}
-	str, _ := json.Marshal(snips)
+	str, _ := json.Marshal(foundSnips)
 	return string(str)
 }
 
