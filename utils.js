@@ -3,6 +3,7 @@ let currentlistitem = -1;
 let currentlistlength = -1;
 let listselect = undefined;
 let list = undefined;
+let searchresults = [];
 
 document.addEventListener('keyup', (e) => {
     if (e.keyCode === 27) {
@@ -20,11 +21,11 @@ function autocomplete(inp) {
     /*the autocomplete function takes two arguments,
     the text field element and an array of possible autocompleted values:*/
     var currentFocus;
-    var arr;
+    
     /*execute a function when someone writes in the text field:*/
     inp.addEventListener("input", function(e) {
         snipSearch(this.value).then(function(result) { 
-            return inp.populateList(result);
+            return inp.getSearchList(result);
         })
     });
     /*execute a function presses a key on the keyboard:*/
@@ -52,7 +53,7 @@ function autocomplete(inp) {
           }
         }
     });
-    inp.populateList = function(data) {
+    inp.getSearchList = function(data) {
         let list = [];
         if (data == undefined) return;
         let json = JSON.parse(data);
@@ -60,18 +61,33 @@ function autocomplete(inp) {
         
         for (var key in json) {
             let obj = json[key];
-            list.push({
-                hash: obj.hash,
-                name: obj.name,
-                code: obj.code
-              });
+            list.push(
+                obj
+              );
         }
         inp.populateSearch(list);
+
     }
+    // inp.getVarsList = function(data) {
+    //     let list = [];
+    //     if (data == undefined) return;
+    //     let json = JSON.parse(data);
+    //     if (json == null) return;
+        
+    //     for (var key in json) {
+    //         let obj = json[key];
+    //         list.push({
+    //             name: obj.name,
+    //             value: obj.value
+    //           });
+    //     }
+    //     inp.populateVars(list);
+    // } 
     inp.populateSearch = function(arr) {
         var a, b, i, val = this.value;
         /*close any already open lists of autocompleted values*/
         closeAllLists();
+        //searchresults.length = 0;
         if (!val) { return false;}
         currentFocus = -1;
         /*create a DIV element that will contain the items (values):*/
@@ -81,13 +97,15 @@ function autocomplete(inp) {
         /*append the DIV element as a child of the autocomplete container:*/
         this.parentNode.appendChild(a);
         for (i = 0; i < arr.length; i++) {
+            searchresults[arr[i].hash] = arr[i];
+
             /*create a DIV element for each matching element:*/
             b = document.createElement("DIV");
             b.innerHTML += arr[i].name;
             /*insert a input field that will hold the current array item's value:*/
             b.innerHTML += "<input type='hidden' value='" + arr[i].name + "'>";
-            b.innerHTML += "<input type='hidden' id='hash' value='" + arr[i].hash + "'>"
-            b.innerHTML += "<p id='faded'>" + arr[i].code + "</p>"
+            b.innerHTML += "<input type='hidden' id='hash' value='" + arr[i].hash + "'>";
+            
             /*execute a function when someone clicks on the item value (DIV element):*/
             b.addEventListener("click", function(e) {
                 /*insert the value for the autocomplete text field:*/
@@ -99,6 +117,9 @@ function autocomplete(inp) {
             a.appendChild(b);
         }
     }
+    // inp.populateVars = function(arr) {
+
+    // }
     function addActive(x) {
       /*a function to classify an item as "active":*/
       if (!x) return false;
@@ -108,6 +129,8 @@ function autocomplete(inp) {
       if (currentFocus < 0) currentFocus = (x.length - 1);
       /*add class "autocomplete-active":*/
       x[currentFocus].classList.add("autocomplete-active");
+      let hashid = x[currentFocus].children.namedItem("hash").value;
+      document.getElementById('cmd2run').innerText = searchresults[hashid].code;
     }
     function removeActive(x) {
       /*a function to remove the "active" class from all autocomplete items:*/
@@ -124,20 +147,16 @@ function autocomplete(inp) {
           x[i].parentNode.removeChild(x[i]);
         }
       }
-    }
+    }   
     /*execute a function when someone clicks in the document:*/
     document.addEventListener("click", function (e) {
         let hash = e.target.children.namedItem("hash").value;
         snipWrite(hash);
-        let varlist = snipGetVarList(hash);
-        if (varlist.length == 0) {
-            snipWrite(hash);
-        } else {
-            //ask for vars to be filled in
-            
-        }
+        //ask for vars to be filled in
+        // snipGetVarList(this.value).then(function(result) { 
+        //     return inp.getVarsList(result);
+        // });
         closeAllLists(e.target);
-
     });
   }
 
@@ -148,3 +167,7 @@ function saveform() {
     snipSave(txttitle, txtcode);
     document.getElementById('box-addnew').style.display=''
 }
+
+// function writevars() {
+
+// }

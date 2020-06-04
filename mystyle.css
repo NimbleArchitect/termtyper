@@ -11,6 +11,15 @@ body {
 	padding: 10px;
 }
 
+#footer {
+	bottom: 0;
+	width: 100%;
+	left: 0;
+	position: fixed;
+	padding: 10px;
+	border: 2px solid lightgrey;
+}
+
 #box-search {
 	background-color: darkgray;
 	border: 2px solid lightgrey;
@@ -54,9 +63,11 @@ body {
 }
 
 #faded {
+	display: none;
 	color: darkgray;
 	float: right;
-	height: 2em;
+	height: 1em;
+	top: 0px;
 }
 
 /*the container must be positioned relative:*/

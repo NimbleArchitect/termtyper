@@ -15,20 +15,21 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 	"time"
 )
 
 const debug = true
 
 type Snipitem struct {
-	ID       int       `json:"hash"`
-	Time     time.Time `json:"time,omitempty"`
-	Name     string    `json:"name,omitempty"`
-	Code     string    `json:"code,omitempty"`
-	TagCount int       `json:"tags,omitempty"`
+	ID       int        `json:"hash"`
+	Time     time.Time  `json:"time,omitempty"`
+	Name     string     `json:"name,omitempty"`
+	Code     string     `json:"code,omitempty"`
+	Argument []SnipArgs `json:"argument,omitempty"`
 }
 
-type SnipVars struct {
+type SnipArgs struct {
 	Name  string `json:"name,omitempty"`
 	Value string `json:"value,omitempty"`
 }
@@ -99,7 +100,7 @@ func searchandpaste(datapath string) {
 	w.Bind("snipWrite", snip_write)
 	w.Bind("snipClose", snip_close)
 	w.Bind("snipSave", snip_save)
-	w.Bind("snipGetVarList", snip_getvars)
+	//w.Bind("snipGetVarList", snip_getvars)
 	w.Run()
 }
 
@@ -138,13 +139,12 @@ func dbgetID(hash string) Snipitem {
 		if err != nil {
 			panic(err)
 		}
-		tags := len(getVars(code))
+		//tags := len(getVars(code))
 		snip = Snipitem{
-			ID:       id,
-			Time:     time.Now(),
-			Name:     name,
-			Code:     code,
-			TagCount: tags,
+			ID:   id,
+			Time: time.Now(),
+			Name: name,
+			Code: code,
 		}
 	}
 
@@ -173,13 +173,12 @@ func dbfind(field string, searchfor string) []Snipitem {
 		if err != nil {
 			panic(err)
 		}
-		tags := len(getVars(code))
+		//tags := len(getVars(code))
 		snipitem := Snipitem{
-			ID:       id,
-			Time:     time.Now(),
-			Name:     name,
-			Code:     code,
-			TagCount: tags,
+			ID:   id,
+			Time: time.Now(),
+			Name: name,
+			Code: code,
 		}
 
 		snip = append(snip, snipitem)
@@ -189,7 +188,7 @@ func dbfind(field string, searchfor string) []Snipitem {
 	return snip
 }
 
-func getVars(text string) []string {
+func getArgumentList(text string) []string {
 	var matches []string
 
 	if len(text) > 0 {
@@ -198,4 +197,41 @@ func getVars(text string) []string {
 	}
 
 	return matches
+}
+
+func getArguments(text string) []SnipArgs {
+	var namelist []SnipArgs
+	var varlist []string
+
+	if len(text) > 0 {
+		regexstring := regexp.MustCompile("{:[A-Za-z! ]+?:}")
+		varlist = regexstring.FindAllString(text, -1)
+	} else {
+		return namelist
+	}
+
+	if len(varlist) <= 0 {
+		return namelist
+	}
+
+	var varitem SnipArgs
+	for _, varpos := range varlist {
+		//var pos is start and end locations in array
+		vars := strings.Split(varpos, ":")
+		varname := strings.Split(vars[1], "!")
+		fmt.Println(varname)
+		if len(varname) == 1 {
+			varitem = SnipArgs{
+				Name:  varname[0],
+				Value: "",
+			}
+		} else if len(varname) == 2 {
+			varitem = SnipArgs{
+				Name:  varname[0],
+				Value: varname[1],
+			}
+		}
+		namelist = append(namelist, varitem)
+	}
+	return namelist
 }

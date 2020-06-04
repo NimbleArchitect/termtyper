@@ -23,36 +23,14 @@ func snip_search(data string) string {
 	if len(data) <= 0 {
 		return ""
 	}
-	//time.Sleep(4 * time.Second)
-	//println("running from js: " + data)
 
 	snips := dbfind("name", data)
 	for _, itm := range snips {
-		itm.Code = ""
+		itmarg := getArguments(itm.Code)
+		itm.Argument = itmarg
 	}
 	str, _ := json.Marshal(snips)
-	//fmt.Println("json: " + string(str))
 	return string(str)
-}
-
-func snip_getvars(hash string) []SnipVars {
-	var namelist []SnipVars
-
-	snips := dbgetID(hash)
-	varlist := getVars(snips.Code)
-
-	for _, varpos := range varlist {
-		//var pos is start and end locations in array
-		vars := strings.Split(varpos, ":")
-		varname := strings.Split(vars[1], "!")
-		fmt.Println(varname)
-		varitem := SnipVars{
-			Name:  varname[0],
-			Value: varname[1],
-		}
-		namelist = append(namelist, varitem)
-	}
-	return namelist
 }
 
 func snip_write(hash string, vars ...string) error {
