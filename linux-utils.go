@@ -38,8 +38,13 @@ func sendline(singleline string) {
 		log.Fatalf("Error starting program: %s, %s", cmd.Path, err.Error())
 	}
 
+	timer := time.AfterFunc(5*time.Second, func() {
+		cmd.Process.Kill()
+	})
 	go func() {
 		stdin.Write([]byte(singleline + "\n"))
 	}()
-	cmd.Wait()
+	//cmd.Wait()
+	err = cmd.Wait()
+	timer.Stop()
 }

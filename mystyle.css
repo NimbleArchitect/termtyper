@@ -70,6 +70,41 @@ body {
 	top: 0px;
 }
 
+#searchbox {
+	background-color: #f1f1f1;
+	background-image: url('search.png');
+	background-position: 10px 12px;
+	background-repeat: no-repeat;
+	padding: 10px;
+	padding-left: 45px;
+}
+
+
+#variable-list {
+	height: 80%;
+}
+
+#box-vars {
+	background-color: darkgray;
+	border: 2px solid lightgrey;
+	display: none;
+	height: 80%;
+	left: 5%;
+	position: absolute;
+	top: 5%;
+	width: 90%;
+}
+
+label.varList {
+	width: 100%;
+	padding: 10px;
+}
+
+input.varList {
+	width: 300px;
+	padding: 10px;
+}
+
 /*the container must be positioned relative:*/
 .autocomplete {
 	display: inline-block;
@@ -86,14 +121,9 @@ input {
 
 input[type=text] {
 	background-color: #f1f1f1;
-	background-image: url('search.png');
-	background-position: 10px 12px;
-	background-repeat: no-repeat;
 	border: 1px solid #ddd;
 	font-size: 14px;
-	padding: 10px;
-	padding-left: 40px;
-	width: 450px;;
+	width: 450px;
 }
 
 input[type=submit] {

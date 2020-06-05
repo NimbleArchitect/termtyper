@@ -23,10 +23,10 @@ const debug = true
 
 type Snipitem struct {
 	ID       int        `json:"hash"`
-	Time     time.Time  `json:"time,omitempty"`
-	Name     string     `json:"name,omitempty"`
-	Code     string     `json:"code,omitempty"`
-	Argument []SnipArgs `json:"argument,omitempty"`
+	Time     time.Time  `json:"time"`
+	Name     string     `json:"name"`
+	Code     string     `json:"code"`
+	Argument []SnipArgs `json:"argument"`
 }
 
 type SnipArgs struct {
@@ -234,4 +234,20 @@ func getArguments(text string) []SnipArgs {
 		namelist = append(namelist, varitem)
 	}
 	return namelist
+}
+
+//TODO: check vars is valid, check snips.code has something
+func argumentReplace(vars []SnipArgs, code string) string {
+
+	if len(code) <= 0 {
+		return ""
+	}
+	itmarg := getArguments(code)
+	//spin through all arguments and replace variables as needed
+	for _, itm := range itmarg {
+		fmt.Println(itm.Name)
+		//TODO:
+	}
+
+	return itmarg[0].Value
 }

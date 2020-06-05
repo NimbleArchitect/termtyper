@@ -39,10 +39,17 @@ func snip_search(data string) string {
 
 func snip_write(hash string, vars ...string) error {
 	var code []string
+	var data string
+	var args []SnipArgs
+
 	//fmt.Println("** " + hash)string, values []
 	snips := dbgetID(hash)
-	data := snips.Code
-
+	if len(vars) > 0 {
+		json.Unmarshal([]byte(vars[0]), &args)
+		data = argumentReplace(args, snips.Code)
+	} else {
+		data = snips.Code
+	}
 	scanner := bufio.NewScanner(strings.NewReader(data))
 
 	for scanner.Scan() {

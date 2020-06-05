@@ -7,13 +7,8 @@ let searchresults = [];
 
 document.addEventListener('keyup', (e) => {
     if (e.keyCode === 27) {
-        let txt = document.getElementById('searchbox').value;
-        if (txt.length == 0) {
-            snipClose();
-        } else {
-            document.getElementById('searchbox').value = "";
-            //inp.closeAllLists();
-        }
+        // let txt = document.getElementById('searchbox').value;
+        snipClose();
     }
 });
 
@@ -68,21 +63,6 @@ function autocomplete(inp) {
         inp.populateSearch(list);
 
     }
-    // inp.getVarsList = function(data) {
-    //     let list = [];
-    //     if (data == undefined) return;
-    //     let json = JSON.parse(data);
-    //     if (json == null) return;
-        
-    //     for (var key in json) {
-    //         let obj = json[key];
-    //         list.push({
-    //             name: obj.name,
-    //             value: obj.value
-    //           });
-    //     }
-    //     inp.populateVars(list);
-    // } 
     inp.populateSearch = function(arr) {
         var a, b, i, val = this.value;
         /*close any already open lists of autocompleted values*/
@@ -117,9 +97,6 @@ function autocomplete(inp) {
             a.appendChild(b);
         }
     }
-    // inp.populateVars = function(arr) {
-
-    // }
     function addActive(x) {
       /*a function to classify an item as "active":*/
       if (!x) return false;
@@ -147,15 +124,18 @@ function autocomplete(inp) {
           x[i].parentNode.removeChild(x[i]);
         }
       }
-    }   
+    }
     /*execute a function when someone clicks in the document:*/
     document.addEventListener("click", function (e) {
         let hash = e.target.children.namedItem("hash").value;
-        snipWrite(hash);
-        //ask for vars to be filled in
-        // snipGetVarList(this.value).then(function(result) { 
-        //     return inp.getVarsList(result);
-        // });
+        if (searchresults[hash].argument == null) {
+            snipWrite(hash);
+        } else if (searchresults[hash].argument.length <= 0) {
+            snipWrite(hash);
+        } else {
+            //draw the list of questions and display the box
+            argumentList.populateVarsList(hash);
+        }
         closeAllLists(e.target);
     });
   }
@@ -165,9 +145,41 @@ function saveform() {
     let txtcode = document.getElementById('code').value;
 
     snipSave(txttitle, txtcode);
-    document.getElementById('box-addnew').style.display=''
+    document.getElementById('box-addnew').style.display='';
 }
 
-// function writevars() {
-
-// }
+let argumentList = {
+    hash: -1,
+    args: [],
+    populateVarsList: function(hash) {
+        this.args = searchresults[hash].argument;
+        this.hash = hash;
+        document.getElementById("variable-list").innerHTML = "";
+        // a = document.createElement("DIV");
+        // a.setAttribute("id", this.id + "");
+        // a.setAttribute("class", "autocomplete-items");
+        /*append the DIV element as a child of the autocomplete container:*/
+        // document.getElementById("variable-list").appendChild(a);
+        for (var key in this.args) {
+            /*create a DIV element for each matching element:*/
+            n = this.args[key].name;
+            if (n != undefined && n.length >= 1) {
+                v = this.args[key].value;
+                if (v == undefined) { v = "" }
+                b = document.createElement("DIV");
+                b.innerHTML += "<label class='varList' for='var" + key + "'>" + n + ":</label><br>";
+                b.innerHTML += "<input class='varList' type='text' id='var" + key + "' value='" + v + "'>";
+                // a.appendChild(b);
+                document.getElementById("variable-list").appendChild(b);
+            }
+        }
+        document.getElementById("box-vars").style.display="block";
+    },
+    write: function() {
+        let nodes = document.getElementById("variable-list").childNodes;
+        for (let i=0; i<nodes.length; i++) {
+            this.args[i].value = nodes[i].childNodes[2].value;
+        }
+        snipWrite(this.hash, JSON.stringify(this.args));
+    }
+}
