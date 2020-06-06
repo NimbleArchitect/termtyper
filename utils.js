@@ -1,3 +1,7 @@
+
+const autoclick = false;
+
+
 let prevlistitem = -1;
 let currentlistitem = -1;
 let currentlistlength = -1;
@@ -28,24 +32,37 @@ function autocomplete(inp) {
         var x = document.getElementById(this.id + "autocomplete-list");
         if (x) x = x.getElementsByTagName("div");
         if (e.keyCode == 40) {
-          /*If the arrow DOWN key is pressed,
-          increase the currentFocus variable:*/
-          currentFocus++;
-          /*and and make the current item more visible:*/
-          addActive(x);
+            /*If the arrow DOWN key is pressed,
+            increase the currentFocus variable:*/
+            currentFocus++;
+            /*and and make the current item more visible:*/
+            addActive(x);
         } else if (e.keyCode == 38) { //up
-          /*If the arrow UP key is pressed,
-          decrease the currentFocus variable:*/
-          currentFocus--;
-          /*and and make the current item more visible:*/
-          addActive(x);
+            /*If the arrow UP key is pressed,
+            decrease the currentFocus variable:*/
+            currentFocus--;
+            /*and and make the current item more visible:*/
+            addActive(x);
         } else if (e.keyCode == 13) {
-          /*If the ENTER key is pressed, prevent the form from being submitted,*/
-          e.preventDefault();
-          if (currentFocus > -1) {
-            /*and simulate a click on the "active" item:*/
-            if (x) x[currentFocus].click();
-          }
+            /*If the ENTER key is pressed, prevent the form from being submitted,*/
+            e.preventDefault();
+            if (currentFocus > -1) {
+                /*and simulate a click on the "active" item:*/
+                if (x) x[currentFocus].click();
+            } else if (currentFocus == -1) {
+                if (x != null && x.length == 1) {
+                    /*insert the value for the autocomplete text field:*/
+                    // currentFocus++;
+                    // addActive(x);
+                    // inp.value = x[currentFocus].textContent;
+                    // // /*close the list of autocompleted values,
+                    // // (or any other open lists of autocompleted values:*/
+                    // closeAllLists();
+                    if (autoclick == true) {
+                        x[0].click();
+                    }
+                }
+            }
         }
     });
     inp.getSearchList = function(data) {
@@ -130,11 +147,13 @@ function autocomplete(inp) {
         let hash = e.target.children.namedItem("hash").value;
         if (searchresults[hash].argument == null) {
             snipWrite(hash);
-        } else if (searchresults[hash].argument.length <= 0) {
+        } else { // if (searchresults[hash].argument.length <= 0) {
             snipWrite(hash);
-        } else {
-            //draw the list of questions and display the box
-            argumentList.populateVarsList(hash);
+        // } else {
+        //     //draw the list of questions and display the box
+        //     //argumentList.populateVarsList(hash);
+        //     populateArgumentsList(document.getElementById("box-vars"), hash);
+        // }
         }
         closeAllLists(e.target);
     });
@@ -148,18 +167,26 @@ function saveform() {
     document.getElementById('box-addnew').style.display='';
 }
 
-let argumentList = {
-    hash: -1,
-    args: [],
-    populateVarsList: function(hash) {
+function populateArgumentsList(cont, hashid) {
+//let argumentList = {
+    hash = -1;
+    args = [];
+    container = undefined;
+
+    populateVarsList(cont, hashid);
+
+    function populateVarsList(cont, hash) {
         this.args = searchresults[hash].argument;
         this.hash = hash;
-        document.getElementById("variable-list").innerHTML = "";
+        this.container = document.getElementById("variable-list");
+
+        this.container.innerHTML = "";
         // a = document.createElement("DIV");
         // a.setAttribute("id", this.id + "");
         // a.setAttribute("class", "autocomplete-items");
         /*append the DIV element as a child of the autocomplete container:*/
-        // document.getElementById("variable-list").appendChild(a);
+        // this.container.appendChild(a);
+        let strautofocus = "autofocus";
         for (var key in this.args) {
             /*create a DIV element for each matching element:*/
             n = this.args[key].name;
@@ -168,18 +195,39 @@ let argumentList = {
                 if (v == undefined) { v = "" }
                 b = document.createElement("DIV");
                 b.innerHTML += "<label class='varList' for='var" + key + "'>" + n + ":</label><br>";
-                b.innerHTML += "<input class='varList' type='text' id='var" + key + "' value='" + v + "'>";
+                b.innerHTML += "<input class='varList' type='text' id='var" + key + "' value='" + v + "' " + strautofocus + ">";
                 // a.appendChild(b);
-                document.getElementById("variable-list").appendChild(b);
+                strautofocus = "";
+                b.addEventListener("keydown", function(e) {
+                    if (e.keyCode == 13) {
+                        /*If the ENTER key is pressed, prevent the form from being submitted,*/
+                        e.preventDefault();
+                        let iid = document.activeElement.id;
+                        let nodes = document.getElementById("variable-list").childNodes
+                        for (let i=0; i<nodes.length; i++) {
+                            let nid = nodes[i].getElementsByTagName("input").item("").id;
+                            if (nid == iid) {
+                                if (i + 1 >= nodes.length) {
+                                    document.getElementById("btnOkVars").focus();
+                                } else {
+                                    nodes[i + 1].getElementsByTagName("input")[0].focus();
+                                }
+                            } 
+                        }
+                    }
+                });
+                this.container.appendChild(b);
             }
         }
-        document.getElementById("box-vars").style.display="block";
-    },
-    write: function() {
-        let nodes = document.getElementById("variable-list").childNodes;
-        for (let i=0; i<nodes.length; i++) {
-            this.args[i].value = nodes[i].childNodes[2].value;
-        }
-        snipWrite(this.hash, JSON.stringify(this.args));
+        cont.style.display="block";
     }
+
+    document.getElementById("btnOkVars").addEventListener("click", function(e) {
+        // let nodes = this.container.childNodes;
+        let nodes = document.getElementById("variable-list").childNodes
+        for (let i=0; i<nodes.length; i++) {
+            args[i].value = nodes[i].getElementsByTagName("input")[0].value;
+        }
+        snipWrite(hash, JSON.stringify(args));
+    });
 }
