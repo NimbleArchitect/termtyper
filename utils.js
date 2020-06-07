@@ -1,5 +1,5 @@
 
-const autoclick = false;
+const autoclick = true;
 
 
 let prevlistitem = -1;
@@ -9,6 +9,20 @@ let listselect = undefined;
 let list = undefined;
 let searchresults = [];
 
+
+document.addEventListener('keydown', (e) => {
+    if (e.altKey == true) { //alt key is pressed so these are modifires
+        if (e.keyCode == 65 ) { //A - run with args
+            document.getElementById("btnWithArgs").click();
+        }
+        if (e.keyCode == 78 ) { //N - new snippet
+            document.getElementById("btnNew").click();
+        }
+        if (e.keyCode == 69 ) { //E - edit snippet
+
+        }
+    }
+});
 document.addEventListener('keyup', (e) => {
     if (e.keyCode === 27) {
         // let txt = document.getElementById('searchbox').value;
@@ -20,7 +34,9 @@ function autocomplete(inp) {
     /*the autocomplete function takes two arguments,
     the text field element and an array of possible autocompleted values:*/
     var currentFocus;
-    
+    var hashid = -1;
+    var isReady = false;
+
     /*execute a function when someone writes in the text field:*/
     inp.addEventListener("input", function(e) {
         snipSearch(this.value).then(function(result) { 
@@ -46,23 +62,27 @@ function autocomplete(inp) {
         } else if (e.keyCode == 13) {
             /*If the ENTER key is pressed, prevent the form from being submitted,*/
             e.preventDefault();
+
+            if (countOpenLists() == 0) {
+                writeFromHash(hashid);
+            }
+
             if (currentFocus > -1) {
                 /*and simulate a click on the "active" item:*/
                 if (x) x[currentFocus].click();
             } else if (currentFocus == -1) {
                 if (x != null && x.length == 1) {
                     /*insert the value for the autocomplete text field:*/
-                    // currentFocus++;
-                    // addActive(x);
-                    // inp.value = x[currentFocus].textContent;
                     // // /*close the list of autocompleted values,
                     // // (or any other open lists of autocompleted values:*/
-                    // closeAllLists();
                     if (autoclick == true) {
+                        currentFocus++
                         x[0].click();
                     }
                 }
             }
+        } else {
+            isReady = false;
         }
     });
     inp.getSearchList = function(data) {
@@ -95,18 +115,18 @@ function autocomplete(inp) {
         this.parentNode.appendChild(a);
         for (i = 0; i < arr.length; i++) {
             searchresults[arr[i].hash] = arr[i];
-
             /*create a DIV element for each matching element:*/
             b = document.createElement("DIV");
             b.innerHTML += arr[i].name;
             /*insert a input field that will hold the current array item's value:*/
             b.innerHTML += "<input type='hidden' value='" + arr[i].name + "'>";
             b.innerHTML += "<input type='hidden' id='hash' value='" + arr[i].hash + "'>";
-            
             /*execute a function when someone clicks on the item value (DIV element):*/
             b.addEventListener("click", function(e) {
                 /*insert the value for the autocomplete text field:*/
                 inp.value = this.getElementsByTagName("input")[0].value;
+                hashid = this.children.namedItem("hash").value;
+                populateArgumentsList(hashid);
                 /*close the list of autocompleted values,
                 (or any other open lists of autocompleted values:*/
                 closeAllLists();
@@ -123,7 +143,7 @@ function autocomplete(inp) {
       if (currentFocus < 0) currentFocus = (x.length - 1);
       /*add class "autocomplete-active":*/
       x[currentFocus].classList.add("autocomplete-active");
-      let hashid = x[currentFocus].children.namedItem("hash").value;
+      hashid = x[currentFocus].children.namedItem("hash").value;
       document.getElementById('cmd2run').innerText = searchresults[hashid].code;
     }
     function removeActive(x) {
@@ -142,21 +162,16 @@ function autocomplete(inp) {
         }
       }
     }
-    /*execute a function when someone clicks in the document:*/
-    document.addEventListener("click", function (e) {
-        let hash = e.target.children.namedItem("hash").value;
-        if (searchresults[hash].argument == null) {
-            snipWrite(hash);
-        } else { // if (searchresults[hash].argument.length <= 0) {
-            snipWrite(hash);
-        // } else {
-        //     //draw the list of questions and display the box
-        //     //argumentList.populateVarsList(hash);
-        //     populateArgumentsList(document.getElementById("box-vars"), hash);
-        // }
+    function countOpenLists(elmnt) {
+        let counter = 0;
+        var x = document.getElementsByClassName("autocomplete-items");
+        for (var i = 0; i < x.length; i++) {
+            if (elmnt != x[i] && elmnt != inp) {
+              counter++;
+            }
         }
-        closeAllLists(e.target);
-    });
+        return counter;
+    }
   }
 
 function saveform() {
@@ -167,15 +182,23 @@ function saveform() {
     document.getElementById('box-addnew').style.display='';
 }
 
-function populateArgumentsList(cont, hashid) {
+function writeFromHash(hash) {
+    if (searchresults[hash].argument == null) {
+        snipWrite(hash);
+    } else { // if (searchresults[hash].argument.length <= 0) {
+        snipWrite(hash);
+    }
+}
+
+function populateArgumentsList(hashid) {
 //let argumentList = {
     hash = -1;
     args = [];
     container = undefined;
 
-    populateVarsList(cont, hashid);
+    populateVarsList(hashid);
 
-    function populateVarsList(cont, hash) {
+    function populateVarsList(hash) {
         this.args = searchresults[hash].argument;
         this.hash = hash;
         this.container = document.getElementById("variable-list");
@@ -219,7 +242,6 @@ function populateArgumentsList(cont, hashid) {
                 this.container.appendChild(b);
             }
         }
-        cont.style.display="block";
     }
 
     document.getElementById("btnOkVars").addEventListener("click", function(e) {

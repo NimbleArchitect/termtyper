@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/atotto/clipboard"
 	"strings"
@@ -31,7 +32,7 @@ func snip_search(data string) string {
 		itmarg := getArguments(itm.Code)
 		itm.Argument = itmarg
 		foundSnips = append(foundSnips, itm)
-		fmt.Println(foundSnips)
+		//fmt.Println(foundSnips)
 	}
 	str, _ := json.Marshal(foundSnips)
 	return string(str)
@@ -42,7 +43,10 @@ func snip_write(hash string, vars ...string) error {
 	var data string
 	var args []SnipArgs
 
-	//fmt.Println("** " + hash)string, values []
+	if len(hash) <= 0 {
+		return errors.New("no hash id specified")
+	}
+
 	snips := dbgetID(hash)
 	if len(vars) > 0 {
 		json.Unmarshal([]byte(vars[0]), &args)

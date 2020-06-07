@@ -188,29 +188,48 @@ func dbfind(field string, searchfor string) []Snipitem {
 	return snip
 }
 
-func getArgumentList(text string) []string {
+func getArgumentPos(text string) ([][]int, bool) {
+	var ok bool
+	var matches [][]int
+
+	if len(text) > 0 {
+		regexstring := regexp.MustCompile("{:[A-Za-z! ]+?:}")
+		matches = regexstring.FindAllStringIndex(text, -1)
+		ok = true
+	} else {
+		ok = false
+	}
+	if len(matches) <= 0 {
+		ok = false
+	}
+
+	return matches, ok
+}
+
+func getArgumentList(text string) ([]string, bool) {
+	var ok bool
 	var matches []string
 
 	if len(text) > 0 {
 		regexstring := regexp.MustCompile("{:[A-Za-z! ]+?:}")
 		matches = regexstring.FindAllString(text, -1)
+		ok = true
+	} else {
+		ok = false
+	}
+	if len(matches) <= 0 {
+		ok = false
 	}
 
-	return matches
+	return matches, ok
 }
 
 func getArguments(text string) []SnipArgs {
 	var namelist []SnipArgs
 	var varlist []string
 
-	if len(text) > 0 {
-		regexstring := regexp.MustCompile("{:[A-Za-z! ]+?:}")
-		varlist = regexstring.FindAllString(text, -1)
-	} else {
-		return namelist
-	}
-
-	if len(varlist) <= 0 {
+	varlist, ok := getArgumentList(text)
+	if ok == false {
 		return namelist
 	}
 
@@ -219,16 +238,15 @@ func getArguments(text string) []SnipArgs {
 		//var pos is start and end locations in array
 		vars := strings.Split(varpos, ":")
 		varname := strings.Split(vars[1], "!")
-		fmt.Println(varname)
 		if len(varname) == 1 {
 			varitem = SnipArgs{
-				Name:  varname[0],
+				Name:  strings.TrimSpace(varname[0]),
 				Value: "",
 			}
 		} else if len(varname) == 2 {
 			varitem = SnipArgs{
-				Name:  varname[0],
-				Value: varname[1],
+				Name:  strings.TrimSpace(varname[0]),
+				Value: strings.TrimSpace(varname[1]),
 			}
 		}
 		namelist = append(namelist, varitem)
@@ -238,16 +256,39 @@ func getArguments(text string) []SnipArgs {
 
 //TODO: check vars is valid, check snips.code has something
 func argumentReplace(vars []SnipArgs, code string) string {
+	var newcode string
+	var val string
 
 	if len(code) <= 0 {
 		return ""
 	}
 	itmarg := getArguments(code)
+	argPos, _ := getArgumentPos(code)
 	//spin through all arguments and replace variables as needed
-	for _, itm := range itmarg {
-		fmt.Println(itm.Name)
-		//TODO:
+	itmlen := len(itmarg) - 1
+
+	newcode = code
+	for i := itmlen; i >= 0; i-- {
+		itm := itmarg[i]
+		//make sure the incomming argument name matches the
+		if itm.Name != vars[i].Name {
+			return ""
+		}
+
+		if len(vars[i].Value) > 0 {
+			val = vars[i].Value //incomming value is valid so use that
+		} else if len(itm.Value) > 0 {
+			val = itm.Value //incoming value not valid but we have a default value so use it
+		} else {
+			val = "{" + itm.Name + "}" //nothing is valid so we default to the name in braces
+		}
+
+		itmpos := argPos[i] //start and end pos of txt to replace
+		s := itmpos[0]
+		e := itmpos[1]
+
+		newcode = newcode[:s] + val + newcode[e:]
 	}
 
-	return itmarg[0].Value
+	return newcode
 }
