@@ -50,10 +50,8 @@ func snip_write(hash string, vars ...string) error {
 	snips := dbgetID(hash)
 	if len(vars) > 0 {
 		json.Unmarshal([]byte(vars[0]), &args)
-		data = argumentReplace(args, snips.Code)
-	} else {
-		data = snips.Code
 	}
+	data = argumentReplace(args, snips.Code)
 	scanner := bufio.NewScanner(strings.NewReader(data))
 
 	for scanner.Scan() {

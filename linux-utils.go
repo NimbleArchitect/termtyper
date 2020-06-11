@@ -44,7 +44,7 @@ func sendline(singleline string) {
 	go func() {
 		stdin.Write([]byte(singleline + "\n"))
 	}()
-	//cmd.Wait()
+
 	err = cmd.Wait()
 	timer.Stop()
 }

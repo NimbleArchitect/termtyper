@@ -100,7 +100,6 @@ func searchandpaste(datapath string) {
 	w.Bind("snipWrite", snip_write)
 	w.Bind("snipClose", snip_close)
 	w.Bind("snipSave", snip_save)
-	//w.Bind("snipGetVarList", snip_getvars)
 	w.Run()
 }
 
@@ -266,16 +265,25 @@ func argumentReplace(vars []SnipArgs, code string) string {
 	argPos, _ := getArgumentPos(code)
 	//spin through all arguments and replace variables as needed
 	itmlen := len(itmarg) - 1
-	if (len(vars) - 1) != itmlen {
-		return ""
+	varlen := len(vars) - 1
+	if varlen < 0 {
+		varlen = 0
 	}
 
+	if varlen != itmlen {
+		emptyarg := SnipArgs{Name: "", Value: ""}
+		for c := varlen; c <= itmlen; c++ {
+			vars = append(vars, emptyarg)
+		}
+	}
 	newcode = code
 	for i := itmlen; i >= 0; i-- {
 		itm := itmarg[i]
 		//make sure the incomming argument name matches the
 		if itm.Name != vars[i].Name {
-			return ""
+			if vars[i].Name != "" {
+				return ""
+			}
 		}
 
 		if len(vars[i].Value) > 0 {
@@ -283,7 +291,7 @@ func argumentReplace(vars []SnipArgs, code string) string {
 		} else if len(itm.Value) > 0 {
 			val = itm.Value //incoming value not valid but we have a default value so use it
 		} else {
-			val = "{:" + itm.Name + ":}" //nothing is valid so we default to the name in braces
+			val = "{" + itm.Name + "}" //nothing is valid so we default to the name in braces
 		}
 
 		itmpos := argPos[i] //start and end pos of txt to replace
