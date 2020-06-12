@@ -1,6 +1,7 @@
 
 const autoclick = true;
-
+const inlineStatus = true;
+const statusFooter = false;
 
 let prevlistitem = -1;
 let currentlistitem = -1;
@@ -46,7 +47,7 @@ function autocomplete(inp) {
     /*execute a function presses a key on the keyboard:*/
     inp.addEventListener("keydown", function(e) {
         var x = document.getElementById(this.id + "autocomplete-list");
-        if (x) x = x.getElementsByTagName("div");
+        if (x) x = x.getElementsByClassName("autocomplete-items-div");
         if (e.keyCode == 40) {
             /*If the arrow DOWN key is pressed,
             increase the currentFocus variable:*/
@@ -115,7 +116,15 @@ function autocomplete(inp) {
             searchresults[arr[i].hash] = arr[i];
             /*create a DIV element for each matching element:*/
             b = document.createElement("DIV");
+            b.setAttribute("class", "autocomplete-items-div");
             b.innerHTML += arr[i].name;
+            if (inlineStatus == true) {
+                schinfo = "<div class='searchcmd'>" + arr[i].code + "</div>";
+                if (arr[i].tags != undefined) {
+                    schinfo += "<div class='searchtag'>tag: </div>";
+                }
+                b.innerHTML += "<div class='searchinfo'>" + schinfo + "</div>";
+            }
             /*insert a input field that will hold the current array item's value:*/
             b.innerHTML += "<input type='hidden' value='" + arr[i].name + "'>";
             b.innerHTML += "<input type='hidden' id='hash' value='" + arr[i].hash + "'>";
@@ -142,7 +151,9 @@ function autocomplete(inp) {
         /*add class "autocomplete-active":*/
         x[currentFocus].classList.add("autocomplete-active");
         hashid = x[currentFocus].children.namedItem("hash").value;
-        document.getElementById('cmd2run').innerText = searchresults[hashid].code;
+        if (statusFooter == true) {
+            document.getElementById('cmd2run').innerText = searchresults[hashid].code;
+        }
     }
     function removeActive(x) {
         /*a function to remove the "active" class from all autocomplete items:*/

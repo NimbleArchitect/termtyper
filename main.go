@@ -92,7 +92,7 @@ func searchandpaste(datapath string) {
 	w = webview.New(debug)
 	defer w.Destroy()
 	w.SetTitle("snip search")
-	w.SetSize(600, 400, webview.HintNone)
+	w.SetSize(800, 400, webview.HintNone)
 	//w.Navigate("data:text/html," + html)
 	w.Navigate("file://" + datapath + "/searchpage.html")
 	w.Bind("snipSearch", snip_search)

@@ -150,7 +150,7 @@ input[type=submit] {
 	z-index: 99;
 }
 
-.autocomplete-items div {
+.autocomplete-items-div {
 	background-color: #fff; 
 	background-image: url('search.png');
 	background-position: 10px 12px;
@@ -172,4 +172,25 @@ input[type=submit] {
 .autocomplete-active {
 	background-color: DodgerBlue !important; 
 	color: #ffffff; 
+}
+
+.searchinfo div:hover {
+	background-color: #e9e9e9; 
+}
+
+.searchinfo {
+	padding-left: 10px;
+	margin-bottom: 5px;
+	color: gray;
+	overflow: hidden;
+}
+
+.searchtag {
+	float: left;
+	width: 25%;
+}
+
+.searchcmd {
+	float: left;
+	width: 75%;
 }

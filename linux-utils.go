@@ -10,9 +10,7 @@ import (
 )
 
 func typeSnippet(text []string) {
-	w.Minimize()
 
-	time.Sleep(1 * time.Second)
 	count := len(text)
 	for i := 0; i < count; i++ {
 		sendline(text[i])
