@@ -12,8 +12,12 @@ keyboard.release(Key.tab)
 keyboard.release(Key.alt)
 
 sleep(1.2)
-line = sys.stdin.readline()
-if str.strip(line) == "{ENTER}":
-    keyboard.type("\n")
-else:
-    keyboard.type(str.rstrip(line))
+
+while True:
+    line = sys.stdin.readline()
+    if str.strip(line) == "{TIME2QUIT}":
+        break
+    if str.strip(line) == "{ENTER}":
+        keyboard.type("\n")
+    else:
+        keyboard.type(str.rstrip(line))

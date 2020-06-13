@@ -2,7 +2,7 @@
 // to build install sudo dnf install gtk3-devel webkit2gtk3-devel
 // go get github.com/zserge/webview
 // go get github.com/atotto/clipboard
-// go get github.com/go-vgo/robotgo
+// go get github.com/mattn/go-sqlite3
 // sudo dnf install libxkbcommon-devel libXtst-devel libxkbcommon-x11-devel xorg-x11-xkb-utils-devel libpng-devel xsel xclip
 
 package main
@@ -10,8 +10,8 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"github.com/NimbleArchitect/webview"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/zserge/webview"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -253,7 +253,7 @@ func getArguments(text string) []SnipArgs {
 	return namelist
 }
 
-//TODO: check vars is valid, check snips.code has something
+//search code looing for arguments, replace with values from SnipArgs
 func argumentReplace(vars []SnipArgs, code string) string {
 	var newcode string
 	var val string
@@ -261,8 +261,8 @@ func argumentReplace(vars []SnipArgs, code string) string {
 	if len(code) <= 0 {
 		return ""
 	}
-	itmarg := getArguments(code)
-	argPos, _ := getArgumentPos(code)
+	itmarg := getArguments(code)      // get array of arguments from code
+	argPos, _ := getArgumentPos(code) // get array or argument start/end positions
 	//spin through all arguments and replace variables as needed
 	itmlen := len(itmarg) - 1
 	varlen := len(vars) - 1
@@ -270,10 +270,10 @@ func argumentReplace(vars []SnipArgs, code string) string {
 		varlen = 0
 	}
 
-	if varlen != itmlen {
+	if varlen != itmlen { // itmlen is not the same length as varlen
 		emptyarg := SnipArgs{Name: "", Value: ""}
 		for c := varlen; c <= itmlen; c++ {
-			vars = append(vars, emptyarg)
+			vars = append(vars, emptyarg) //so add enough empty values to our vars array this helps the for loop below
 		}
 	}
 	newcode = code

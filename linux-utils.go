@@ -11,19 +11,6 @@ import (
 
 func typeSnippet(text []string) {
 
-	count := len(text)
-	for i := 0; i < count; i++ {
-		sendline(text[i])
-		if i < (count - 1) {
-			sendline("{ENTER}")
-		}
-	}
-
-	w.Terminate()
-}
-
-//TODO: convert this to a proper sendkeys command using X11
-func sendline(singleline string) {
 	//start hacky python program
 	execpath := getprogPath()
 	cmd := exec.Command(execpath + "/key.py")
@@ -36,13 +23,29 @@ func sendline(singleline string) {
 		log.Fatalf("Error starting program: %s, %s", cmd.Path, err.Error())
 	}
 
-	timer := time.AfterFunc(5*time.Second, func() {
+	timer := time.AfterFunc(6*time.Second, func() {
 		cmd.Process.Kill()
 	})
+
+	//fire seperate thread so we can send to stdin
 	go func() {
-		stdin.Write([]byte(singleline + "\n"))
+		//send keys to type to stdin of python script :(
+		count := len(text)
+		for i := 0; i < count; i++ {
+			singleline := text[i]
+			if i < (count - 1) { //more than one line and we are not on the last
+				stdin.Write([]byte(singleline + "\n")) //sent line of text
+				stdin.Write([]byte("{ENTER}\n"))       //now move to the next line
+			} else {
+				stdin.Write([]byte(singleline + "\n")) //write the last or only line
+			}
+		}
+		//now we sent the exit string, so python quits it's loop
+		stdin.Write([]byte("{TIME2QUIT}\n"))
 	}()
 
 	err = cmd.Wait()
 	timer.Stop()
+
+	w.Terminate()
 }
