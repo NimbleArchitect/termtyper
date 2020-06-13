@@ -1,5 +1,17 @@
 body {
 	background-color: darkgray;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+}
+
+#menu {
+	background-color: lightgrey;
+	top: 0;
+	left: 0;
+	width: 100%;
+	display: block;
+	padding: 2px 2px 2px 10px;
 }
 
 .button {
@@ -16,6 +28,7 @@ body {
 }
 
 #footer {
+	display: none;
 	bottom: 0;
 	width: 100%;
 	left: 0;

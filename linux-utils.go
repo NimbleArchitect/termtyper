@@ -27,7 +27,7 @@ func typeSnippet(text []string) {
 		cmd.Process.Kill()
 	})
 
-	//fire seperate thread so we can send to stdin
+	//fire separate thread so we can send to stdin
 	go func() {
 		//send keys to type to stdin of python script :(
 		count := len(text)

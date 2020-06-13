@@ -66,10 +66,12 @@ func main() {
 		fmt.Println("99")
 	}
 	execpath := getprogPath()
+	//TODO: set up to support arguments to show the search window, I can then show a managment window by default
 	searchandpaste(execpath)
 	database.Close()
 }
 
+//return path to this running program
 func getprogPath() string {
 	var dirAbsPath string
 	ex, err := os.Executable()
@@ -91,8 +93,8 @@ func getprogPath() string {
 func searchandpaste(datapath string) {
 	w = webview.New(debug)
 	defer w.Destroy()
-	w.SetTitle("snip search")
-	w.SetSize(800, 400, webview.HintNone)
+	w.SetTitle("termtyper")
+	w.SetSize(800, 600, webview.HintNone)
 	//w.Navigate("data:text/html," + html)
 	w.Navigate("file://" + datapath + "/searchpage.html")
 	w.Bind("snipSearch", snip_search)
@@ -119,6 +121,7 @@ func opendb(dbpath string) (*sql.DB, bool) {
 	return db, true
 }
 
+// returns a Snipitem that represents the hashid from the database table
 func dbgetID(hash string) Snipitem {
 	var snip Snipitem
 	var id int
@@ -151,7 +154,9 @@ func dbgetID(hash string) Snipitem {
 	return snip
 }
 
+// search for a record name that has a wildcard match to field and return a Snipitem that represents the match
 func dbfind(field string, searchfor string) []Snipitem {
+	//TODO: search search for matching tags
 	var snip []Snipitem
 	var id int
 	var name string
@@ -187,6 +192,7 @@ func dbfind(field string, searchfor string) []Snipitem {
 	return snip
 }
 
+// returns a list of start and end positions of each argument, found in text
 func getArgumentPos(text string) ([][]int, bool) {
 	var ok bool
 	var matches [][]int
@@ -205,6 +211,7 @@ func getArgumentPos(text string) ([][]int, bool) {
 	return matches, ok
 }
 
+// return string array of arguments found in text
 func getArgumentList(text string) ([]string, bool) {
 	var ok bool
 	var matches []string
@@ -223,31 +230,36 @@ func getArgumentList(text string) ([]string, bool) {
 	return matches, ok
 }
 
+//search text looking for arguments returns array of SnipArgs
 func getArguments(text string) []SnipArgs {
 	var namelist []SnipArgs
 	var varlist []string
+	var varitem SnipArgs
 
 	varlist, ok := getArgumentList(text)
-	if ok == false {
+	if ok == false { //no arguments found in text
 		return namelist
 	}
 
-	var varitem SnipArgs
 	for _, varpos := range varlist {
 		//var pos is start and end locations in array
-		vars := strings.Split(varpos, ":")
-		varname := strings.Split(vars[1], "!")
-		if len(varname) == 1 {
+		vars := strings.Split(varpos, ":")     //arguments are enclosed in : so we remove those first
+		varname := strings.Split(vars[1], "!") // default values for arguments can be found after !
+		if len(varname) == 1 {                 // ! is optional so check if argument dosent have a default value
 			varitem = SnipArgs{
 				Name:  strings.TrimSpace(varname[0]),
 				Value: "",
 			}
-		} else if len(varname) == 2 {
+		} else if len(varname) == 2 { //argument has a default value
 			varitem = SnipArgs{
 				Name:  strings.TrimSpace(varname[0]),
 				Value: strings.TrimSpace(varname[1]),
 			}
+		} else {
+			// multipule defaults values have been suppilied so write warning
+			fmt.Println("WARNING: multipule default values detected.")
 		}
+
 		namelist = append(namelist, varitem)
 	}
 	return namelist
@@ -279,10 +291,10 @@ func argumentReplace(vars []SnipArgs, code string) string {
 	newcode = code
 	for i := itmlen; i >= 0; i-- {
 		itm := itmarg[i]
-		//make sure the incomming argument name matches the
+		//make sure the incomming argument name matches the variable in the code
 		if itm.Name != vars[i].Name {
-			if vars[i].Name != "" {
-				return ""
+			if vars[i].Name != "" { //vars name could of been added above so can be empty
+				return "" // refuse and exit function if name wasn't empty
 			}
 		}
 

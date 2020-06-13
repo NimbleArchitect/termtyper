@@ -27,7 +27,7 @@ func snip_search(data string) string {
 		return ""
 	}
 
-	snips := dbfind("name", data)
+	snips := dbfind("name", data) //search the name field in the snip table
 	for _, itm := range snips {
 		itmarg := getArguments(itm.Code)
 		itm.Argument = itmarg
