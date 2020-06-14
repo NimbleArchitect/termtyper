@@ -19,7 +19,8 @@ import (
 	"time"
 )
 
-const debug = true
+const debug bool = true
+const appName string = "termtyper"
 
 type Snipitem struct {
 	ID       int        `json:"hash"`
@@ -50,15 +51,15 @@ func main() {
 	if err != nil {
 		panic("Unable to get users profile folder")
 	}
-
-	if _, err := os.Stat(datapath + "/.snippets"); err != nil {
-		err = os.Mkdir(datapath+"/.snippets", 0770)
+	fldrName := datapath + "/." + appName
+	if _, err := os.Stat(fldrName); err != nil {
+		err = os.Mkdir(fldrName, 0770)
 		if err != nil {
-			panic("unable to create folder ~/.snippets")
+			panic("unable to create folder ~/." + appName)
 		}
 	}
 
-	database, _ = opendb(datapath + "/.snippets/snippets.db")
+	database, _ = opendb(fldrName + "/snippets.db")
 	// if ok == true {
 	// 	//defer database.Close()
 	// }
@@ -93,7 +94,7 @@ func getprogPath() string {
 func searchandpaste(datapath string) {
 	w = webview.New(debug)
 	defer w.Destroy()
-	w.SetTitle("termtyper")
+	w.SetTitle(appName)
 	w.SetSize(800, 600, webview.HintNone)
 	//w.Navigate("data:text/html," + html)
 	w.Navigate("file://" + datapath + "/searchpage.html")

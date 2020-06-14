@@ -1,12 +1,21 @@
+/* colours 
+lighter 
+ #dbe5ff
+ #678ffe
+ #0247fe
+ #012998
+ #091534 
+darker */
+
 body {
-	background-color: darkgray;
+	background-color: #678ffe;
 	margin: 0;
 	padding: 0;
 	overflow: hidden;
 }
 
 #menu {
-	background-color: lightgrey;
+	background-color: #012998;
 	top: 0;
 	left: 0;
 	width: 100%;
@@ -15,9 +24,9 @@ body {
 }
 
 .button {
-	border: 1px solid transparent;
-	background-color: #f1f1f1;
-	color: black;
+	border: 1px solid #012998;;
+	background-color: #dbe5ff;
+	color: #091534;
 	font-size: 16px;
 	padding: 10px;
 }
@@ -38,8 +47,6 @@ body {
 }
 
 #box-search {
-	background-color: darkgray;
-	border: 2px solid lightgrey;
 	bottom: 15px;
 	left: 15px;
 	margin: 15px;
@@ -49,8 +56,8 @@ body {
 }
 
 #box-addnew {
-	background-color: darkgray;
-	border: 2px solid lightgrey;
+	background-color: #c7d3f5;
+	border: 2px solid #c7d3f5;
 	bottom: 15px;
 	box-sizing: border-box;
 	display: none;
@@ -63,7 +70,8 @@ body {
 }
 
 #code {
-	border: 1px solid #ddd; /* Add a grey border */
+	background-color: #dbe5ff;
+	border: 1px solid #012998; /* Add a grey border */
 	font-size: 16px; /* Increase font-size */
 	height: 150px;
 	margin-bottom: 2px; /* Add some space below the input */
@@ -72,7 +80,8 @@ body {
 }
 
 #title {
-	border: 1px solid #ddd; /* Add a grey border */
+	background-color: #dbe5ff;
+	border: 1px solid #012998; /* Add a grey border */
 	font-size: 14px; /* Increase font-size */
 	margin-bottom: 2px; /* Add some space below the input */
 	padding: 12px 20px 12px 20px; /* Add some padding */
@@ -88,7 +97,7 @@ body {
 }
 
 #searchbox {
-	background-color: #f1f1f1;
+	background-color: #dbe5ff;
 	background-image: url('search.png');
 	background-position: 10px 12px;
 	background-repeat: no-repeat;
@@ -102,11 +111,11 @@ body {
 }
 
 #box-vars {
-	background-color: darkgray;
-	border: 2px solid lightgrey;
+	background-color: #dbe5ff;
+	border: 2px solid #012998;
 	display: none;
 	height: 70%;
-	margin-left: 10px;
+	margin: 10px;
 	padding: 10px;
 	position: absolute;
 	top: 5%;
@@ -133,27 +142,21 @@ input.varList {
 }
 
 input {
-	background-color: #f1f1f1;
+	background-color: #c7d3f5;
 	border: 1px solid transparent;
 	font-size: 16px;
 	padding: 10px;
 }
 
 input[type=text] {
-	background-color: #f1f1f1;
-	border: 1px solid #ddd;
+	background-color: #dbe5ff;
+	border: 1px solid #091534;
 	font-size: 14px;
 	width: 650px;
 }
 
-input[type=submit] {
-	background-color: DodgerBlue;
-	color: #fff;
-	cursor: pointer;
-}
-
 .autocomplete-items {
-	border: 1px solid #d4d4d4;
+	border: 1px solid #dbe5ff;
 	border-bottom: none;
 	border-top: none;
 	left: 0;
@@ -164,11 +167,11 @@ input[type=submit] {
 }
 
 .autocomplete-items-div {
-	background-color: #fff; 
+	background-color: #dbe5ff; 
 	background-image: url('search.png');
 	background-position: 10px 12px;
 	background-repeat: no-repeat;
-	border-bottom: 1px solid #d4d4d4; 
+	border-bottom: 1px solid #091534; 
 	cursor: pointer;
 	font-size: 14px;
 	padding: 10px;
@@ -178,23 +181,20 @@ input[type=submit] {
 
 /*when hovering an item:*/
 .autocomplete-items div:hover {
-	background-color: #e9e9e9; 
+	background-color: #c7d3f5; 
+	color: #012998; 
 }
 
 /*when navigating through the items using the arrow keys:*/
 .autocomplete-active {
-	background-color: DodgerBlue !important; 
-	color: #ffffff; 
-}
-
-.searchinfo div:hover {
-	background-color: #e9e9e9; 
+	background-color: #012998 !important; 
+	color: #c7d3f5; 
 }
 
 .searchinfo {
 	padding-left: 10px;
 	margin-bottom: 5px;
-	color: gray;
+	color: #6d8ee8;
 	overflow: hidden;
 }
 
