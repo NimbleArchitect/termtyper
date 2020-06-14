@@ -12,7 +12,7 @@ press your selected keyboard combination to open termtyper, search for your sele
 I have way too many terminal commands to remember and I got fed up with using a text editor to remember all the commands.
 
 ## Getting Started
-termtype dosent have any commands stored by default so you will have to add them yourself to do so open the app and click on the new button (ctl + n)
+termtype dosent have any commands stored by default so you will have to add them yourself to do so open the app and click on the new button (alt + n)
 
 ## Installation
 
