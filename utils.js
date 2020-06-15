@@ -192,15 +192,12 @@ function saveform() {
 }
 
 function writeFromHash(hash) {
-    if (searchresults[hash].argument == null) {
-        snipWrite(hash);
-    } else { // if (searchresults[hash].argument.length <= 0) {
+    if (len(hash) >= 1) {
         snipWrite(hash);
     }
 }
 
 function populateArgumentsList(hashid) {
-//let argumentList = {
     hash = -1;
     args = [];
     container = undefined;
