@@ -192,7 +192,8 @@ function saveform() {
 }
 
 function writeFromHash(hash) {
-    if (len(hash) >= 1) {
+    //make sure we have something as a value
+    if (hash.length >= 1) {
         snipWrite(hash);
     }
 }

@@ -23,6 +23,7 @@ import (
 const debug bool = true
 const loglevel int = 1
 const appName string = "termtyper"
+const regexMatch string = "{:[A-Za-z_-]+?.+:}"
 
 type Snipitem struct {
 	ID       int        `json:"hash"`
@@ -71,6 +72,16 @@ func main() {
 	execpath := getprogPath()
 	//TODO: set up to support arguments to show the search window, I can then show a managment window by default
 	searchandpaste(execpath)
+	// progargs := os.Args[1:]
+	// switch progargs[1] {
+	// case 1:
+	// 	fmt.Println("one")
+	// case 2:
+	// 	fmt.Println("two")
+	// case 3:
+	// 	fmt.Println("three")
+	// }
+
 	database.Close()
 }
 
@@ -128,6 +139,21 @@ func searchandpaste(datapath string) {
 	w.Bind("snipSearch", snip_search)
 	w.Bind("toclipboard", snip_copy)
 	w.Bind("snipWrite", snip_write)
+	w.Bind("snipClose", snip_close)
+	w.Bind("snipSave", snip_save)
+	w.Run()
+}
+
+func newfromcommand(datapath string) {
+	w = webview.New(debug)
+	defer w.Destroy()
+	w.SetTitle(appName)
+	w.SetSize(800, 600, webview.HintNone)
+	//w.Navigate("data:text/html," + html)
+	w.Navigate("file://" + datapath + "/createnew.html")
+	//w.Bind("snipSearch", snip_search)
+	//w.Bind("toclipboard", snip_copy)
+	//w.Bind("snipWrite", snip_write)
 	w.Bind("snipClose", snip_close)
 	w.Bind("snipSave", snip_save)
 	w.Run()
@@ -225,7 +251,7 @@ func getArgumentPos(text string) ([][]int, bool) {
 	var matches [][]int
 	logDebug("F:getArgumentPos:start")
 	if len(text) > 0 {
-		regexstring := regexp.MustCompile("{:[A-Za-z0-9! ]+?:}")
+		regexstring := regexp.MustCompile(regexMatch)
 		matches = regexstring.FindAllStringIndex(text, -1)
 		ok = true
 	} else {
@@ -245,7 +271,7 @@ func getArgumentList(text string) ([]string, bool) {
 	logDebug("F:getArgumentList:start =", text)
 
 	if len(text) > 0 {
-		regexstring := regexp.MustCompile("{:[A-Za-z0-9! ]+?:}")
+		regexstring := regexp.MustCompile(regexMatch)
 		matches = regexstring.FindAllString(text, -1)
 		ok = true
 	} else {
