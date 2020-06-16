@@ -44,7 +44,7 @@ var database *sql.DB
 var datapath string
 
 func main() {
-
+	var argument string
 	const html = `
 	<html><head></head><body>
 	Move along nothing to see here
@@ -71,16 +71,21 @@ func main() {
 	}
 	execpath := getprogPath()
 	//TODO: set up to support arguments to show the search window, I can then show a managment window by default
-	searchandpaste(execpath)
-	// progargs := os.Args[1:]
-	// switch progargs[1] {
-	// case 1:
-	// 	fmt.Println("one")
-	// case 2:
-	// 	fmt.Println("two")
-	// case 3:
-	// 	fmt.Println("three")
-	// }
+
+	progargs := os.Args[1:]
+	if len(progargs) >= 1 {
+		argument = progargs[0]
+	} else {
+		argument = ""
+	}
+	switch argument {
+	case "-n":
+		newfromcommand(execpath)
+	case "2":
+		fmt.Println("two")
+	default:
+		searchandpaste(execpath)
+	}
 
 	database.Close()
 }
@@ -151,11 +156,10 @@ func newfromcommand(datapath string) {
 	w.SetSize(800, 600, webview.HintNone)
 	//w.Navigate("data:text/html," + html)
 	w.Navigate("file://" + datapath + "/createnew.html")
-	//w.Bind("snipSearch", snip_search)
-	//w.Bind("toclipboard", snip_copy)
-	//w.Bind("snipWrite", snip_write)
 	w.Bind("snipClose", snip_close)
 	w.Bind("snipSave", snip_save)
+
+	w.Eval("document.onload = function(){var x = document.getElementById(\"title\").value=\"hello\"};")
 	w.Run()
 }
 
@@ -289,6 +293,7 @@ func getArguments(text string) []SnipArgs {
 	var namelist []SnipArgs
 	var varlist []string
 	var varitem SnipArgs
+
 	logDebug("F:getArguments:start")
 	varlist, ok := getArgumentList(text)
 	if ok == false { //no arguments found in text
@@ -301,13 +306,15 @@ func getArguments(text string) []SnipArgs {
 		vars := strings.Split(varpos, ":")     //arguments are enclosed in : so we remove those first
 		varname := strings.Split(vars[1], "!") // default values for arguments can be found after !
 		if len(varname) == 1 {                 // ! is optional so check if argument dosent have a default value
+			strName := cleanString(varname[0], "")
 			varitem = SnipArgs{
-				Name:  strings.TrimSpace(varname[0]),
+				Name:  strings.TrimSpace(strName),
 				Value: "",
 			}
 		} else if len(varname) == 2 { //argument has a default value
+			strName := cleanString(varname[0], "[A-Za-z-_.]+")
 			varitem = SnipArgs{
-				Name:  strings.TrimSpace(varname[0]),
+				Name:  strings.TrimSpace(strName),
 				Value: strings.TrimSpace(varname[1]),
 			}
 		} else {
@@ -319,6 +326,15 @@ func getArguments(text string) []SnipArgs {
 	}
 	logDebug("F:getArguments:return =", namelist)
 	return namelist
+}
+
+func cleanString(data string, regex string) string {
+	reg, err := regexp.Compile(regex)
+	if err != nil {
+		log.Fatal(err)
+	}
+	newstr := reg.ReplaceAllString(data, "")
+	return newstr
 }
 
 //search code looing for arguments, replace with values from SnipArgs
