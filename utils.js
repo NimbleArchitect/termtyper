@@ -260,3 +260,23 @@ function populateArgumentsList(hashid) {
         snipWrite(hash, JSON.stringify(args));
     });
 }
+
+function getCodeFromArguments(e) {
+    snipCodeFromArg().then(function(result) { 
+        //return populateCodeFromArg(result);
+        return function(result) {
+            if (result == undefined) return;
+            let json = JSON.parse(result);
+            if (json == null) return;
+            document.getElementById("code").value = json.code;
+        } (result);
+    })
+}
+
+function populateCodeFromArg(data) {
+    if (data == undefined) return;
+    let json = JSON.parse(data);
+    if (json == null) return;
+    
+    document.getElementById("code").value = json.code;
+}

@@ -3,9 +3,13 @@
 package main
 
 import (
+	"bufio"
+	"fmt"
+	"io"
 	"log"
 	"os"
 	"os/exec"
+	"strings"
 	"time"
 )
 
@@ -34,8 +38,8 @@ func typeSnippet(text []string) {
 		for i := 0; i < count; i++ {
 			singleline := text[i]
 			if i < (count - 1) { //more than one line and we are not on the last
-				stdin.Write([]byte(singleline + "\n")) //sent line of text
-				stdin.Write([]byte("{ENTER}\n"))       //now move to the next line
+				stdin.Write([]byte(singleline + " \\\n")) //sent line of text
+				stdin.Write([]byte("{ENTER}\n"))          //now move to the next line
 			} else {
 				stdin.Write([]byte(singleline + "\n")) //write the last or only line
 			}
@@ -48,4 +52,35 @@ func typeSnippet(text []string) {
 	timer.Stop()
 
 	w.Terminate()
+}
+
+func readStdin() string {
+	var retstr string
+
+	info, err := os.Stdin.Stat()
+	if err != nil {
+		panic(err)
+	}
+
+	if info.Mode()&os.ModeCharDevice != 0 {
+		fmt.Println("No Pipe found")
+		//return
+	}
+
+	reader := bufio.NewReader(os.Stdin)
+	var output []string
+
+	for {
+		input, _, err := reader.ReadRune()
+		if err != nil && err == io.EOF {
+			output = append(output, string(input))
+			break
+		}
+		output = append(output, string(input))
+	}
+
+	for j := 0; j < len(output); j++ {
+		retstr += output[j]
+	}
+	return strings.TrimSpace(retstr)
 }

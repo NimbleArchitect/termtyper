@@ -72,3 +72,11 @@ func snip_save(title string, code string) {
 	}
 	tx.Commit()
 }
+
+func snip_codeFromArg() string {
+	var thissnip Snipitem
+
+	thissnip.Code = codefromarg
+	str, _ := json.Marshal(thissnip)
+	return string(str)
+}

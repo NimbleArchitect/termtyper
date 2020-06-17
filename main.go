@@ -25,6 +25,8 @@ const loglevel int = 1
 const appName string = "termtyper"
 const regexMatch string = "{:[A-Za-z_-]+?.+:}"
 
+var codefromarg string = ""
+
 type Snipitem struct {
 	ID       int        `json:"hash"`
 	Time     time.Time  `json:"time"`
@@ -80,7 +82,10 @@ func main() {
 	}
 	switch argument {
 	case "-n":
+		fmt.Println(progargs)
+		codefromarg = readStdin()
 		newfromcommand(execpath)
+
 	case "2":
 		fmt.Println("two")
 	default:
@@ -158,8 +163,8 @@ func newfromcommand(datapath string) {
 	w.Navigate("file://" + datapath + "/createnew.html")
 	w.Bind("snipClose", snip_close)
 	w.Bind("snipSave", snip_save)
-
-	w.Eval("document.onload = function(){var x = document.getElementById(\"title\").value=\"hello\"};")
+	w.Bind("snipCodeFromArg", snip_codeFromArg)
+	w.Eval("window.addEventListener('load', function () { getCodeFromArguments(); });")
 	w.Run()
 }
 
@@ -168,7 +173,7 @@ func opendb(dbpath string) (*sql.DB, bool) {
 	db, err := sql.Open("sqlite3", dbpath)
 
 	if err != nil {
-		logError("unablet o open database")
+		logError("unable to open database")
 	}
 	ok := db.Ping()
 	if ok != nil {

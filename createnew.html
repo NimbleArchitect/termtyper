@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="mystyle.css">
+    <script type="text/javascript" src="utils.js"></script>
+</head><body>
+<div id="box-addnew" style="display: block;">
+    <form>
+        <label for="title">title:</label><br>
+        <input type="text" id="title" name="title"><br>
+        <label for="code">code:</label><br>
+        <textarea id="code" name="code"></textarea>
+        <div>
+            <button id="myBtn" class="button" onclick="snipClose()">Cancel</button>
+            <button id="myBtn" class="button" onclick="saveform();snipClose()">Save</button>
+        </div>
+    </form> 
+</div>
+</body></html>
