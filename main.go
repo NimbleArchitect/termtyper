@@ -21,9 +21,9 @@ import (
 )
 
 const debug bool = true
-const loglevel int = 1
+const loglevel int = 5
 const appName string = "termtyper"
-const regexMatch string = "{:[A-Za-z_-]+?.+:}"
+const regexMatch string = "{:[A-Za-z_-]+?.*:}"
 
 var codefromarg string = ""
 
@@ -310,14 +310,15 @@ func getArguments(text string) []SnipArgs {
 		//var pos is start and end locations in array
 		vars := strings.Split(varpos, ":")     //arguments are enclosed in : so we remove those first
 		varname := strings.Split(vars[1], "!") // default values for arguments can be found after !
-		if len(varname) == 1 {                 // ! is optional so check if argument dosent have a default value
-			strName := cleanString(varname[0], "")
+		logDebug("F:getArguments:varname =", varname)
+		logDebug("F:getArguments:len(varname) =", len(varname))
+		strName := cleanString(varname[0], "[^A-Za-z_.-]") //remove invalid chars from name
+		if len(varname) == 1 {                             // ! is optional so check if argument dosent have a default value
 			varitem = SnipArgs{
 				Name:  strings.TrimSpace(strName),
 				Value: "",
 			}
 		} else if len(varname) == 2 { //argument has a default value
-			strName := cleanString(varname[0], "[A-Za-z-_.]+")
 			varitem = SnipArgs{
 				Name:  strings.TrimSpace(strName),
 				Value: strings.TrimSpace(varname[1]),
@@ -334,11 +335,15 @@ func getArguments(text string) []SnipArgs {
 }
 
 func cleanString(data string, regex string) string {
+	logDebug("F:cleanString:start")
+	logDebug("F:cleanString:data =", data)
+
 	reg, err := regexp.Compile(regex)
 	if err != nil {
 		log.Fatal(err)
 	}
 	newstr := reg.ReplaceAllString(data, "")
+	logDebug("F:cleanString:return -", newstr)
 	return newstr
 }
 
