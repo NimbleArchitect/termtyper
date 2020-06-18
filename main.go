@@ -21,7 +21,7 @@ import (
 )
 
 const debug bool = true
-const loglevel int = 5
+const loglevel int = 1
 const appName string = "termtyper"
 const regexMatch string = "{:[A-Za-z_-]+?.*:}"
 
