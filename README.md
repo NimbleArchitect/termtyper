@@ -10,7 +10,7 @@ An autotyping assistant that eases the burdern of manually typing long commands
 Press your selected keyboard combination to open termtyper, search for your selected command using the arrow keys to navigate press enter to select the command and enter again to type the command into your active window
 
 ## Why?
-I have way too many terminal commands to remember and I got fed up with using a text editor to remember all the commands.
+I have way too many terminal commands to remember and I got fed up storing them all in a text editor.
 
 ## Getting Started
 termtype doesn't have any commands stored by default so you will have to add them yourself to do so open the app and click on the new button (alt + n), once saved you can search the commands by name.
