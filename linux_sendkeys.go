@@ -27,7 +27,7 @@ func SendKeys(text string) {
 		name := C.CString(string(code))
 		defer C.free(unsafe.Pointer(name))
 
-		C.Sendkey(name, mod, 0)
+		C.Sendkey(name, mod)
 	}
 }
 

@@ -17,122 +17,67 @@
 #  endif
 #endif
 
-//static char    *progname       = NULL;
-static char    *displayname    = NULL;
-static Window   window         = 0;
-static Display *display        = NULL;
-//static char     keyname[1024];
-//static int      shift          = 0;
-static int      keysym         = 0;
+static char *displayname = NULL;
+static int keysym = 0;
+static Display *display = NULL;
+static Window window = 0;
 
 
-int	MyErrorHandler(Display *my_display, XErrorEvent *event)
+int	KeyErrorHandler(Display *my_display, XErrorEvent *keyevent)
 {
     fprintf(stderr, "XSendEvent(0x%lx) failed.\n", window);
     return 1;
 }
 
-void SendEvent(XKeyEvent *event)
+void SendEvent(XKeyEvent *keyevent)
 {
     XSync(display, False);
-    XSetErrorHandler(MyErrorHandler);
-    XSendEvent(display, window, True, KeyPressMask, (XEvent*)event);
+    XSetErrorHandler(KeyErrorHandler);
+    XSendEvent(display, window, True, KeyPressMask, (XEvent*)keyevent);
     XSync(display, False);
     XSetErrorHandler(NULL);
 }
 
-void SendKeyPressedEvent(KeySym keysym, unsigned int shift)
-{
-    XKeyEvent		event;
+void SendKeyEvent(KeySym keysym, unsigned int shift) {
+    XKeyEvent keyevent;
 
-    // Meta not yet implemented (Alt used instead ;->)
-    int meta_mask=0;
+    keyevent.display = display;
+    keyevent.root = RootWindow(display, 0);
+    keyevent.same_screen = True;
+    keyevent.state	= 0;
+    keyevent.subwindow	= None;
+    keyevent.time = CurrentTime;
+    keyevent.type = KeyPress;
+    keyevent.window = window;
+    keyevent.x	= 1;
+    keyevent.x_root = 1;
+    keyevent.y	= 1;
+    keyevent.y_root = 1;
 
-    event.display	= display;
-    event.window	= window;
-    event.root		= RootWindow(display, 0); // XXX nonzero screens?
-    event.subwindow	= None;
-    event.time		= CurrentTime;
-    event.x		= 1;
-    event.y		= 1;
-    event.x_root	= 1;
-    event.y_root	= 1;
-    event.same_screen	= True;
-    event.type		= KeyPress;
-    event.state		= 0;
-
-    //
-    // press down shift keys one at a time...
-    //
-
-    if (shift & ShiftMask) {
-        //fprintf(stderr, "shift mask" );
-        event.keycode = XKeysymToKeycode(display, XK_Shift_L);
-        SendEvent(&event);
-        event.state |= ShiftMask;
-    }
-    if (shift & ControlMask) {
-        //fprintf(stderr, "ctrl mask" );
-        event.keycode = XKeysymToKeycode(display, XK_Control_L);
-        SendEvent(&event);
-        event.state |= ControlMask;
+    // shift key down if needed
+    if (shift == 1) {
+        keyevent.keycode = XKeysymToKeycode(display, XK_Shift_L);
+        SendEvent(&keyevent);
+        keyevent.state = 1;
     }
 
-    if (shift & Mod1Mask) {
-        //fprintf(stderr, "alt mask" );
-        event.keycode = XKeysymToKeycode(display, XK_Alt_L);
-        SendEvent(&event);
-        event.state |= Mod1Mask;
-    }
-    if (shift & meta_mask) {
-        event.keycode = XKeysymToKeycode(display, XK_Meta_L);
-        SendEvent(&event);
-        event.state |= meta_mask;
-    }
-
-    //
-    //  Now with shift keys held down, send event for the key itself...
-    //
-
-    //usleep( 40000 );
-    //fprintf(stderr, "sym: 0x%x\n", keysym);
+    // press the key
     if (keysym != NoSymbol) {
-        event.keycode = XKeysymToKeycode(display, keysym);
-        // fprintf(stderr, "code: 0x%x, %d\n", event.keycode, event.keycode );
-        SendEvent(&event);
-
-        event.type = KeyRelease;
-        SendEvent(&event);
+        keyevent.keycode = XKeysymToKeycode(display, keysym);
+        SendEvent(&keyevent);
+        keyevent.type = KeyRelease;
+        SendEvent(&keyevent);
     }
 
-    //
-    // Now release all the shift keys...
-    //
-
-    if (shift & ShiftMask) {
-        event.keycode = XKeysymToKeycode(display, XK_Shift_L);
-        SendEvent(&event);
-        event.state &= ~ShiftMask;
-    }
-    if (shift & ControlMask) {
-        event.keycode = XKeysymToKeycode(display, XK_Control_L);
-        SendEvent(&event);
-        event.state &= ~ControlMask;
-    }
-    if (shift & Mod1Mask) {
-        event.keycode = XKeysymToKeycode(display, XK_Alt_L);
-        SendEvent(&event);
-        event.state &= ~Mod1Mask;
-    }
-    if (shift & meta_mask) {
-        event.keycode = XKeysymToKeycode(display, XK_Meta_L);
-        SendEvent(&event);
-        event.state &= ~meta_mask;
+    //shift key up if it was down
+    if (shift == 1) {
+        keyevent.keycode = XKeysymToKeycode(display, XK_Shift_L);
+        SendEvent(&keyevent);
+        keyevent.state = 0;
     }
 }
 
 int SendAltTab() {
-
     if(displayname == NULL)
     	displayname = getenv("DISPLAY");
 
@@ -156,44 +101,44 @@ int SendAltTab() {
     XSync(display, False);
     XTestFakeKeyEvent(display, XKeysymToKeycode(display, XK_Alt_L), False, CurrentTime);
     XSync(display, False);
-    
+
+    XCloseDisplay(display);
     return 0;
 }
 
-int Sendkey(const char *letter, int shift, int alt) {
+int Sendkey(const char *letter, int shift) {
     int Junk;
 
-    if(displayname == NULL)
-	displayname = getenv("DISPLAY");
+    if (displayname == NULL) {
+	    displayname = getenv("DISPLAY");
+    }
 
-    if(displayname == NULL)
-	displayname = ":0.0";
+    if (displayname == NULL) {
+	    displayname = ":0.0";
+    }
 
     display = XOpenDisplay(displayname);
 
-    if(display == NULL)
+    if (display == NULL)
     {
         fprintf(stderr, "can't open display `%s'.\n", displayname);
     	exit(1);
     }
 
-    if(window == 0)
+    if (window == 0) {
         XGetInputFocus(display, &window, &Junk);
+    }
 
-    if(window == (Window)-1)
-    {
+    if(window == (Window)-1) {
         window = RootWindow(display, 0); // XXX nonzero screens?
     }
 
     if(shift == 1) {
         shift |= ShiftMask;
     }
-    if(alt == 1) {
-        shift |= Mod1Mask;
-    }
 
     keysym = XStringToKeysym(letter);
-    SendKeyPressedEvent(keysym, shift);
+    SendKeyEvent(keysym, shift);
 
     XCloseDisplay(display);
 

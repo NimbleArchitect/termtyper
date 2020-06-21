@@ -2,6 +2,14 @@
 
 package main
 
+import (
+	"bufio"
+	"fmt"
+	"io"
+	"os"
+	"strings"
+)
+
 func typeSnippet(text []string) {
 
 	SendAltTab()
@@ -18,4 +26,35 @@ func typeSnippet(text []string) {
 	}
 
 	w.Terminate()
+}
+
+func readStdin() string {
+	var retstr string
+
+	info, err := os.Stdin.Stat()
+	if err != nil {
+		panic(err)
+	}
+
+	if info.Mode()&os.ModeCharDevice != 0 {
+		fmt.Println("No Pipe found")
+		//return
+	}
+
+	reader := bufio.NewReader(os.Stdin)
+	var output []string
+
+	for {
+		input, _, err := reader.ReadRune()
+		if err != nil && err == io.EOF {
+			output = append(output, string(input))
+			break
+		}
+		output = append(output, string(input))
+	}
+
+	for j := 0; j < len(output); j++ {
+		retstr += output[j]
+	}
+	return strings.TrimSpace(retstr)
 }

@@ -2,7 +2,7 @@
 #define _GREETER_H
 
 
-int Sendkey(const char *letter, int shift, int alt);
+int Sendkey(const char *letter, int shift);
 int SendAltTab();
 
 #endif
