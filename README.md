@@ -56,7 +56,7 @@ go build
 
 ### Command line
 
--n allows creating items from stdin, use with the following alias to save the previous run command ```alias ns=history |tail -n4 | head -n1 | cut -d " " -f3- | /path/to/termtyper -n```
+-n allows creating items from stdin, use with the following alias to save the previous run command ```alias ns=history |tail -n2 | head -n1 | cut -d " " -f3- | /path/to/termtyper -n```
 
 
 ## Built With
