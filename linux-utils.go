@@ -25,7 +25,7 @@ func typeSnippet(text []string) {
 		}
 	}
 
-	//w.Terminate()
+	w.Terminate()
 }
 
 func readStdin() string {
