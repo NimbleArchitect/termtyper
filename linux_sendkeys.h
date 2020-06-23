@@ -3,6 +3,6 @@
 
 
 int Sendkey(const char *letter, int shift);
-int SendAltTab();
+int SendAltTabKeys();
 
 #endif

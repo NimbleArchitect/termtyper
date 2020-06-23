@@ -13,14 +13,14 @@ import (
 )
 
 func SendAltTab() {
-	C.SendAltTab()
+	logDebug("F:SendAltTab:start")
+	C.SendAltTabKeys()
 	time.Sleep(2 * time.Second)
 }
 
 func SendKeys(text string) {
 
 	for _, c := range text {
-		//fmt.Println(string(c))
 		code, shift := char2keyCode(string(c))
 
 		mod := C.int(shift)
@@ -39,6 +39,7 @@ func char2keyCode(charCode string) (string, int) {
 		return "", -1
 	}
 	switch charCode {
+	//key names from https://www.cl.cam.ac.uk/~mgk25/ucs/keysymdef.h
 	case " ":
 		key = "space"
 	case "!":
