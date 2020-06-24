@@ -29,7 +29,7 @@ var codefromarg string = ""
 
 type Snipitem struct {
 	ID       int        `json:"hash"`
-	Time     time.Time  `json:"time"`
+	Time     time.Time  `json:"-"` // - hides the output from json
 	Name     string     `json:"name"`
 	Code     string     `json:"code"`
 	Argument []SnipArgs `json:"argument"`

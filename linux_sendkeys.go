@@ -1,3 +1,5 @@
+// +build linux
+
 package main
 
 // #cgo linux openbsd freebsd pkg-config: x11
