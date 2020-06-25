@@ -8,19 +8,20 @@
 package main
 
 import (
-	"database/sql"
+	"bufio"
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/zserge/webview"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
+	"termtyper/key"
 	"time"
 )
 
-const debug bool = true
+const webdebug bool = true
 const loglevel int = 1
 const appName string = "termtyper"
 const regexMatch string = "{:[A-Za-z_-]+?.*:}"
@@ -40,9 +41,7 @@ type SnipArgs struct {
 	Value string `json:"value,omitempty"`
 }
 
-var w webview.WebView
 var action int
-var database *sql.DB
 var datapath string
 
 func main() {
@@ -95,31 +94,6 @@ func main() {
 	database.Close()
 }
 
-func logError(msg ...interface{}) {
-	if loglevel >= 1 {
-		log.Print("[ERROR] ", msg)
-
-	}
-}
-
-func logWarn(msg ...interface{}) {
-	if loglevel >= 2 {
-		log.Print("[WARN]", msg)
-	}
-}
-
-func logInfo(msg ...interface{}) {
-	if loglevel >= 3 {
-		log.Print("[INFO] ", msg)
-	}
-}
-
-func logDebug(msg ...interface{}) {
-	if loglevel >= 4 {
-		log.Print("[DEBUG] ", msg)
-	}
-}
-
 //return path to this running program
 func getprogPath() string {
 	var dirAbsPath string
@@ -137,121 +111,6 @@ func getprogPath() string {
 	dirAbsPath = filepath.Dir(exReal)
 	fmt.Println(dirAbsPath)
 	return dirAbsPath
-}
-
-func searchandpaste(datapath string) {
-	w = webview.New(debug)
-	defer w.Destroy()
-	w.SetTitle(appName)
-	w.SetSize(800, 600, webview.HintNone)
-	//w.Navigate("data:text/html," + html)
-	w.Navigate("file://" + datapath + "/searchpage.html")
-	w.Bind("snipSearch", snip_search)
-	w.Bind("toclipboard", snip_copy)
-	w.Bind("snipWrite", snip_write)
-	w.Bind("snipClose", snip_close)
-	w.Bind("snipSave", snip_save)
-	w.Run()
-}
-
-func newfromcommand(datapath string) {
-	w = webview.New(debug)
-	defer w.Destroy()
-	w.SetTitle(appName)
-	w.SetSize(800, 600, webview.HintNone)
-	//w.Navigate("data:text/html," + html)
-	w.Navigate("file://" + datapath + "/createnew.html")
-	w.Bind("snipClose", snip_close)
-	w.Bind("snipSave", snip_save)
-	w.Bind("snipCodeFromArg", snip_codeFromArg)
-	w.Eval("window.addEventListener('load', function () { getCodeFromArguments(); });")
-	w.Run()
-}
-
-func opendb(dbpath string) (*sql.DB, bool) {
-	logInfo("* open: " + dbpath)
-	db, err := sql.Open("sqlite3", dbpath)
-
-	if err != nil {
-		logError("unable to open database")
-	}
-	ok := db.Ping()
-	if ok != nil {
-		panic(err)
-	}
-	_, err = db.Exec("CREATE TABLE IF NOT EXISTS snips (id INTEGER PRIMARY KEY, created INTEGER, name TEXT, code TEXT)")
-
-	return db, true
-}
-
-// returns a Snipitem that represents the hashid from the database table
-func dbgetID(hash string) Snipitem {
-	var snip Snipitem
-	var id int
-	var name string
-	var code string
-	var created string
-
-	qry := string("SELECT * FROM snips WHERE ID = " + hash)
-	rows, err := database.Query(qry)
-	if err != nil {
-		logError("ERROR: unable to query db")
-		panic(err)
-	}
-
-	for rows.Next() {
-		err = rows.Scan(&id, &created, &name, &code)
-		if err != nil {
-			panic(err)
-		}
-		//tags := len(getVars(code))
-		snip = Snipitem{
-			ID:   id,
-			Time: time.Now(),
-			Name: name,
-			Code: code,
-		}
-	}
-	rows.Close() //good habit to close
-	return snip
-}
-
-// search for a record name that has a wildcard match to field and return a Snipitem that represents the match
-func dbfind(field string, searchfor string) []Snipitem {
-	//TODO: search search for matching tags
-	var snip []Snipitem
-	var id int
-	var name string
-	var code string
-	var created string
-
-	// query
-	qry := string("SELECT * FROM snips WHERE " + field + " LIKE '%" + searchfor + "%'")
-	rows, err := database.Query(qry)
-
-	if err != nil {
-		logError("ERROR: unable to query db")
-		panic(err)
-	}
-
-	for rows.Next() {
-		err = rows.Scan(&id, &created, &name, &code)
-		if err != nil {
-			panic(err)
-		}
-		//tags := len(getVars(code))
-		snipitem := Snipitem{
-			ID:   id,
-			Time: time.Now(),
-			Name: name,
-			Code: code,
-		}
-
-		snip = append(snip, snipitem)
-	}
-
-	rows.Close() //good habit to close
-	return snip
 }
 
 // returns a list of start and end positions of each argument, found in text
@@ -405,4 +264,54 @@ func argumentReplace(vars []SnipArgs, code string) string {
 	}
 	logDebug("F:argumentReplace:return =", newcode)
 	return newcode
+}
+
+func typeSnippet(text []string) {
+	lineSeperator := " \\"
+
+	key.SwitchWindow()
+
+	//send keys to type to stdin of python script :(
+	count := len(text)
+	for i := 0; i < count; i++ {
+		singleline := text[i]
+		if i < (count - 1) { //more than one line and we are not on the last
+			key.SendLine(singleline + lineSeperator + "\n") //sent line of text
+		} else {
+			key.SendLine(singleline) //write the last or only line
+		}
+	}
+
+	w.Terminate()
+}
+
+func readStdin() string {
+	var retstr string
+
+	info, err := os.Stdin.Stat()
+	if err != nil {
+		panic(err)
+	}
+
+	if info.Mode()&os.ModeCharDevice != 0 {
+		fmt.Println("No Pipe found")
+		//return
+	}
+
+	reader := bufio.NewReader(os.Stdin)
+	var output []string
+
+	for {
+		input, _, err := reader.ReadRune()
+		if err != nil && err == io.EOF {
+			output = append(output, string(input))
+			break
+		}
+		output = append(output, string(input))
+	}
+
+	for j := 0; j < len(output); j++ {
+		retstr += output[j]
+	}
+	return strings.TrimSpace(retstr)
 }

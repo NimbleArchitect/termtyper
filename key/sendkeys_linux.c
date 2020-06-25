@@ -1,13 +1,11 @@
-#include "linux_sendkeys.h"
+#include "sendkeys_linux.h"
 
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef WIN32
-#  include "windows_x11.h"
-#else
+
 #  define NeedFunctionPrototypes 1
 #  include <X11/Xlib.h>
 #  include <X11/keysym.h>
@@ -15,7 +13,6 @@
 #  if XlibSpecificationRelease != 6
 #      error Requires X11R6
 #  endif
-#endif
 
 static char *displayname = NULL;
 static int keysym = 0;

@@ -1,26 +1,22 @@
-// +build linux
-
-package main
+package key
 
 // #cgo linux openbsd freebsd pkg-config: x11
 // #cgo CFLAGS: -g -Wall
 // #cgo LDFLAGS: -L. -lXtst
 // #include <stdlib.h>
-// #include "linux_sendkeys.h"
+// #include "sendkeys_linux.h"
 import "C"
 import (
-	//"fmt"
 	"time"
 	"unsafe"
 )
 
-func SendAltTab() {
-	logDebug("F:SendAltTab:start")
+func SwitchWindow() {
 	C.SendAltTabKeys()
 	time.Sleep(2 * time.Second)
 }
 
-func SendKeys(text string) {
+func SendLine(text string) {
 
 	for _, c := range text {
 		code, shift := char2keyCode(string(c))
