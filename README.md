@@ -32,24 +32,33 @@ you will need to insall the following dependicies first
 #### Fedora
 ```
 sudo dnf install gtk3-devel webkit2gtk3-devel libxkbcommon-devel libXtst-devel libxkbcommon-x11-devel xorg-x11-xkb-utils-devel libpng-devel xsel xclip
-go get github.com/zserge/webview
-go get github.com/atotto/clipboard
-go get github.com/mattn/go-sqlite3
+go get -d
 ```
 
 #### Ubuntu
 ```
 sudo apt-get install libwebkit2gtk-4.0
 
-go get github.com/zserge/webview
-go get github.com/atotto/clipboard
-go get github.com/mattn/go-sqlite3
+go get -d
 ```
 
 then you can cd into the source folder and build with
 ```
 go build
 ```
+
+### Windows
+
+you will need git mingw and golang installed then run the following to build
+```
+    set GCO_ENABLED=1
+    set GOARCH=386
+    go get -d
+    go build
+```
+
+### OSX
+
 
 ## Configuration
 
