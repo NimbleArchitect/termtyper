@@ -1,5 +1,3 @@
-// +build windows
-
 #include "sendkeys_windows.h"
 
 #include <unistd.h>

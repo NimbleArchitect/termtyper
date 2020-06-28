@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/atotto/clipboard"
 	"strings"
 	"time"
@@ -20,7 +19,7 @@ func snip_copy(data string) error {
 func snip_close() error {
 	logDebug("F:snip_close:start")
 
-	go w.Terminate()
+	w.Terminate()
 	return nil
 }
 
