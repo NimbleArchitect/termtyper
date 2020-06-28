@@ -99,6 +99,7 @@ func main() {
 
 //return path to this running program
 func getprogPath() string {
+	logDebug("F:getprogPath:start")
 	var dirAbsPath string
 	ex, err := os.Executable()
 	if err == nil {
@@ -113,6 +114,7 @@ func getprogPath() string {
 	}
 	dirAbsPath = filepath.Dir(exReal)
 	fmt.Println(dirAbsPath)
+	logDebug("F:getprogPath:return =", dirAbsPath)
 	return dirAbsPath
 }
 

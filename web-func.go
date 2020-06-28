@@ -11,17 +11,22 @@ import (
 )
 
 func snip_copy(data string) error {
+	logDebug("F:snip_copy:start")
+
 	clipboard.WriteAll(data)
 	return nil
 }
 
 func snip_close() error {
+	logDebug("F:snip_close:start")
+
 	go w.Terminate()
 	return nil
 }
 
 func snip_search(data string) string {
 	var foundSnips []Snipitem
+	logDebug("F:snip_search:start")
 
 	if len(data) <= 0 {
 		return ""
@@ -42,6 +47,7 @@ func snip_write(hash string, vars ...string) error {
 	var code []string
 	var data string
 	var args []SnipArgs
+	logDebug("F:snip_write:start")
 
 	if len(hash) <= 0 {
 		return errors.New("no hash id specified")
@@ -64,17 +70,20 @@ func snip_write(hash string, vars ...string) error {
 }
 
 func snip_save(title string, code string) {
+	logDebug("F:snip_save:start")
+
 	tx, _ := database.Begin()
 	stmt, _ := tx.Prepare("insert into snips (created,name,code) values (?,?,?)")
 	_, err := stmt.Exec(time.Now(), title, code)
 	if err != nil {
-		fmt.Print("error saving")
+		logError("error saving")
 	}
 	tx.Commit()
 }
 
 func snip_codeFromArg() string {
 	var thissnip Snipitem
+	logDebug("F:snip_codeFromArg:start")
 
 	thissnip.Code = codefromarg
 	str, _ := json.Marshal(thissnip)
