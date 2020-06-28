@@ -52,9 +52,8 @@ go build
 you will need git mingw and golang installed then run the following to build
 ```
     set GCO_ENABLED=1
-    set GOARCH=386
-    go get -d
-    go build
+    go get -d -v
+    go build -ldflags="-H windowsgui" 
 ```
 
 ### OSX

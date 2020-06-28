@@ -8,10 +8,11 @@ var w webview.WebView
 
 func searchandpaste(datapath string) {
 	w = webview.New(webdebug)
-	defer w.Destroy()
+	//defer w.Destroy()
 	w.SetTitle(appName)
-	w.SetSize(800, 600, webview.HintNone)
+	w.SetSize(800, 600, webview.HintMin)
 	//w.Navigate("data:text/html," + html)
+	//w.Navigate("file://C:/Users/rich/go/src/termtyper/searchpage.html")
 	w.Navigate("file://" + datapath + "/searchpage.html")
 	w.Bind("snipSearch", snip_search)
 	w.Bind("toclipboard", snip_copy)

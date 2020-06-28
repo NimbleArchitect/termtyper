@@ -12,15 +12,16 @@
 
 
 int Sendkey(const char *letter, int shift) {
+    int n = 0;
     // Create an array of generic keyboard INPUT structures
     INPUT ip[10];
     for (n=0 ; n<10 ; ++n)
     {
-        ip.type = INPUT_KEYBOARD;
-        ip.ki.wScan = 0;
-        ip.ki.time = 0;
-        ip.ki.dwFlags = 0; // 0 for key press
-        ip.ki.dwExtraInfo = 0;
+        ip->type = INPUT_KEYBOARD;
+        ip->ki.wScan = 0;
+        ip->ki.time = 0;
+        ip->ki.dwFlags = 0; // 0 for key press
+        ip->ki.dwExtraInfo = 0;
     }
     
     // Now we need to adjust each INPUT structure so that

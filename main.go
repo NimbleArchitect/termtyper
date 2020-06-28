@@ -51,15 +51,18 @@ func main() {
 	Move along nothing to see here
 	</body></html>`
 
+	var pathSep = "/"
+	appFolder := "." + appName
+
 	datapath, err := os.UserHomeDir()
 	if err != nil {
 		panic("Unable to get users profile folder")
 	}
-	fldrName := datapath + "/." + appName
+	fldrName := datapath + pathSep + appFolder
 	if _, err := os.Stat(fldrName); err != nil {
 		err = os.Mkdir(fldrName, 0770)
 		if err != nil {
-			panic("unable to create folder ~/." + appName)
+			panic("unable to create folder " + fldrName)
 		}
 	}
 
@@ -314,4 +317,12 @@ func readStdin() string {
 		retstr += output[j]
 	}
 	return strings.TrimSpace(retstr)
+}
+
+func exportAll() {
+
+}
+
+func importAll() {
+
 }
