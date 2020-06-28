@@ -22,7 +22,7 @@ import (
 )
 
 const webdebug bool = true
-const loglevel int = 1
+const loglevel int = 5
 const appName string = "termtyper"
 const regexMatch string = "{:[A-Za-z_-]+?.*:}"
 
