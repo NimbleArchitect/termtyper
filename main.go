@@ -70,12 +70,15 @@ func main() {
 	// if ok == true {
 	// 	//defer database.Close()
 	// }
+	logDebug("F:main:db ping")
 	if database.Ping() != nil {
-		fmt.Println("99")
+		logError("F:main:unable to ping db")
 	}
+	logDebug("F:main:call getprogPath")
 	execpath := getprogPath()
 	//TODO: set up to support arguments to show the search window, I can then show a managment window by default
 
+	logDebug("F:main:get args =", os.Args)
 	progargs := os.Args[1:]
 	if len(progargs) >= 1 {
 		argument = progargs[0]
