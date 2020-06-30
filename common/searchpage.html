@@ -2,22 +2,22 @@
 <html lang="en"><head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.4/themes/base/jquery-ui.css">
     <link rel="stylesheet" type="text/css" href="mystyle.css">
-    <script type="text/javascript" src="utils.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+    <script src="utils.js"></script>
 </head><body>
 <div id="menu">
-    <button id="btnNew" class="button" onclick="document.getElementById('box-addnew').style.display='block'"><u>N</u>ew</button>
-    <button id="btnWithArgs" class="button" onclick="document.getElementById('box-vars').style.display='block'">Type With <u>A</u>rgs</button>
+    <button id="btnNew" class="button" onclick="$( '#box-addnew' ).css('display', 'block');"><u>N</u>ew</button>
+    <button id="btnWithArgs" class="button" onclick="$( '#box-vars' ).css('display', 'block');">Type With <u>A</u>rgs</button>
 </div>
 <div id="box-search">
     <form autocomplete="off" action="#">
-        <div class="autocomplete">
-          <input id="searchbox" type="text" name="searchbox" placeholder="Search for names.." autofocus>
-        </div>
-      </form>
-    <script>
-    autocomplete(document.getElementById("searchbox"));
-    </script>
+        <input id="searchbox" type="text" name="searchbox" placeholder="Search for names.." autofocus>
+        <button id="btnRun" class="button" onclick="writeFromHash($( '#searchbox' ).data('hashid'));"><u>R</u>un</button>
+    </form>
 </div>
 <div id="box-addnew">
     <form>
@@ -26,17 +26,16 @@
         <label for="code">code:</label><br>
         <textarea id="code" name="code"></textarea>
         <div>
-            <button id="myBtn" class="button" onclick="document.getElementById('box-addnew').style.display=''">Cancel</button>
+            <button id="myBtn" class="button" onclick="$( '#box-addnew' ).css('display', 'none');">Cancel</button>
             <button id="myBtn" class="button" onclick="saveform()">Save</button>
         </div>
     </form> 
 </div>
 <div id="box-vars">
-    <div id="variable-list"></div>
+    <div id="argument-list"></div>
     <div id="varsButtons">
-        <button id="myBtn" class="button" onclick="document.getElementById('box-vars').style.display=''">Cancel</button>
-        <button id="btnOkVars" class="button">OK</button>
+        <button id="myBtn" class="button" onclick="$( '#box-vars' ).css('display', 'none');">Cancel</button>
+        <button id="btnOkVars" class="button" onclick="runwithvars();">OK</button>
     </div>
 </div>
-<div id="footer">command to run:<div id="cmd2run"></div></div>
 </body></html>

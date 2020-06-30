@@ -11,7 +11,7 @@ body {
 	background-color: #678ffe;
 	margin: 0;
 	padding: 0;
-	overflow: hidden;
+	overflow: clip;
 }
 
 #menu {
@@ -31,30 +31,24 @@ body {
 	padding: 10px;
 }
 
-#varsButtons {
-	right: 0px;
-	position: absolute;
-}
-
-#footer {
-	display: none;
-	bottom: 0;
-	width: 100%;
-	left: 0;
-	position: fixed;
+input {
+	background-color: #c7d3f5;
+	border: 1px solid transparent;
+	font-size: 16px;
 	padding: 10px;
-	border: 2px solid lightgrey;
 }
 
-#box-search {
-	bottom: 15px;
-	left: 15px;
-	margin: 15px;
-	padding: 15px;
-	right: 15px;
-	top: 15px;
+input[type=text] {
+	background-color: #dbe5ff;
+	border: 1px solid #091534;
+	font-size: 14px;
+	width: 600px;
 }
 
+/* 
+### add new 
+*/
+/* add new item form */
 #box-addnew {
 	background-color: #c7d3f5;
 	border: 2px solid #c7d3f5;
@@ -68,7 +62,7 @@ body {
 	right: 15px;
 	top: 15px;
 }
-
+/* add new item code box */
 #code {
 	background-color: #dbe5ff;
 	border: 1px solid #012998; /* Add a grey border */
@@ -78,7 +72,7 @@ body {
 	padding: 12px 20px 12px 20px; /* Add some padding */
 	width: 88%; /* Full-width */
 }
-
+/* add new item title (name) box */
 #title {
 	background-color: #dbe5ff;
 	border: 1px solid #012998; /* Add a grey border */
@@ -88,28 +82,15 @@ body {
 	width: 88%; /* Full-width */
 }
 
-#faded {
-	display: none;
-	color: darkgray;
-	float: right;
-	height: 1em;
-	top: 0px;
-}
-
-#searchbox {
-	background-color: #dbe5ff;
-	background-image: url('search.png');
-	background-position: 10px 12px;
-	background-repeat: no-repeat;
-	padding: 10px;
-	padding-left: 45px;
-}
-
-
-#variable-list {
+/* 
+### run with args 
+*/
+/* run with args div box */
+#argument-list {
 	height: 80%;
 }
 
+/* run with args form */
 #box-vars {
 	background-color: #dbe5ff;
 	border: 2px solid #012998;
@@ -121,52 +102,47 @@ body {
 	top: 5%;
 	width: 90%;
 }
-
+/* run with args buttons */
+#varsButtons {
+	right: 0px;
+	position: absolute;
+}
+/* run with arguments, arg label */
 label.varList {
 	width: 100%;
 	margin-top: 10px;
 	/* padding: 5px; */
 }
-
+/* run with arguments, arg text box */
 input.varList {
 	width: 300px;
 	padding: 10px;
 
 }
 
-/*the container must be positioned relative:*/
-.autocomplete {
-	display: inline-block;
-	position: relative;
-	width: 90%;
+/* 
+###Search box 
+*/
+/* div that holds the search box */
+#box-search {
+	bottom: 15px;
+	left: 15px;
+	margin: 15px;
+	padding: 15px;
+	right: 15px;
+	top: 15px;
 }
-
-input {
-	background-color: #c7d3f5;
-	border: 1px solid transparent;
-	font-size: 16px;
-	padding: 10px;
-}
-
-input[type=text] {
+/* the search box its-self */
+#searchbox {
 	background-color: #dbe5ff;
-	border: 1px solid #091534;
-	font-size: 14px;
-	width: 650px;
+	background-image: url('search.png');
+	background-position: 10px 12px;
+	background-repeat: no-repeat;
+	padding: 10px;
+	padding-left: 45px;
 }
-
-.autocomplete-items {
-	border: 1px solid #dbe5ff;
-	border-bottom: none;
-	border-top: none;
-	left: 0;
-	position: absolute;
-	right: 0;
-	top: 100%;
-	z-index: 99;
-}
-
-.autocomplete-items-div {
+/* search results item */
+.listitem-div {
 	background-color: #dbe5ff; 
 	background-image: url('search.png');
 	background-position: 10px 12px;
@@ -178,32 +154,43 @@ input[type=text] {
 	padding-left: 40px;
 	width: 100%;
 }
-
-/*when hovering an item:*/
-.autocomplete-items div:hover {
-	background-color: #c7d3f5; 
-	color: #012998; 
-}
-
-/*when navigating through the items using the arrow keys:*/
-.autocomplete-active {
-	background-color: #012998 !important; 
-	color: #c7d3f5; 
-}
-
+/* search results inner-div */
 .searchinfo {
+	background-color: transparent;
 	padding-left: 10px;
 	margin-bottom: 5px;
 	color: #6d8ee8;
 	overflow: hidden;
 }
-
+/* search results item matching tags */
 .searchtag {
+	background-color: transparent;
 	float: left;
 	width: 25%;
 }
-
+/* search results item cmd to run */
 .searchcmd {
+	background-color: transparent;
 	float: left;
 	width: 75%;
+}
+
+.ui-menu .ui-menu-item a {
+    color: #012998;
+    border-radius: 0px;
+}
+
+.ui-autocomplete {
+	max-height: 300px;
+	max-width: 90%;
+	overflow-y: clip;
+	/* prevent horizontal scrollbar */
+	overflow-x: hidden;
+}
+/* IE 6 doesn't support max-height
+* we use height instead, but this forces the menu to always be this tall
+*/
+* html .ui-autocomplete {
+	height: 300px;
+	width: 1px;
 }
