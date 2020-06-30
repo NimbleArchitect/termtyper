@@ -78,59 +78,59 @@ function getCodeFromArguments(e) {
     })
 }
 
-$(function() {
-function log( message ) {
-    $( "<div>" ).text( message ).prependTo( "#log" );
-    $( "#log" ).scrollTop( 0 );
-}
+$(window).on('load', function() {
+    $(function() {
+    function log( message ) {
+        $( "<div>" ).text( message ).prependTo( "#log" );
+        $( "#log" ).scrollTop( 0 );
+    }
 
-$( "#searchbox" ).keypress(function(event){
-    if (event.which == 13) {
-        writeFromHash($( "#searchbox" ).data("hashid"));
-    }
-}).autocomplete({
-    autoFocus: true,
-    source: function( request, response ) {
-        snipSearch(request.term).then(
-            function(data) {
-                let list = [];
-                if (data == undefined) return;
-                let json = JSON.parse(data);
-                if (json == null) return;
-                
-                for (var key in json) {
-                    let obj = json[key];
-                    obj.value = obj.name;
-                    list.push(
-                        obj
-                    );
+    $( "#searchbox" ).keypress(function(event){
+        if (event.which == 13) {
+            writeFromHash($( "#searchbox" ).data("hashid"));
+        }
+    }).autocomplete({
+        autoFocus: true,
+        source: function( request, response ) {
+            snipSearch(request.term).then(
+                function(data) {
+                    let list = [];
+                    if (data == undefined) return;
+                    let json = JSON.parse(data);
+                    if (json == null) return;
+                    
+                    for (var key in json) {
+                        let obj = json[key];
+                        obj.value = obj.name;
+                        list.push(
+                            obj
+                        );
+                    }
+                    response(list);
                 }
-                response(list);
-            }
-        );
-    },
-    minLength: 1,
-    delay: 0,
-    select: function( event, ui ) {
-        populateVarsList(ui.item);
-        $( "#searchbox" ).data( "hashid", ''+ui.item.hash);
-    },
-    open: function() {
-        $( "#searchbox" ).data('isopen', true);
-        $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
-    },
-    close: function() {
-        $( "#searchbox" ).data('isopen', false);
-        $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
-    }
-}).data('ui-autocomplete')._renderItem = function(ul, item) {
-    //alert(item)
-    schcmd = "<div class='searchcmd'>" + item.code + "</div>";
-    schinfo = "<div class='searchinfo'>" + schcmd + "</div>";
-    lstitm = "<div class='listitem-div'>" + item.name + schinfo + "</div>";
-    //lstitm = item.name + schinfo;
-    return $('<li>')
-    .append(lstitm)
-    .appendTo(ul);
-};
+            );
+        },
+        minLength: 1,
+        delay: 0,
+        select: function( event, ui ) {
+            populateVarsList(ui.item);
+            $( "#searchbox" ).data( "hashid", ''+ui.item.hash);
+        },
+        open: function() {
+            $( "#searchbox" ).data('isopen', true);
+            $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
+        },
+        close: function() {
+            $( "#searchbox" ).data('isopen', false);
+            $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+        }
+    }).data('ui-autocomplete')._renderItem = function(ul, item) {
+        schcmd = "<div class='searchcmd'>" + item.code + "</div>";
+        schinfo = "<div class='searchinfo'>" + schcmd + "</div>";
+        lstitm = "<div class='listitem-div'>" + item.name + schinfo + "</div>";
+        return $('<li>')
+        .append(lstitm)
+        .appendTo(ul);
+    };
+    });
 });
