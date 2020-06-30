@@ -20,21 +20,19 @@
     </form>
 </div>
 <div id="box-addnew">
-    <form>
         <label for="title">title:</label><br>
         <input type="text" id="title" name="title"><br>
         <label for="code">code:</label><br>
         <textarea id="code" name="code"></textarea>
         <div>
-            <button id="myBtn" class="button" onclick="$( '#box-addnew' ).css('display', 'none');">Cancel</button>
-            <button id="myBtn" class="button" onclick="saveform()">Save</button>
+            <button id="myBtn" class="button" onclick="$( '#box-addnew' ).css('display', 'none');$( '#searchbox' ).focus();">Cancel</button>
+            <button id="btnsavenew" class="button" onclick="saveform();">Save</button>
         </div>
-    </form> 
 </div>
 <div id="box-vars">
     <div id="argument-list"></div>
     <div id="varsButtons">
-        <button id="myBtn" class="button" onclick="$( '#box-vars' ).css('display', 'none');">Cancel</button>
+        <button id="myBtn" class="button" onclick="$( '#box-vars' ).css('display', 'none');$( '#searchbox' ).focus();">Cancel</button>
         <button id="btnOkVars" class="button" onclick="runwithvars();">OK</button>
     </div>
 </div>

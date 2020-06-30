@@ -23,7 +23,8 @@ function saveform() {
     let txtcode = document.getElementById('code').value;
 
     snipSave(txttitle, txtcode);
-    $('box-addnew').hide();
+    $( '#box-addnew' ).hide();
+    $( '#searchbox' ).focus();
 }
 
 function writeFromHash(hash) {
@@ -35,7 +36,7 @@ function writeFromHash(hash) {
 
 function runwithvars() {
     let args = [];
-    let hash = $("#searchbox").data('hashid');
+    let hash = $( "#searchbox" ).data('hashid');
     let nodes = document.getElementById("argument-list").childNodes
     for (let i=0; i<nodes.length; i++) {
         //get argument name
@@ -59,8 +60,8 @@ function populateVarsList(item) {
                 if (v == undefined) { v = "" }
                 let txtlabel = "<label class='varList' for='var" + key + "'>" + n + ":</label><br>";
                 let txtbox = "<input class='varList' type='text' id='var" + key + "' value='" + v + "' " + strautofocus + ">";
-                $("#argument-list").append("<div>" + txtlabel + txtbox + "</div>")
-                $('#var' + key).data('argname', n);
+                $( "#argument-list" ).append("<div>" + txtlabel + txtbox + "</div>")
+                $( '#var' + key ).data('argname', n);
             }
         }
     });
