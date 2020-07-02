@@ -22,7 +22,7 @@ static Window window = 0;
 
 int OpenDisplay() {
     int focusreturn;
-
+    fprintf(stderr, "C:OpenDisplay:start\n");
     if (displayname == NULL) {
 	    displayname = getenv("DISPLAY");
     }
@@ -51,7 +51,7 @@ int OpenDisplay() {
 }
 
 void SendKeyEvent(KeySym keysym, unsigned int shift) {
-
+    XInitThreads();
     // shift key down if needed
     if (shift == 1) {
         XTestFakeKeyEvent(display, XKeysymToKeycode(display, XK_Shift_L), True, CurrentTime);
@@ -75,10 +75,12 @@ void SendKeyEvent(KeySym keysym, unsigned int shift) {
 }
 
 int SendAltTabKeys() {
+    XInitThreads();
+    fprintf(stderr, "C:SendAltTabKeys:start\n");
     if (OpenDisplay() != 0) {
         return 1;
     }
-
+    fprintf(stderr, "C:SendAltTabKeys:sending keys\n");
     XTestFakeKeyEvent(display, XKeysymToKeycode(display, XK_Alt_L), True, CurrentTime);
     XSync(display, False);
     XTestFakeKeyEvent(display, XKeysymToKeycode(display, XK_Tab), True, CurrentTime);
@@ -88,13 +90,14 @@ int SendAltTabKeys() {
     XSync(display, False);
     XTestFakeKeyEvent(display, XKeysymToKeycode(display, XK_Alt_L), False, CurrentTime);
     XSync(display, False);
-
+    fprintf(stderr, "C:SendAltTabKeys:keys sent\n");
     XCloseDisplay(display);
+    fprintf(stderr, "C:SendAltTabKeys:display closed\n");
     return 0;
 }
 
 int Sendkey(const char *letter, int shift) {
-
+    //XInitThreads();
     if (OpenDisplay() != 0) {
         return 1;
     }

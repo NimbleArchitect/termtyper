@@ -141,6 +141,13 @@ input.varList {
 	padding: 10px;
 	padding-left: 45px;
 }
+
+/*the container must be positioned relative:*/
+.autocomplete {
+	display: inline-block;
+	position: relative;
+	width: 80%;
+}
 /* search results item */
 .listitem-div {
 	background-color: #dbe5ff; 
@@ -157,9 +164,9 @@ input.varList {
 /* search results inner-div */
 .searchinfo {
 	background-color: transparent;
-	padding-left: 10px;
+	padding-left: 25px;
 	margin-bottom: 5px;
-	color: #6d8ee8;
+	/* color: #6d8ee8; */
 	overflow: hidden;
 }
 /* search results item matching tags */
@@ -171,8 +178,22 @@ input.varList {
 /* search results item cmd to run */
 .searchcmd {
 	background-color: transparent;
+	color: #6d8ee8;
 	float: left;
+	margin-left: 5px;
 	width: 75%;
+}
+
+.searchcmdtype {
+	float: right;
+	font-weight: bold;
+	margin-right:15px;
+	padding: 2px;
+}
+.searchcmdlinux {
+	border: 1px solid darkred;
+	background-color: darkred;
+	color: white;
 }
 
 .ui-menu .ui-menu-item a {
@@ -194,3 +215,4 @@ input.varList {
 	height: 300px;
 	width: 1px;
 }
+remove me

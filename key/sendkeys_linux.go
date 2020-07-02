@@ -12,7 +12,10 @@ import (
 )
 
 func SwitchWindow() {
-	C.SendAltTabKeys()
+	ret := C.SendAltTabKeys()
+	if ret != 0 {
+		panic("unable to switch window err:" + string(ret))
+	}
 	time.Sleep(2 * time.Second)
 }
 
@@ -25,7 +28,10 @@ func SendLine(text string) {
 		name := C.CString(string(code))
 		defer C.free(unsafe.Pointer(name))
 
-		C.Sendkey(name, mod)
+		ret := C.Sendkey(name, mod)
+		if ret != 0 {
+			panic("unable to send key " + string(c) + " recieved err: " + string(ret))
+		}
 	}
 }
 

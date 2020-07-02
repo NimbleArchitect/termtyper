@@ -51,8 +51,11 @@ func snip_write(hash string, vars ...string) error {
 	if len(hash) <= 0 {
 		return errors.New("no hash id specified")
 	}
-
+	logDebug("F:snip_write:hash =", hash)
 	snips := dbgetID(hash)
+	logDebug("F:snip_write:snips =", snips)
+	logDebug("F:snip_write:len(vars) =", len(vars))
+
 	if len(vars) > 0 {
 		json.Unmarshal([]byte(vars[0]), &args)
 	}

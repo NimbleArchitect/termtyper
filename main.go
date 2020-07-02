@@ -16,6 +16,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strings"
 	"termtyper/key"
 	"time"
@@ -276,9 +277,12 @@ func argumentReplace(vars []SnipArgs, code string) string {
 
 func typeSnippet(text []string) {
 	lineSeperator := " \\"
-
+	logDebug("F:typeSnippet:start")
+	runtime.LockOSThread()
+	logDebug("F:typeSnippet:switching window")
 	key.SwitchWindow()
 
+	logDebug("F:typeSnippet:sending keys =", text)
 	//send keys to type to stdin of python script :(
 	count := len(text)
 	for i := 0; i < count; i++ {
@@ -289,7 +293,7 @@ func typeSnippet(text []string) {
 			key.SendLine(singleline) //write the last or only line
 		}
 	}
-
+	runtime.UnlockOSThread()
 	w.Terminate()
 }
 

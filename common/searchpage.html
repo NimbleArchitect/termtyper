@@ -2,11 +2,11 @@
 <html lang="en"><head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="mystyle.css">
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     
-    <link rel="stylesheet" type="text/css" href="mystyle.css">
     <script src="utils.js"></script>
 </head><body>
 <div id="menu">
@@ -25,6 +25,7 @@
         <label for="code">code:</label><br>
         <textarea id="code" name="code"></textarea>
         <div>
+            <div id="scripttype">bash/dos/powershell</div>
             <button id="myBtn" class="button" onclick="$( '#box-addnew' ).css('display', 'none');$( '#searchbox' ).focus();">Cancel</button>
             <button id="btnsavenew" class="button" onclick="saveform();">Save</button>
         </div>
