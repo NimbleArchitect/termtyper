@@ -51,7 +51,7 @@ int OpenDisplay() {
 }
 
 void SendKeyEvent(KeySym keysym, unsigned int shift) {
-    XInitThreads();
+    //XInitThreads();
     // shift key down if needed
     if (shift == 1) {
         XTestFakeKeyEvent(display, XKeysymToKeycode(display, XK_Shift_L), True, CurrentTime);
@@ -75,7 +75,7 @@ void SendKeyEvent(KeySym keysym, unsigned int shift) {
 }
 
 int SendAltTabKeys() {
-    XInitThreads();
+    //XInitThreads();
     fprintf(stderr, "C:SendAltTabKeys:start\n");
     if (OpenDisplay() != 0) {
         return 1;

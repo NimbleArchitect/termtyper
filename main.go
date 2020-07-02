@@ -16,7 +16,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"runtime"
+	//"runtime"
 	"strings"
 	"termtyper/key"
 	"time"
@@ -278,7 +278,7 @@ func argumentReplace(vars []SnipArgs, code string) string {
 func typeSnippet(text []string) {
 	lineSeperator := " \\"
 	logDebug("F:typeSnippet:start")
-	runtime.LockOSThread()
+	//runtime.LockOSThread()
 	logDebug("F:typeSnippet:switching window")
 	key.SwitchWindow()
 
@@ -293,7 +293,7 @@ func typeSnippet(text []string) {
 			key.SendLine(singleline) //write the last or only line
 		}
 	}
-	runtime.UnlockOSThread()
+	//runtime.UnlockOSThread()
 	w.Terminate()
 }
 

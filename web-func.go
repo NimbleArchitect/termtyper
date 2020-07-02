@@ -16,13 +16,6 @@ func snip_copy(data string) error {
 	return nil
 }
 
-func snip_close() error {
-	logDebug("F:snip_close:start")
-
-	w.Terminate()
-	return nil
-}
-
 func snip_search(data string) string {
 	var foundSnips []Snipitem
 	logDebug("F:snip_search:start")
