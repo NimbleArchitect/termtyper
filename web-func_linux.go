@@ -4,6 +4,6 @@ package main
 func snip_close() error {
 	logDebug("F:snip_close:start")
 
-	go w.Terminate()
+	w.Terminate()
 	return nil
 }

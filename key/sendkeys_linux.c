@@ -22,7 +22,7 @@ static Window window = 0;
 
 int OpenDisplay() {
     int focusreturn;
-    fprintf(stderr, "C:OpenDisplay:start\n");
+    //fprintf(stderr, "C:OpenDisplay:start\n");
     if (displayname == NULL) {
 	    displayname = getenv("DISPLAY");
     }
@@ -35,7 +35,7 @@ int OpenDisplay() {
 
     if (display == NULL)
     {
-        fprintf(stderr, "can't open display `%s'.\n", displayname);
+        //fprintf(stderr, "can't open display `%s'.\n", displayname);
     	return 1;
     }
 
@@ -51,7 +51,6 @@ int OpenDisplay() {
 }
 
 void SendKeyEvent(KeySym keysym, unsigned int shift) {
-    //XInitThreads();
     // shift key down if needed
     if (shift == 1) {
         XTestFakeKeyEvent(display, XKeysymToKeycode(display, XK_Shift_L), True, CurrentTime);
@@ -75,29 +74,31 @@ void SendKeyEvent(KeySym keysym, unsigned int shift) {
 }
 
 int SendAltTabKeys() {
-    //XInitThreads();
-    fprintf(stderr, "C:SendAltTabKeys:start\n");
+    XInitThreads();
+    //fprintf(stderr, "C:SendAltTabKeys:start\n");
     if (OpenDisplay() != 0) {
-        return 1;
+        return 0;
     }
-    fprintf(stderr, "C:SendAltTabKeys:sending keys\n");
+    //fprintf(stderr, "C:SendAltTabKeys:sending keys\n");
     XTestFakeKeyEvent(display, XKeysymToKeycode(display, XK_Alt_L), True, CurrentTime);
     XSync(display, False);
     XTestFakeKeyEvent(display, XKeysymToKeycode(display, XK_Tab), True, CurrentTime);
     XSync(display, False);
+    
     usleep( 12000 );
+
     XTestFakeKeyEvent(display, XKeysymToKeycode(display, XK_Tab), False, CurrentTime);
     XSync(display, False);
     XTestFakeKeyEvent(display, XKeysymToKeycode(display, XK_Alt_L), False, CurrentTime);
     XSync(display, False);
-    fprintf(stderr, "C:SendAltTabKeys:keys sent\n");
+    //(stderr, "C:SendAltTabKeys:keys sent\n");
     XCloseDisplay(display);
-    fprintf(stderr, "C:SendAltTabKeys:display closed\n");
+    //fprintf(stderr, "C:SendAltTabKeys:display closed\n");
     return 0;
 }
 
 int Sendkey(const char *letter, int shift) {
-    //XInitThreads();
+    XInitThreads();
     if (OpenDisplay() != 0) {
         return 1;
     }

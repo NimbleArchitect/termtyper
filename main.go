@@ -16,14 +16,14 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	//"runtime"
+	"runtime"
 	"strings"
 	"termtyper/key"
 	"time"
 )
 
 const webdebug bool = true
-const loglevel int = 5
+const loglevel int = 1
 const appName string = "termtyper"
 const regexMatch string = "{:[A-Za-z_-]+?.*:}"
 
@@ -275,14 +275,15 @@ func argumentReplace(vars []SnipArgs, code string) string {
 	return newcode
 }
 
-func typeSnippet(text []string) {
+func typeSnippet(messages chan bool, text []string) {
 	lineSeperator := " \\"
 	logDebug("F:typeSnippet:start")
-	//runtime.LockOSThread()
+	runtime.LockOSThread()
 	logDebug("F:typeSnippet:switching window")
 	key.SwitchWindow()
 
 	logDebug("F:typeSnippet:sending keys =", text)
+	time.Sleep(2 * time.Second)
 	//send keys to type to stdin of python script :(
 	count := len(text)
 	for i := 0; i < count; i++ {
@@ -293,8 +294,9 @@ func typeSnippet(text []string) {
 			key.SendLine(singleline) //write the last or only line
 		}
 	}
-	//runtime.UnlockOSThread()
-	w.Terminate()
+	runtime.UnlockOSThread()
+
+	messages <- true
 }
 
 func readStdin() string {

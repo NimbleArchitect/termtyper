@@ -7,32 +7,29 @@ package key
 // #include "sendkeys_linux.h"
 import "C"
 import (
-	"time"
+	//"fmt"
 	"unsafe"
 )
 
 func SwitchWindow() {
-	ret := C.SendAltTabKeys()
-	if ret != 0 {
-		panic("unable to switch window err:" + string(ret))
-	}
-	time.Sleep(2 * time.Second)
+	C.SendAltTabKeys()
+
 }
 
 func SendLine(text string) {
-
+	//fmt.Println("F:SendLine:start")
 	for _, c := range text {
 		code, shift := char2keyCode(string(c))
 
 		mod := C.int(shift)
 		name := C.CString(string(code))
 		defer C.free(unsafe.Pointer(name))
+		//fmt.Println("F:SendLine:sendkey =", c)
 
-		ret := C.Sendkey(name, mod)
-		if ret != 0 {
-			panic("unable to send key " + string(c) + " recieved err: " + string(ret))
-		}
+		C.Sendkey(name, mod)
 	}
+	//fmt.Println("F:SendLine:end")
+
 }
 
 func char2keyCode(charCode string) (string, int) {

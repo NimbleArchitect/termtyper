@@ -45,7 +45,7 @@ function runwithvars() {
         let v = nodes[i].getElementsByTagName("input")[0].value;
         args[i] = {"name": n, "value": v};
     }
-    snipWrite(hash, JSON.stringify(args));
+    snipWrite(''+hash, JSON.stringify(args));
 }
 
 function populateVarsList(item) {

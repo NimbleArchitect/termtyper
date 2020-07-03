@@ -60,7 +60,14 @@ func snip_write(hash string, vars ...string) error {
 		code = append(code, singleline)
 	}
 
-	go typeSnippet(code)
+	//set up channel to wait on, this fixes a crash where the window
+	// was closing before the fucntion had finished
+	messages := make(chan bool)
+	go typeSnippet(messages, code)
+	//wait for completion signal
+	<-messages
+	snip_close()
+
 	return nil
 }
 
