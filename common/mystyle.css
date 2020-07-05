@@ -24,7 +24,7 @@ body {
 }
 
 .button {
-	border: 1px solid #012998;;
+	border: 1px solid #012998;
 	background-color: #dbe5ff;
 	color: #091534;
 	font-size: 16px;
@@ -81,6 +81,15 @@ input[type=text] {
 	padding: 12px 20px 12px 20px; /* Add some padding */
 	width: 88%; /* Full-width */
 }
+/* command type dropdown box */
+#cmdtypselect {
+	border: 1px solid #012998;
+	background-color: #dbe5ff;
+	color: #091534;
+	padding: 2px; /* Add some padding */
+	margin-bottom: 10px;
+}
+
 
 /* 
 ### run with args 
@@ -185,23 +194,21 @@ input.varList {
 }
 
 .searchcmdtype {
+	border: 0px;
 	float: right;
 	font-weight: bold;
 	margin-right:15px;
-	padding: 2px;
+	padding: 2px 4px 2px 4px;
 }
 .searchcmd_bash {
-	border: 1px solid darkred;
 	background-color: darkred;
 	color: white;
 }
 .searchcmd_powershell {
-	border: 1px solid royalblue;
 	background-color: royalblue;
 	color: white;
 }
 .searchcmd_dos {
-	border: 1px solid yellowgreen;
 	background-color: yellowgreen;
 	color: black;
 }

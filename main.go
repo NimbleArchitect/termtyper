@@ -115,10 +115,10 @@ func main() {
 
 func showHelp() {
 	fmt.Println("Usage:", appName, "[OPTION...]")
-	fmt.Println(`
+	fmt.Print(`
   -h, --help            show this help message
       --export FILE     export the local database to FILE
-      --import FILE     import previously export FILE into the local database
+      --import FILE     import previously exported FILE into the local database
 
   -n                    read command from stdin (unix only)
 `)

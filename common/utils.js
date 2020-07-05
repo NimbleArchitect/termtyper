@@ -18,6 +18,12 @@ document.addEventListener('keyup', (e) => {
     }
 });
 
+function clearform() {
+    $('#code').val('');
+    $('#title').val('')
+    $('#cmdtypselect').prop('selectedIndex', 0);
+}
+
 function saveform() {
     let txttitle = document.getElementById('title').value;
     let txtcode = document.getElementById('code').value;
@@ -26,6 +32,7 @@ function saveform() {
     snipSave(txttitle, txtcode, txtcmdtyp);
     $( '#box-addnew' ).hide();
     $( '#searchbox' ).focus();
+    clearform();
 }
 
 function writeFromHash(hash) {
