@@ -8,7 +8,7 @@ import (
 
 var database *sql.DB
 
-func opendb(dbpath string) (*sql.DB, bool) {
+func dbOpen(dbpath string) (*sql.DB, bool) {
 	logInfo("* open: " + dbpath)
 	db, err := sql.Open("sqlite3", dbpath)
 
@@ -33,7 +33,7 @@ func opendb(dbpath string) (*sql.DB, bool) {
 }
 
 // returns a Snipitem that represents the hashid from the database table
-func dbgetID(hash string) Snipitem {
+func dbGetID(hash string) (Snipitem, int) {
 	var snip Snipitem
 
 	var name string
@@ -47,7 +47,7 @@ func dbgetID(hash string) Snipitem {
 		logError("ERROR: unable to query db")
 		panic(err)
 	}
-
+	count := 0
 	for rows.Next() {
 		err = rows.Scan(&hash, &created, &name, &code, &cmdtype)
 		if err != nil {
@@ -61,13 +61,15 @@ func dbgetID(hash string) Snipitem {
 			Code:    code,
 			CmdType: cmdtype,
 		}
+		count += 1
 	}
 	rows.Close() //good habit to close
-	return snip
+
+	return snip, count
 }
 
 // search for a record name that has a wildcard match to field and return a Snipitem that represents the match
-func dbfind(field string, searchfor string) []Snipitem {
+func dbFind(field string, searchfor string) []Snipitem {
 	//TODO: search for matching tags
 	var snip []Snipitem
 	var hash string
@@ -102,6 +104,54 @@ func dbfind(field string, searchfor string) []Snipitem {
 		snip = append(snip, snipitem)
 	}
 
+	rows.Close() //good habit to close
+	return snip
+}
+
+func dbWrite(hash string, created time.Time, title string, code string, cmdtype string) error {
+
+	tx, _ := database.Begin()
+	stmt, _ := tx.Prepare("insert into snips (hash,created,name,code,cmdtype) values (?,?,?,?,?)")
+	_, err := stmt.Exec(hash, time.Now(), title, code, cmdtype)
+	if err != nil {
+		logError("error saving")
+	}
+	tx.Commit()
+
+	return nil
+}
+
+func dbGetAll() []Snipitem {
+	var snip []Snipitem
+	var snipitem Snipitem
+	var hash string
+	var name string
+	var code string
+	var created string
+	var cmdtype string
+
+	qry := string("SELECT * FROM snips")
+	rows, err := database.Query(qry)
+	if err != nil {
+		logError("ERROR: unable to query db")
+		panic(err)
+	}
+
+	for rows.Next() {
+		err = rows.Scan(&hash, &created, &name, &code, &cmdtype)
+		if err != nil {
+			panic(err)
+		}
+		//tags := len(getVars(code))
+		snipitem = Snipitem{
+			Hash:    hash,
+			Time:    time.Now(),
+			Name:    name,
+			Code:    code,
+			CmdType: cmdtype,
+		}
+		snip = append(snip, snipitem)
+	}
 	rows.Close() //good habit to close
 	return snip
 }

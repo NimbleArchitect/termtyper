@@ -9,9 +9,11 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -24,6 +26,7 @@ import (
 
 const webdebug bool = true
 const loglevel int = 5
+const defaultcmdtype string = "bash"
 const appName string = "termtyper"
 const regexMatch string = "{:[A-Za-z_-]+?.*:}"
 
@@ -68,7 +71,7 @@ func main() {
 		}
 	}
 
-	database, _ = opendb(fldrName + "/termtyper.db")
+	database, _ = dbOpen(fldrName + "/termtyper.db")
 	// if ok == true {
 	// 	//defer database.Close()
 	// }
@@ -93,8 +96,12 @@ func main() {
 		codefromarg = readStdin()
 		newfromcommand(execpath)
 
-	case "2":
-		fmt.Println("two")
+	case "--export":
+		exportAll(progargs[1])
+
+	case "--import":
+		importAll(progargs[1])
+
 	default:
 		searchandpaste(execpath)
 	}
@@ -277,9 +284,15 @@ func argumentReplace(vars []SnipArgs, code string) string {
 }
 
 func typeSnippet(messages chan bool, lineSeperator string, text []string) {
-	if lineSeperator == "" {
-		lineSeperator = " \\"
+	if len(text) == 0 {
+		logError("no text avaliable to type")
+		messages <- true
+		return
 	}
+	if lineSeperator == "" {
+		_, lineSeperator = validCmdType(defaultcmdtype)
+	}
+
 	logDebug("F:typeSnippet:start")
 	runtime.LockOSThread()
 	logDebug("F:typeSnippet:switching window")
@@ -350,16 +363,62 @@ func validCmdType(cmdtype string) (string, string) {
 		sep = " ^"
 
 	default:
-		out, sep = validCmdType("bash")
+		out, sep = validCmdType(defaultcmdtype)
 	}
 
 	return out, sep
 }
 
-func exportAll() {
+func exportAll(filename string) {
+	foundSnips := dbGetAll()
+	// {"hash":"000000-0000-0000-0000-000000000000",
+	//  "name":"name for this command",
+	//  "code":"actual command to type",
+	//  "cmdtype":"bash"
+	// }
+
+	var out []map[string]interface{}
+
+	for _, itm := range foundSnips {
+
+		m := map[string]interface{}{
+			"hash":    itm.Hash,
+			"created": itm.Time,
+			"name":    itm.Name,
+			"code":    itm.Code,
+			"cmdtype": itm.CmdType,
+		}
+
+		out = append(out, m)
+	}
+	strout, err := json.MarshalIndent(out, "", "  ")
+	if err != nil {
+		fmt.Println(err)
+	}
+	_ = ioutil.WriteFile(filename, []byte(strout), 0644)
 
 }
 
-func importAll() {
+func importAll(filename string) {
 
+	file, _ := ioutil.ReadFile(filename)
+
+	var items []Snipitem
+	_ = json.Unmarshal([]byte(file), &items)
+
+	written := 0
+	skipped := 0
+
+	for i := 0; i < len(items); i++ {
+		_, count := dbGetID(items[i].Hash)
+		if count == 0 {
+			//TODO: need to sanity check the data
+			dbWrite(items[i].Hash, items[i].Time, items[i].Name, items[i].Code, items[i].CmdType)
+			written += 1
+		} else {
+			skipped += 1
+		}
+	}
+
+	fmt.Println(len(items), "total items to import,", written, "items imported successfully and", skipped, "items skipped")
 }

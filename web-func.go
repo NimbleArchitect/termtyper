@@ -25,7 +25,7 @@ func snip_search(data string) string {
 		return ""
 	}
 
-	snips := dbfind("name", data) //search the name field in the snip table
+	snips := dbFind("name", data) //search the name field in the snip table
 	for _, itm := range snips {
 		itmarg := getArguments(itm.Code)
 		itm.Argument = itmarg
@@ -46,7 +46,7 @@ func snip_write(hash string, vars ...string) error {
 		return errors.New("no hash id specified")
 	}
 	logDebug("F:snip_write:hash =", hash)
-	snips := dbgetID(hash)
+	snips, _ := dbGetID(hash)
 	logDebug("F:snip_write:snips =", snips)
 	logDebug("F:snip_write:len(vars) =", len(vars))
 
@@ -61,10 +61,10 @@ func snip_write(hash string, vars ...string) error {
 		code = append(code, singleline)
 	}
 
+	_, sep := validCmdType(snips.CmdType) //get multiline seperator
 	//set up channel to wait on, this fixes a crash where the window
 	// was closing before the fucntion had finished
 	messages := make(chan bool)
-	_, sep := validCmdType(snips.CmdType) //get multiline seperator
 	go typeSnippet(messages, sep, code)
 	//wait for completion signal
 	<-messages
@@ -80,13 +80,8 @@ func snip_save(title string, code string, commandtype string) {
 
 	cmdtype, _ := validCmdType(commandtype)
 
-	tx, _ := database.Begin()
-	stmt, _ := tx.Prepare("insert into snips (hash,created,name,code,cmdtype) values (?,?,?,?,?)")
-	_, err := stmt.Exec(hash, time.Now(), title, code, cmdtype)
-	if err != nil {
-		logError("error saving")
-	}
-	tx.Commit()
+	dbWrite(hash, time.Now(), title, code, cmdtype)
+
 }
 
 func snip_codeFromArg() string {
