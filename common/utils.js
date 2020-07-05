@@ -10,6 +10,11 @@ document.addEventListener('keydown', (e) => {
         if (e.keyCode == 69 ) { //E - edit snippet
 
         }
+        if (e.keyCode >= 48 && e.keyCode <= 57) {
+            if ($( '#box-vars' ).css('display') != 'none') {
+                argFromClip(e.keyCode)
+            }
+        }
     }
 });
 document.addEventListener('keyup', (e) => {
@@ -17,6 +22,27 @@ document.addEventListener('keyup', (e) => {
         snipClose();
     }
 });
+
+
+function argFromClip(keynumber) {
+    number = keynumber - 49;
+    if (number == -1 ) {
+        number = 9;
+    }
+
+    if (number >= 0 && number <= 9) {
+        console.log("arg number:", number)
+        if ( $('#var' + number).length ) {
+            $.when(
+                snipFromClip()
+            ).then(
+                function (data) {
+                    $('#var' + number).val(data) 
+                }  
+            );
+        }
+    }
+}
 
 function clearform() {
     $('#code').val('');
@@ -58,6 +84,8 @@ function runwithvars() {
 
 function populateVarsList(item) {
     let args = item.argument;
+    var hotkey = "";
+
     $(document).ready(function() {
         let strautofocus = "autofocus";
         $("#argument-list").empty();
@@ -66,7 +94,13 @@ function populateVarsList(item) {
             if (n != undefined && n.length >= 1) {
                 v = args[key].value;
                 if (v == undefined) { v = "" }
-                let txtlabel = "<label class='varList' for='var" + key + "'>" + n + ":</label><br>";
+                if (key == 10) {
+                    hotkey = "<u>0</u>.) ";
+                } else {
+                    let k = parseInt(key, 10) + 1;
+                    hotkey = "<u>" + k + "</u>.) ";
+                }
+                let txtlabel = "<label class='varList' for='var" + key + "'>" + hotkey + n + ":</label><br>";
                 let txtbox = "<input class='varList' type='text' id='var" + key + "' value='" + v + "' " + strautofocus + ">";
                 $( "#argument-list" ).append("<div>" + txtlabel + txtbox + "</div>")
                 $( '#var' + key ).data('argname', n);

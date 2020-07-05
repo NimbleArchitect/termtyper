@@ -20,7 +20,7 @@ func searchandpaste(datapath string) {
 	//w.Navigate("https://nimblearchitect.github.io/termtyper/common/searchpage.html")
 	w.Navigate("file://" + datapath + "/common/searchpage.html")
 	w.Bind("snipSearch", snip_search)
-	w.Bind("toclipboard", snip_copy)
+	w.Bind("snipFromClip", snip_getClipboard)
 	w.Bind("snipWrite", snip_write)
 	w.Bind("snipClose", snip_close)
 	w.Bind("snipSave", snip_save)
@@ -54,7 +54,7 @@ func typemanager(datapath string) {
 	//w.Navigate("https://nimblearchitect.github.io/termtyper/common/manager.html")
 	w.Navigate("file://" + datapath + "/common/manager.html")
 	w.Bind("snipSearch", snip_search)
-	w.Bind("toclipboard", snip_copy)
+	w.Bind("snipFromClip", snip_copy)
 	w.Bind("snipClose", snip_close)
 	w.Bind("snipSave", snip_save)
 

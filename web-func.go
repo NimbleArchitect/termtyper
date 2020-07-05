@@ -107,3 +107,11 @@ func snipSearchRemote() string {
 
 	}
 }
+
+func snip_getClipboard() string {
+	out, err := clipboard.ReadAll()
+	if err == nil {
+		return out
+	}
+	return ""
+}

@@ -5,6 +5,8 @@ An autotyping assistant that eases the burdern of manually typing long commands
 ## Features
 * full keyboard control, so you never have to reach for the mouse
 * custom argument support with default values
+* copy from the clipboard to specified argument using shortcut keys alt+1, alt+2, etc
+* import and export commands to/from json
 
 ## How it works
 Press your selected keyboard combination to open termtyper, search for your selected command using the arrow keys to navigate press enter to select the command and enter again to type the command into your active window
