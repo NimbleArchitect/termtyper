@@ -25,7 +25,7 @@ func searchandpaste(datapath string) {
 	w.Bind("snipClose", snip_close)
 	w.Bind("snipSave", snip_save)
 
-	w.Init(snipSearchRemote())
+	//w.Init(snipSearchRemote())
 
 	w.Run()
 }
@@ -42,5 +42,21 @@ func newfromcommand(datapath string) {
 	w.Bind("snipSave", snip_save)
 	w.Bind("snipCodeFromArg", snip_codeFromArg)
 	w.Eval("window.addEventListener('load', function () { getCodeFromArguments(); });")
+	w.Run()
+}
+
+func typemanager(datapath string) {
+	w = webview.New(webdebug)
+	//defer w.Destroy()
+	w.SetTitle(appName)
+	w.SetSize(1024, 768, webview.HintNone)
+	w.Navigate("data:text/html,<html><body>Loading...</body></html>")
+	//w.Navigate("https://nimblearchitect.github.io/termtyper/common/manager.html")
+	w.Navigate("file://" + datapath + "/common/manager.html")
+	w.Bind("snipSearch", snip_search)
+	w.Bind("toclipboard", snip_copy)
+	w.Bind("snipClose", snip_close)
+	w.Bind("snipSave", snip_save)
+
 	w.Run()
 }

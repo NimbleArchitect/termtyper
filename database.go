@@ -77,6 +77,7 @@ func dbFind(field string, searchfor string) []Snipitem {
 	var code string
 	var created string
 	var cmdtype string
+
 	// query
 	qry := string("SELECT * FROM snips WHERE " + field + " LIKE '%" + searchfor + "%'")
 	rows, err := database.Query(qry)

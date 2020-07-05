@@ -91,6 +91,9 @@ func main() {
 		argument = ""
 	}
 	switch argument {
+	case "-m":
+		typemanager(execpath)
+
 	case "-n":
 		codefromarg = readStdin()
 		newfromcommand(execpath)
@@ -116,11 +119,14 @@ func main() {
 func showHelp() {
 	fmt.Println("Usage:", appName, "[OPTION...]")
 	fmt.Print(`
+  -a                    open the autotype window
   -h, --help            show this help message
       --export FILE     export the local database to FILE
       --import FILE     import previously exported FILE into the local database
 
+  -m                    open the managment UI
   -n                    read command from stdin (unix only)
+  
 `)
 
 }
