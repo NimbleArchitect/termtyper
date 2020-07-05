@@ -25,7 +25,7 @@ import (
 )
 
 const webdebug bool = true
-const loglevel int = 5
+const loglevel int = 1
 const defaultcmdtype string = "bash"
 const appName string = "termtyper"
 const regexMatch string = "{:[A-Za-z_-]+?.*:}"
@@ -92,7 +92,6 @@ func main() {
 	}
 	switch argument {
 	case "-n":
-		fmt.Println(progargs)
 		codefromarg = readStdin()
 		newfromcommand(execpath)
 
@@ -102,11 +101,28 @@ func main() {
 	case "--import":
 		importAll(progargs[1])
 
+	case "--help":
+		showHelp()
+	case "-h":
+		showHelp()
+
 	default:
 		searchandpaste(execpath)
 	}
 
 	database.Close()
+}
+
+func showHelp() {
+	fmt.Println("Usage:", appName, "[OPTION...]")
+	fmt.Println(`
+  -h, --help            show this help message
+      --export FILE     export the local database to FILE
+      --import FILE     import previously export FILE into the local database
+
+  -n                    read command from stdin (unix only)
+`)
+
 }
 
 //return path to this running program
@@ -116,7 +132,6 @@ func getprogPath() string {
 	ex, err := os.Executable()
 	if err == nil {
 		dirAbsPath = filepath.Dir(ex)
-		fmt.Println(dirAbsPath)
 		return dirAbsPath
 	}
 
@@ -125,7 +140,6 @@ func getprogPath() string {
 		panic(err)
 	}
 	dirAbsPath = filepath.Dir(exReal)
-	fmt.Println(dirAbsPath)
 	logDebug("F:getprogPath:return =", dirAbsPath)
 	return dirAbsPath
 }
@@ -324,7 +338,7 @@ func readStdin() string {
 	}
 
 	if info.Mode()&os.ModeCharDevice != 0 {
-		fmt.Println("No Pipe found")
+		logError("No Pipe found")
 		//return
 	}
 
@@ -393,7 +407,7 @@ func exportAll(filename string) {
 	}
 	strout, err := json.MarshalIndent(out, "", "  ")
 	if err != nil {
-		fmt.Println(err)
+		logError(err)
 	}
 	_ = ioutil.WriteFile(filename, []byte(strout), 0644)
 

@@ -30,7 +30,6 @@ func snip_search(data string) string {
 		itmarg := getArguments(itm.Code)
 		itm.Argument = itmarg
 		foundSnips = append(foundSnips, itm)
-		//fmt.Println(foundSnips)
 	}
 	str, _ := json.Marshal(foundSnips)
 	return string(str)
