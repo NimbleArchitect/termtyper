@@ -23,18 +23,19 @@ import (
 )
 
 const webdebug bool = true
-const loglevel int = 1
+const loglevel int = 5
 const appName string = "termtyper"
 const regexMatch string = "{:[A-Za-z_-]+?.*:}"
 
 var codefromarg string = ""
 
 type Snipitem struct {
-	ID       int        `json:"hash"`
+	Hash     string     `json:"hash"`
 	Time     time.Time  `json:"-"` // - hides the output from json
 	Name     string     `json:"name"`
 	Code     string     `json:"code"`
 	Argument []SnipArgs `json:"argument"`
+	CmdType  string     `json:"cmdtype"`
 }
 
 type SnipArgs struct {
@@ -67,7 +68,7 @@ func main() {
 		}
 	}
 
-	database, _ = opendb(fldrName + "/snippets.db")
+	database, _ = opendb(fldrName + "/termtyper.db")
 	// if ok == true {
 	// 	//defer database.Close()
 	// }
@@ -275,8 +276,10 @@ func argumentReplace(vars []SnipArgs, code string) string {
 	return newcode
 }
 
-func typeSnippet(messages chan bool, text []string) {
-	lineSeperator := " \\"
+func typeSnippet(messages chan bool, lineSeperator string, text []string) {
+	if lineSeperator == "" {
+		lineSeperator = " \\"
+	}
 	logDebug("F:typeSnippet:start")
 	runtime.LockOSThread()
 	logDebug("F:typeSnippet:switching window")
@@ -328,6 +331,29 @@ func readStdin() string {
 		retstr += output[j]
 	}
 	return strings.TrimSpace(retstr)
+}
+
+func validCmdType(cmdtype string) (string, string) {
+	var out string
+	var sep string
+
+	nowhite := strings.TrimSpace(cmdtype)
+	lower := strings.ToLower(nowhite)
+	out = lower
+
+	switch lower {
+	case "bash":
+		sep = " \\"
+	case "powershell":
+		sep = ""
+	case "dos":
+		sep = " ^"
+
+	default:
+		out, sep = validCmdType("bash")
+	}
+
+	return out, sep
 }
 
 func exportAll() {

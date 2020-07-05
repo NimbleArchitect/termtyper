@@ -21,15 +21,16 @@ document.addEventListener('keyup', (e) => {
 function saveform() {
     let txttitle = document.getElementById('title').value;
     let txtcode = document.getElementById('code').value;
+    let txtcmdtyp = document.getElementById('cmdtypselect').value;
 
-    snipSave(txttitle, txtcode);
+    snipSave(txttitle, txtcode, txtcmdtyp);
     $( '#box-addnew' ).hide();
     $( '#searchbox' ).focus();
 }
 
 function writeFromHash(hash) {
     //make sure we have something as a value
-    if (hash.length >= 1) {
+    if (hash != "") {
         snipWrite(''+hash);
     }
 }
@@ -78,12 +79,8 @@ function getCodeFromArguments(e) {
     })
 }
 
-$(function() {
-function log( message ) {
-    $( "<div>" ).text( message ).prependTo( "#log" );
-    $( "#log" ).scrollTop( 0 );
-}
 
+$(function() {
 $( "#searchbox" ).keypress(function(event){
     if (event.which == 13) {
         writeFromHash($( "#searchbox" ).data("hashid"));
@@ -91,7 +88,10 @@ $( "#searchbox" ).keypress(function(event){
 }).autocomplete({
     autoFocus: true,
     source: function( request, response ) {
-        snipSearch(request.term).then(
+        $.when(
+            //snipSearchRemote(request, response),
+            snipSearch(request.term)
+        ).then(
             function(data) {
                 let list = [];
                 if (data == undefined) return;
@@ -110,7 +110,7 @@ $( "#searchbox" ).keypress(function(event){
         );
     },
     minLength: 1,
-    delay: 0,
+    delay: 100,
     select: function( event, ui ) {
         populateVarsList(ui.item);
         $( "#searchbox" ).data( "hashid", ''+ui.item.hash);
@@ -125,9 +125,10 @@ $( "#searchbox" ).keypress(function(event){
     }
 }).data('ui-autocomplete')._renderItem = function(ul, item) {
     //if cmdtype in bash add class to searchcmdlinux and typename to bash
-    cmdtype = "searchcmdlinux";
-    typename = "bash";
-    //the above should realy be a function
+    //typename = "bash";
+    typename = item.cmdtype 
+    cmdtype = "searchcmd_" + typename;
+    //the above should really be a function
     schtype = "<div class='searchcmdtype " + cmdtype + "'>" + typename + "</div>";
     schname = "<div class='searchname'>" + item.name + schtype + "</div>";
     schcmd = "<div class='searchcmd'>" + item.code + "</div>";

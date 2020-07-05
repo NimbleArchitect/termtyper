@@ -190,11 +190,22 @@ input.varList {
 	margin-right:15px;
 	padding: 2px;
 }
-.searchcmdlinux {
+.searchcmd_bash {
 	border: 1px solid darkred;
 	background-color: darkred;
 	color: white;
 }
+.searchcmd_powershell {
+	border: 1px solid royalblue;
+	background-color: royalblue;
+	color: white;
+}
+.searchcmd_dos {
+	border: 1px solid yellowgreen;
+	background-color: yellowgreen;
+	color: black;
+}
+
 
 .ui-menu .ui-menu-item a {
     color: #012998;
@@ -215,4 +226,3 @@ input.varList {
 	height: 300px;
 	width: 1px;
 }
-remove me

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/atotto/clipboard"
+	"github.com/pborman/uuid"
 	"strings"
 	"time"
 )
@@ -63,7 +64,8 @@ func snip_write(hash string, vars ...string) error {
 	//set up channel to wait on, this fixes a crash where the window
 	// was closing before the fucntion had finished
 	messages := make(chan bool)
-	go typeSnippet(messages, code)
+	_, sep := validCmdType(snips.CmdType) //get multiline seperator
+	go typeSnippet(messages, sep, code)
 	//wait for completion signal
 	<-messages
 	snip_close()
@@ -71,12 +73,16 @@ func snip_write(hash string, vars ...string) error {
 	return nil
 }
 
-func snip_save(title string, code string) {
+func snip_save(title string, code string, commandtype string) {
 	logDebug("F:snip_save:start")
 
+	hash := uuid.New()
+
+	cmdtype, _ := validCmdType(commandtype)
+
 	tx, _ := database.Begin()
-	stmt, _ := tx.Prepare("insert into snips (created,name,code) values (?,?,?)")
-	_, err := stmt.Exec(time.Now(), title, code)
+	stmt, _ := tx.Prepare("insert into snips (hash,created,name,code,cmdtype) values (?,?,?,?,?)")
+	_, err := stmt.Exec(hash, time.Now(), title, code, cmdtype)
 	if err != nil {
 		logError("error saving")
 	}
@@ -90,4 +96,20 @@ func snip_codeFromArg() string {
 	thissnip.Code = codefromarg
 	str, _ := json.Marshal(thissnip)
 	return string(str)
+}
+
+func snipSearchRemote() string {
+	remoteenabled := false
+
+	if remoteenabled == false {
+		return ""
+	} else {
+
+		return `function snipSearchRemote( request, response ) {
+	if (request.term.length >= 2) {
+		$.getJSON("http://localhost:8080/sch?t=123456",request,response)
+	}
+}`
+
+	}
 }

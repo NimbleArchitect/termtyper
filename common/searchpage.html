@@ -24,8 +24,13 @@
         <input type="text" id="title" name="title"><br>
         <label for="code">code:</label><br>
         <textarea id="code" name="code"></textarea>
+
+        <select id="cmdtypselect">
+            <option value="bash" selected>bash</option>
+            <option value="powershell">powershell</option>
+            <option value="dos">dos</option>
+          </select>
         <div>
-            <div id="scripttype">bash/dos/powershell</div>
             <button id="myBtn" class="button" onclick="$( '#box-addnew' ).css('display', 'none');$( '#searchbox' ).focus();">Cancel</button>
             <button id="btnsavenew" class="button" onclick="saveform();">Save</button>
         </div>
