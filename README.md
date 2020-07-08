@@ -24,7 +24,7 @@ termtype doesn't have any commands stored by default so you will have to add the
 clone from GitHub
 ```
 git clone https://github.com/NimbleArchitect/termtyper.git
-cd GpioSentry
+cd termtyper
 ```
 
 
