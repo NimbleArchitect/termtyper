@@ -10,6 +10,7 @@ import (
 	"time"
 )
 
+//copy data into clipboard
 func snip_copy(data string) error {
 	logDebug("F:snip_copy:start")
 
@@ -17,6 +18,7 @@ func snip_copy(data string) error {
 	return nil
 }
 
+//return json object of matching snip record details
 func snip_search(data string) string {
 	var foundSnips []Snipitem
 	logDebug("F:snip_search:start")
@@ -35,6 +37,9 @@ func snip_search(data string) string {
 	return string(str)
 }
 
+//auto type function
+// accepts given hash matching snip record and
+// a json string representing argument name and value
 func snip_write(hash string, vars ...string) error {
 	var code []string
 	var data string
@@ -72,6 +77,7 @@ func snip_write(hash string, vars ...string) error {
 	return nil
 }
 
+//save to db
 func snip_save(title string, code string, commandtype string) {
 	logDebug("F:snip_save:start")
 
@@ -83,6 +89,7 @@ func snip_save(title string, code string, commandtype string) {
 
 }
 
+//returns json object representing string passed from stdin
 func snip_codeFromArg() string {
 	var thissnip Snipitem
 	logDebug("F:snip_codeFromArg:start")
@@ -108,6 +115,7 @@ func snipSearchRemote() string {
 	}
 }
 
+//read fromclipboard
 func snip_getClipboard() string {
 	out, err := clipboard.ReadAll()
 	if err == nil {

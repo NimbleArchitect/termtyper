@@ -28,7 +28,7 @@ const webdebug bool = true
 const loglevel int = 1
 const defaultcmdtype string = "bash"
 const appName string = "termtyper"
-const regexMatch string = "{:[A-Za-z_- ]+?:}"
+const regexMatch string = "{:[A-Za-z0-9!._ -]+?:}"
 
 var codefromarg string = ""
 
@@ -208,8 +208,8 @@ func getArguments(text string) []SnipArgs {
 		varname := strings.Split(vars[1], "!") // default values for arguments can be found after !
 		logDebug("F:getArguments:varname =", varname)
 		logDebug("F:getArguments:len(varname) =", len(varname))
-		strName := cleanString(varname[0], "[^A-Za-z_.-]") //remove invalid chars from name
-		if len(varname) == 1 {                             // ! is optional so check if argument dosent have a default value
+		strName := cleanString(varname[0], "[^A-Za-z0-9_. -]") //remove invalid chars from name
+		if len(varname) == 1 {                                 // ! is optional so check if argument dosent have a default value
 			varitem = SnipArgs{
 				Name:  strings.TrimSpace(strName),
 				Value: "",
@@ -243,7 +243,7 @@ func cleanString(data string, regex string) string {
 	return newstr
 }
 
-//search code looing for arguments, replace with values from SnipArgs
+//search code look ing for arguments, replace with values from SnipArgs
 func argumentReplace(vars []SnipArgs, code string) string {
 	var newcode string
 	var val string
