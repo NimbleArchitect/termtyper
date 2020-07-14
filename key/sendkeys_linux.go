@@ -13,7 +13,7 @@ import (
 
 func SwitchWindow() {
 	C.SendAltTabKeys()
-
+	//C.LowerWindow()
 }
 
 func SendLine(text string) {

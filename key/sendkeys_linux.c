@@ -5,23 +5,28 @@
 #include <stdlib.h>
 #include <string.h>
 
-
 #  define NeedFunctionPrototypes 1
 #  include <X11/Xlib.h>
 #  include <X11/keysym.h>
 #  include <X11/extensions/XTest.h>
+#  include <X11/Xmu/WinUtil.h>
 #  if XlibSpecificationRelease != 6
 #      error Requires X11R6
 #  endif
 
-static char *displayname = NULL;
 static int keysym = 0;
-static Display *display = NULL;
-static Window window = 0;
 
 
-int OpenDisplay() {
-    int focusreturn;
+Bool xerror = False;
+
+void print_window_name(Display* d, Window w);
+Window GetFocusWindow(Display* display);
+void SendKeyEvent(Display* display, KeySym keysym, unsigned int shift);
+
+Display* OpenDisplay() {
+    Display* display = NULL;
+    char *displayname = NULL;
+
     //fprintf(stderr, "C:OpenDisplay:start\n");
     if (displayname == NULL) {
 	    displayname = getenv("DISPLAY");
@@ -35,22 +40,15 @@ int OpenDisplay() {
 
     if (display == NULL)
     {
-        //fprintf(stderr, "can't open display `%s'.\n", displayname);
-    	return 1;
+        fprintf(stderr, "can't open display `%s'.\n", displayname);
+    	return NULL;
     }
 
-    if (window == 0) {
-        XGetInputFocus(display, &window, &focusreturn);
-    }
+    return display;
 
-    if(window == (Window)-1) {
-        window = RootWindow(display, 0); // XXX nonzero screens?
-    }
-
-    return 0;
 }
 
-void SendKeyEvent(KeySym keysym, unsigned int shift) {
+void SendKeyEvent(Display* display, KeySym keysym, unsigned int shift) {
     // shift key down if needed
     if (shift == 1) {
         XTestFakeKeyEvent(display, XKeysymToKeycode(display, XK_Shift_L), True, CurrentTime);
@@ -74,11 +72,20 @@ void SendKeyEvent(KeySym keysym, unsigned int shift) {
 }
 
 int SendAltTabKeys() {
+    Display* display = NULL;
+    //Window window = 0;
+
     XInitThreads();
     //fprintf(stderr, "C:SendAltTabKeys:start\n");
-    if (OpenDisplay() != 0) {
+    display = OpenDisplay();
+    if (display == NULL) {
+        printf("Failed to open display");
         return 0;
     }
+
+    //window = GetFocusWindow(display);
+
+
     //fprintf(stderr, "C:SendAltTabKeys:sending keys\n");
     XTestFakeKeyEvent(display, XKeysymToKeycode(display, XK_Alt_L), True, CurrentTime);
     XSync(display, False);
@@ -98,18 +105,90 @@ int SendAltTabKeys() {
 }
 
 int Sendkey(const char *letter, int shift) {
+    Display* display = NULL;
+
     XInitThreads();
-    if (OpenDisplay() != 0) {
-        return 1;
+    display = OpenDisplay();
+    if (display == NULL) {
+        printf("Failed to open display");
+        return 0;
     }
+
+    //window = GetFocusWindow(display);
+
 
     if(shift == 1) {
         shift |= ShiftMask;
     }
 
     keysym = XStringToKeysym(letter);
-    SendKeyEvent(keysym, shift);
+    SendKeyEvent(display, keysym, shift);
 
+    XCloseDisplay(display);
+
+    return 0;
+}
+
+int handle_error(Display* display, XErrorEvent* error){
+  printf("ERROR: X11 error\n");
+  xerror = True;
+  return 1;
+}
+
+void print_window_name(Display* d, Window w){
+  XTextProperty prop;
+  Status s;
+
+  printf("window name:\n");
+
+  s = XGetWMName(d, w, &prop); // see man
+  if(!xerror && s){
+    int count = 0, result;
+    char **list = NULL;
+    result = XmbTextPropertyToTextList(d, &prop, &list, &count); // see man
+    if(result == Success){
+      printf("\t%s\n", list[0]);
+    }else{
+      printf("ERROR: XmbTextPropertyToTextList\n");
+    }
+  }else{
+    printf("ERROR: XGetWMName\n");
+  }
+}
+
+
+Window GetFocusWindow(Display* display) {
+    Window window = 0;
+    int focusreturn = 0;
+
+    XGetInputFocus(display, &window, &focusreturn);
+
+    if(window == (Window)-1) {
+        window = RootWindow(display, 0); // XXX nonzero screens?
+    }
+
+    return window;
+}
+
+int LowerWindow() {
+    //sdosent work...why?
+    Display* display = NULL;
+    Window window = 0;
+
+    XInitThreads();
+    display = OpenDisplay();
+    XSetErrorHandler(handle_error);
+    if (display == NULL) {
+        printf("Failed to open display");
+        return 0;
+    }
+
+    window = GetFocusWindow(display);
+
+    //print_window_name(display, window);
+    XLowerWindow(display, window);
+    usleep( 12000 );
+    XSync(display, False);
     XCloseDisplay(display);
 
     return 0;

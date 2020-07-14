@@ -40,14 +40,25 @@ go get -d
 #### Ubuntu
 ```
 sudo apt-get install libwebkit2gtk-4.0
-
-go get -d
 ```
 
 then you can cd into the source folder and build with
 ```
+go get -d
 go build
 ```
+
+### Arch
+```
+sudo pacman -S go pkg-config sqlite gcc
+```
+then cd into the source folder and run the following
+```
+export CGO_CFLAGS="-g -O2 -Wno-return-local-addr"
+go get -d
+go build
+```
+
 
 ### Windows
 

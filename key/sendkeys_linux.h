@@ -4,5 +4,6 @@
 
 int Sendkey(const char *letter, int shift);
 int SendAltTabKeys();
+int LowerWindow();
 
 #endif
