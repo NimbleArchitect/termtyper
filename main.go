@@ -32,22 +32,29 @@ const regexMatch string = "{:[A-Za-z0-9!._ -]+?:}"
 
 var codefromarg string = ""
 
-type Snipitem struct {
+type snipItem struct {
 	Hash     string     `json:"hash"`
 	Time     time.Time  `json:"-"` // - hides the output from json
 	Name     string     `json:"name"`
 	Code     string     `json:"code"`
-	Argument []SnipArgs `json:"argument"`
+	Argument []snipArgs `json:"argument"`
 	CmdType  string     `json:"cmdtype"`
 }
 
-type SnipArgs struct {
+type snipArgs struct {
 	Name  string `json:"name,omitempty"`
 	Value string `json:"value,omitempty"`
 }
 
+type command struct {
+	id   string
+	data string
+}
+
 var action int
 var datapath string
+
+var queryQueue chan command
 
 func main() {
 	var argument string
@@ -189,11 +196,11 @@ func getArgumentList(text string) ([]string, bool) {
 	return matches, ok
 }
 
-//search text looking for arguments returns array of SnipArgs
-func getArguments(text string) []SnipArgs {
-	var namelist []SnipArgs
+//search text looking for arguments returns array of snipArgs
+func getArguments(text string) []snipArgs {
+	var namelist []snipArgs
 	var varlist []string
-	var varitem SnipArgs
+	var varitem snipArgs
 
 	logDebug("F:getArguments:start")
 	varlist, ok := getArgumentList(text)
@@ -210,12 +217,12 @@ func getArguments(text string) []SnipArgs {
 		logDebug("F:getArguments:len(varname) =", len(varname))
 		strName := cleanString(varname[0], "[^A-Za-z0-9_. -]") //remove invalid chars from name
 		if len(varname) == 1 {                                 // ! is optional so check if argument dosent have a default value
-			varitem = SnipArgs{
+			varitem = snipArgs{
 				Name:  strings.TrimSpace(strName),
 				Value: "",
 			}
 		} else if len(varname) == 2 { //argument has a default value
-			varitem = SnipArgs{
+			varitem = snipArgs{
 				Name:  strings.TrimSpace(strName),
 				Value: strings.TrimSpace(varname[1]),
 			}
@@ -243,8 +250,8 @@ func cleanString(data string, regex string) string {
 	return newstr
 }
 
-//search code look ing for arguments, replace with values from SnipArgs
-func argumentReplace(vars []SnipArgs, code string) string {
+//search code look ing for arguments, replace with values from snipArgs
+func argumentReplace(vars []snipArgs, code string) string {
 	var newcode string
 	var val string
 	logDebug("F:argumentReplace:start")
@@ -261,7 +268,7 @@ func argumentReplace(vars []SnipArgs, code string) string {
 	}
 
 	if varlen != itmlen { // itmlen is not the same length as varlen
-		emptyarg := SnipArgs{Name: "", Value: ""}
+		emptyarg := snipArgs{Name: "", Value: ""}
 		for c := varlen; c <= itmlen; c++ {
 			vars = append(vars, emptyarg) //so add enough empty values to our vars array this helps the for loop below
 		}
@@ -423,7 +430,7 @@ func importAll(filename string) {
 
 	file, _ := ioutil.ReadFile(filename)
 
-	var items []Snipitem
+	var items []snipItem
 	_ = json.Unmarshal([]byte(file), &items)
 
 	written := 0
@@ -434,11 +441,32 @@ func importAll(filename string) {
 		if count == 0 {
 			//TODO: need to sanity check the data
 			dbWrite(items[i].Hash, items[i].Time, items[i].Name, items[i].Code, items[i].CmdType)
-			written += 1
+			written++
 		} else {
-			skipped += 1
+			skipped++
 		}
 	}
 
 	fmt.Println(len(items), "total items to import,", written, "items imported successfully and", skipped, "items skipped")
+}
+
+func localSearch(hash string, data string) {
+
+	var foundSnips []snipItem
+	logDebug("F:snip_search:start")
+
+	if len(data) <= 0 {
+		sendResultsToJS(hash, "")
+	}
+
+	snips := dbFind("name", data) //search the name field in the snip table
+	for _, itm := range snips {
+		itmarg := getArguments(itm.Code)
+		itm.Argument = itmarg
+		foundSnips = append(foundSnips, itm)
+	}
+	str, _ := json.Marshal(foundSnips)
+
+	//need to move sendResultsToJs to a collector function that will read from a channel
+	sendResultsToJS(hash, string(str))
 }

@@ -11,39 +11,20 @@ import (
 )
 
 //copy data into clipboard
-func snip_copy(data string) error {
+func snipCopy(data string) error {
 	logDebug("F:snip_copy:start")
 
 	clipboard.WriteAll(data)
 	return nil
 }
 
-//return json object of matching snip record details
-func snip_search(data string) string {
-	var foundSnips []Snipitem
-	logDebug("F:snip_search:start")
-
-	if len(data) <= 0 {
-		return ""
-	}
-
-	snips := dbFind("name", data) //search the name field in the snip table
-	for _, itm := range snips {
-		itmarg := getArguments(itm.Code)
-		itm.Argument = itmarg
-		foundSnips = append(foundSnips, itm)
-	}
-	str, _ := json.Marshal(foundSnips)
-	return string(str)
-}
-
 //auto type function
 // accepts given hash matching snip record and
 // a json string representing argument name and value
-func snip_write(hash string, vars ...string) error {
+func snipWrite(hash string, vars ...string) error {
 	var code []string
 	var data string
-	var args []SnipArgs
+	var args []snipArgs
 	logDebug("F:snip_write:start")
 
 	if len(hash) <= 0 {
@@ -72,13 +53,13 @@ func snip_write(hash string, vars ...string) error {
 	go typeSnippet(messages, sep, code)
 	//wait for completion signal
 	<-messages
-	snip_close()
+	snipClose()
 
 	return nil
 }
 
 //save to db
-func snip_save(title string, code string, commandtype string) {
+func snipSave(title string, code string, commandtype string) {
 	logDebug("F:snip_save:start")
 
 	hash := uuid.New()
@@ -90,8 +71,8 @@ func snip_save(title string, code string, commandtype string) {
 }
 
 //returns json object representing string passed from stdin
-func snip_codeFromArg() string {
-	var thissnip Snipitem
+func snipCodeFromArg() string {
+	var thissnip snipItem
 	logDebug("F:snip_codeFromArg:start")
 
 	thissnip.Code = codefromarg
@@ -116,10 +97,19 @@ func snipSearchRemote() string {
 }
 
 //read fromclipboard
-func snip_getClipboard() string {
+func snipGetClipboard() string {
 	out, err := clipboard.ReadAll()
 	if err == nil {
 		return out
 	}
 	return ""
+}
+
+//async search given a search id and query
+// perform a search on seperate threads
+func snipAsyncSearch(hash string, query string) error {
+
+	go localSearch(hash, query)
+
+	return nil
 }

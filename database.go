@@ -33,8 +33,8 @@ func dbOpen(dbpath string) (*sql.DB, bool) {
 }
 
 // returns a Snipitem that represents the hashid from the database table
-func dbGetID(hash string) (Snipitem, int) {
-	var snip Snipitem
+func dbGetID(hash string) (snipItem, int) {
+	var snip snipItem
 
 	var name string
 	var code string
@@ -54,14 +54,14 @@ func dbGetID(hash string) (Snipitem, int) {
 			panic(err)
 		}
 		//tags := len(getVars(code))
-		snip = Snipitem{
+		snip = snipItem{
 			Hash:    hash,
 			Time:    time.Now(),
 			Name:    name,
 			Code:    code,
 			CmdType: cmdtype,
 		}
-		count += 1
+		count++
 	}
 	rows.Close() //good habit to close
 
@@ -69,9 +69,9 @@ func dbGetID(hash string) (Snipitem, int) {
 }
 
 // search for a record name that has a wildcard match to field and return a Snipitem that represents the match
-func dbFind(field string, searchfor string) []Snipitem {
+func dbFind(field string, searchfor string) []snipItem {
 	//TODO: search for matching tags
-	var snip []Snipitem
+	var snip []snipItem
 	var hash string
 	var name string
 	var code string
@@ -94,7 +94,7 @@ func dbFind(field string, searchfor string) []Snipitem {
 		}
 		//tags := len(getVars(code))
 		//TODO: convert created string to time object
-		snipitem := Snipitem{
+		item := snipItem{
 			Hash:    hash,
 			Time:    time.Now(),
 			Name:    name,
@@ -102,7 +102,7 @@ func dbFind(field string, searchfor string) []Snipitem {
 			CmdType: cmdtype,
 		}
 
-		snip = append(snip, snipitem)
+		snip = append(snip, item)
 	}
 
 	rows.Close() //good habit to close
@@ -122,9 +122,9 @@ func dbWrite(hash string, created time.Time, title string, code string, cmdtype 
 	return nil
 }
 
-func dbGetAll() []Snipitem {
-	var snip []Snipitem
-	var snipitem Snipitem
+func dbGetAll() []snipItem {
+	var snip []snipItem
+	var item snipItem
 	var hash string
 	var name string
 	var code string
@@ -144,14 +144,14 @@ func dbGetAll() []Snipitem {
 			panic(err)
 		}
 		//tags := len(getVars(code))
-		snipitem = Snipitem{
+		item = snipItem{
 			Hash:    hash,
 			Time:    time.Now(),
 			Name:    name,
 			Code:    code,
 			CmdType: cmdtype,
 		}
-		snip = append(snip, snipitem)
+		snip = append(snip, item)
 	}
 	rows.Close() //good habit to close
 	return snip

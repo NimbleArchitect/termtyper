@@ -1,9 +1,11 @@
 package main
 
 //os specific close window function
-func snip_close() error {
+func snipClose() error {
 	logDebug("F:snip_close:start")
 
-	w.Terminate()
+	w.Dispatch(func() {
+		w.Terminate()
+	})
 	return nil
 }

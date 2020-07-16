@@ -62,7 +62,7 @@ void SendKeyEvent(Display* display, KeySym keysym, unsigned int shift) {
         usleep(1000);
         XTestFakeKeyEvent(display, XKeysymToKeycode(display, keysym), False, CurrentTime);
         XSync(display, False);
-    } 
+    }
 
     //shift key up if it was down
     if (shift == 1) {
@@ -135,25 +135,41 @@ int handle_error(Display* display, XErrorEvent* error){
   return 1;
 }
 
-void print_window_name(Display* d, Window w){
-  XTextProperty prop;
-  Status s;
+unsigned int getWindowCount( Display *display, Window parent_window, int depth )
+{
+    Window  root_return;
+    Window  parent_return;
+    Window *children_list = NULL;
+    Window top_window;
+    unsigned int list_length = 0;
+    //unsigned int total_list_length = 0;
 
-  printf("window name:\n");
-
-  s = XGetWMName(d, w, &prop); // see man
-  if(!xerror && s){
-    int count = 0, result;
-    char **list = NULL;
-    result = XmbTextPropertyToTextList(d, &prop, &list, &count); // see man
-    if(result == Success){
-      printf("\t%s\n", list[0]);
-    }else{
-      printf("ERROR: XmbTextPropertyToTextList\n");
+    // query the window list recursively, until each window reports no sub-windows
+    printf( "getWindowCount() - Window %lu\n", parent_window );
+    if ( 0 != XQueryTree( display, parent_window, &root_return, &parent_return, &children_list, &list_length ) )
+    {
+        //printf( "getWindowCount() - %s    %d window handle returned\n", indent, list_length );
+        if ( list_length > 0 && children_list != NULL )
+        {
+            // for ( int i=0; i<list_length; i++)
+            // {
+            //     // But typically the "top-level" window is not what the user sees, so query any children
+            //     // Only the odd window has child-windows.  XEyes does.
+            //     if ( children_list[i] != 0 )
+            //     {
+            //         unsigned int child_length = getWindowCount( display, children_list[i], depth+1 );
+            //         total_list_length += child_length;  
+            //     }
+            // }
+            top_window = children_list[list_length -3];
+            XRaiseWindow(display, top_window);
+            printf( "getWindowCount() - Window %lu\n", top_window );
+            XSync(display, False);
+            XFree( children_list ); // cleanup
+        }
     }
-  }else{
-    printf("ERROR: XGetWMName\n");
-  }
+
+    return list_length; 
 }
 
 
@@ -164,6 +180,7 @@ Window GetFocusWindow(Display* display) {
     XGetInputFocus(display, &window, &focusreturn);
 
     if(window == (Window)-1) {
+        printf("getinputfocus failed, using rootwindo instead");
         window = RootWindow(display, 0); // XXX nonzero screens?
     }
 
@@ -174,6 +191,7 @@ int LowerWindow() {
     //sdosent work...why?
     Display* display = NULL;
     Window window = 0;
+    Window root_window;
 
     XInitThreads();
     display = OpenDisplay();
@@ -185,8 +203,12 @@ int LowerWindow() {
 
     window = GetFocusWindow(display);
 
-    //print_window_name(display, window);
+    root_window = XRootWindow( display, 0 );
     XLowerWindow(display, window);
+    
+    getWindowCount(display, root_window, 0);
+
+    printf( "- Window %lu\n", window );
     usleep( 12000 );
     XSync(display, False);
     XCloseDisplay(display);

@@ -11,11 +11,14 @@ import (
 	"unsafe"
 )
 
+//SwitchWindow hides this programs window
 func SwitchWindow() {
+	//TODO: alt tab doesn't always work needs fixing
 	C.SendAltTabKeys()
 	//C.LowerWindow()
 }
 
+//SendLine types a single line of text into the active window
 func SendLine(text string) {
 	//fmt.Println("F:SendLine:start")
 	for _, c := range text {
