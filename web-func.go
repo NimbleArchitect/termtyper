@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/atotto/clipboard"
 	"github.com/pborman/uuid"
 	"strings"
@@ -82,22 +81,6 @@ func snipCodeFromArg() string {
 	return string(str)
 }
 
-func snipSearchRemote() string {
-	remoteenabled := false
-
-	if remoteenabled == false {
-		return ""
-	} else {
-
-		return `function snipSearchRemote( request, response ) {
-	if (request.term.length >= 2) {
-		$.getJSON("http://localhost:8080/sch?t=123456",request,response)
-	}
-}`
-
-	}
-}
-
 //read fromclipboard
 func snipGetClipboard() string {
 	out, err := clipboard.ReadAll()
@@ -105,12 +88,6 @@ func snipGetClipboard() string {
 		return out
 	}
 	return ""
-}
-
-type searchRequest struct {
-	hash    string
-	query   string
-	channel chan []snipItem
 }
 
 //async search given a search id and query
@@ -124,6 +101,7 @@ func snipAsyncSearch(hash string, query string) error {
 	wg := sync.WaitGroup{}
 	if remoteActive == true {
 		ch := make(chan []snipItem)
+		defer close(ch)
 		newRequest := searchRequest{
 			hash:    hash,
 			query:   query,
@@ -134,6 +112,7 @@ func snipAsyncSearch(hash string, query string) error {
 		go remoteSearch(&wg, newRequest)
 	}
 	ch := make(chan []snipItem)
+	defer close(ch)
 	newRequest := searchRequest{
 		hash:    hash,
 		query:   query,
@@ -145,26 +124,4 @@ func snipAsyncSearch(hash string, query string) error {
 
 	go waitAndMerge(&wg, requestList)
 	return nil
-}
-
-func waitAndMerge(wg *sync.WaitGroup, requestList []searchRequest) {
-	var totalSnips []snipItem
-	//TODO: loop through each searchRequest item, wait for
-	// channels to timeout and close or recieve data, then merge data
-	// and send the data back with its hash using
-	// sendResultsToJS(hash, string(str)) this must be a json string though
-
-	fmt.Println("*** Waiting....")
-	for _, request := range requestList {
-		items := <-request.channel
-		totalSnips = append(totalSnips, items...)
-		fmt.Println(items[0].Name)
-	}
-
-	wg.Wait() //wait for all search functions to finish
-
-	hash := requestList[0].hash
-	str, _ := json.Marshal(totalSnips)
-	sendResultsToJS(hash, string(str))
-	fmt.Println("* Ready")
 }

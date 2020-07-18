@@ -18,7 +18,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"runtime"
+	//"runtime"
 	"strings"
 	"sync"
 	"termtyper/key"
@@ -26,7 +26,7 @@ import (
 )
 
 const webdebug bool = true
-const loglevel int = 5
+const loglevel int = 1
 const defaultcmdtype string = "bash"
 const appName string = "termtyper"
 const regexMatch string = "{:[A-Za-z0-9!._ -]+?:}"
@@ -36,7 +36,7 @@ var codefromarg string = ""
 type snipItem struct {
 	Hash     string     `json:"hash"`
 	Time     time.Time  `json:"-"` // - hides the output from json
-	Name     string     `json:"name"`
+	Name     string     `json:"value"`
 	Code     string     `json:"code"`
 	Argument []snipArgs `json:"argument"`
 	CmdType  string     `json:"cmdtype"`
@@ -50,6 +50,12 @@ type snipArgs struct {
 type command struct {
 	id   string
 	data string
+}
+
+type searchRequest struct {
+	hash    string
+	query   string
+	channel chan []snipItem
 }
 
 var action int
@@ -322,7 +328,7 @@ func typeSnippet(messages chan bool, lineSeperator string, text []string) {
 	}
 
 	logDebug("F:typeSnippet:start")
-	runtime.LockOSThread()
+	//runtime.LockOSThread()
 	logDebug("F:typeSnippet:switching window")
 	key.SwitchWindow()
 
@@ -338,7 +344,7 @@ func typeSnippet(messages chan bool, lineSeperator string, text []string) {
 			key.SendLine(singleline) //write the last or only line
 		}
 	}
-	runtime.UnlockOSThread()
+	//runtime.UnlockOSThread()
 
 	messages <- true
 }
@@ -451,7 +457,26 @@ func importAll(filename string) {
 	fmt.Println(len(items), "total items to import,", written, "items imported successfully and", skipped, "items skipped")
 }
 
-//func localSearch(ch chan []snipItem, hash string, data string) {
+//loop through each searchRequest item, wait for
+// channels to timeout and close or recieve data, then merge data
+// and send the data back with its hash using
+// sendResultsToJS(hash, string(str)) this must be a json string though
+func waitAndMerge(wg *sync.WaitGroup, requestList []searchRequest) {
+	var totalSnips []snipItem
+
+	for _, request := range requestList {
+		items := <-request.channel
+		totalSnips = append(totalSnips, items...)
+	}
+
+	wg.Wait() //wait for all search functions to finish
+
+	hash := requestList[0].hash
+	str, _ := json.Marshal(totalSnips)
+	sendResultsToJS(hash, string(str))
+	//fmt.Println("* Ready")
+}
+
 func localSearch(wg *sync.WaitGroup, request searchRequest) {
 	defer wg.Done() //update the wait counter on function exit
 
@@ -459,9 +484,7 @@ func localSearch(wg *sync.WaitGroup, request searchRequest) {
 	logDebug("F:localSearch:start")
 
 	if len(request.query) <= 0 {
-		//TODO: now need to close the channel to quit
-		close(request.channel)
-		//sendResultsToJS(request.hash, "")
+		return
 	}
 
 	snips := dbFind("name", request.query) //search the name field in the snip table
@@ -470,13 +493,8 @@ func localSearch(wg *sync.WaitGroup, request searchRequest) {
 		itm.Argument = itmarg
 		foundSnips = append(foundSnips, itm)
 	}
-	//str, _ := json.Marshal(foundSnips)
 
 	request.channel <- foundSnips
-	//close(request.channel)
-
-	//need to move sendResultsToJs to a collector function that will read from a channel
-	//sendResultsToJS(hash, string(str))
 }
 
 func remoteSearch(wg *sync.WaitGroup, request searchRequest) {
@@ -492,7 +510,7 @@ func remoteSearch(wg *sync.WaitGroup, request searchRequest) {
 		CmdType:  "bash",
 	}
 	foundSnips = append(foundSnips, singlesnip)
-	time.Sleep(800 * time.Millisecond)
+	//time.Sleep(150 * time.Millisecond)
 
 	request.channel <- foundSnips
 

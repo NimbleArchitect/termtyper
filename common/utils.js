@@ -31,7 +31,6 @@ function argFromClip(keynumber) {
     }
 
     if (number >= 0 && number <= 9) {
-        console.log("arg number:", number)
         if ( $('#var' + number).length ) {
             $.when(
                 snipFromClip()
@@ -121,14 +120,13 @@ function getCodeFromArguments(e) {
 }
 
 
-var asyncJob = {
+let asyncJob = {
     deferredQueue : [],
     fullName      : function() {
         return this.firstName + " " + this.lastName;
     },
     GotData   : function(Qid, result) {
         dq = this.deferredQueue[Qid];
-        console.log(result);
         dq.resolve(result);
     },
     SendJob : function(query) {
@@ -164,20 +162,12 @@ $( "#searchbox" ).keypress(function(event){
                 if (data == undefined) return;
                 let json = JSON.parse(data);
                 if (json == null) return;
-                
-                for (var key in json) {
-                    let obj = json[key];
-                    obj.value = obj.name;
-                    list.push(
-                        obj
-                    );
-                }
-                response(list);
+                response(json);
             }
         );
     },
     minLength: 1,
-    delay: 100,
+    delay: 0,
     select: function( event, ui ) {
         populateVarsList(ui.item);
         $( "#searchbox" ).data( "hashid", ''+ui.item.hash);
@@ -197,7 +187,7 @@ $( "#searchbox" ).keypress(function(event){
     cmdtype = "searchcmd_" + typename;
     //the above should really be a function
     schtype = "<div class='searchcmdtype " + cmdtype + "'>" + typename + "</div>";
-    schname = "<div class='searchname'>" + item.name + schtype + "</div>";
+    schname = "<div class='searchname'>" + item.value + schtype + "</div>";
     schcmd = "<div class='searchcmd'>" + item.code + "</div>";
     schinfo = "<div class='searchinfo'>" + schname + schcmd + "</div>";
     lstitm = "<div class='listitem-div'>" + schinfo + "</div>";
