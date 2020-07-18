@@ -479,6 +479,7 @@ func waitAndMerge(wg *sync.WaitGroup, requestList []searchRequest) {
 
 func localSearch(wg *sync.WaitGroup, request searchRequest) {
 	defer wg.Done() //update the wait counter on function exit
+	defer close(request.channel)
 
 	var foundSnips []snipItem
 	logDebug("F:localSearch:start")
@@ -498,7 +499,8 @@ func localSearch(wg *sync.WaitGroup, request searchRequest) {
 }
 
 func remoteSearch(wg *sync.WaitGroup, request searchRequest) {
-	defer wg.Done()
+	defer wg.Done() //update the wait counter on function exit
+	defer close(request.channel)
 
 	var foundSnips []snipItem
 

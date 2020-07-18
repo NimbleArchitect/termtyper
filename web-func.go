@@ -93,15 +93,13 @@ func snipGetClipboard() string {
 //async search given a search id and query
 // perform a search on seperate threads
 func snipAsyncSearch(hash string, query string) error {
-
 	var requestList []searchRequest
 
-	remoteActive := true
+	remoteActive := false
 
 	wg := sync.WaitGroup{}
 	if remoteActive == true {
 		ch := make(chan []snipItem)
-		defer close(ch)
 		newRequest := searchRequest{
 			hash:    hash,
 			query:   query,
@@ -112,7 +110,6 @@ func snipAsyncSearch(hash string, query string) error {
 		go remoteSearch(&wg, newRequest)
 	}
 	ch := make(chan []snipItem)
-	defer close(ch)
 	newRequest := searchRequest{
 		hash:    hash,
 		query:   query,
