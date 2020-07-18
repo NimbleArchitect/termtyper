@@ -80,3 +80,55 @@ func TestGetArguments(t *testing.T) {
 	}
 
 }
+
+func benchGetArguments(str string, b *testing.B) {
+
+	for n := 0; n < b.N; n++ {
+		_ = getArguments(str)
+	}
+
+}
+
+func BenchmarkGetArgumentsMulti(b *testing.B) {
+	benchGetArguments("test spaces {:value 3!with spaces:} and with ip {:ip!:6.6.6.6:}", b)
+}
+
+func BenchmarkGetArgumentsSingle(b *testing.B) {
+	benchGetArguments("test spaces {:value 3!with spaces:} and with ip                ", b)
+}
+
+func BenchmarkGetArgumentsNone(b *testing.B) {
+	benchGetArguments("test spaces   value 3 with spaces   and with ip  ip  6.6.6.123 ", b)
+}
+
+func TestArgumentReplace(t *testing.T) {
+	//argumentReplace(vars []snipArgs, code string) string
+	//setup snipArgs
+	args := []snipArgs{
+		snipArgs{
+			Name:  "ip",
+			Value: "1.2.3.4",
+		},
+	}
+
+	expected := "ping -t5 1.2.3.4"
+	in := "ping -t5 {:ip!8.8.8.8:}"
+	out := argumentReplace(args, in)
+	if out != expected {
+		t.Errorf("argumentReplace return incorrect value, got: %s, want: %s.", out, expected)
+	}
+
+}
+
+func BenchmarkArgumentReplace(b *testing.B) {
+	args := []snipArgs{
+		snipArgs{
+			Name:  "ip",
+			Value: "1.2.3.4",
+		},
+	}
+
+	in := "ping -t5 {:ip!8.8.8.8:}"
+	_ = argumentReplace(args, in)
+
+}
