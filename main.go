@@ -20,12 +20,13 @@ import (
 	"regexp"
 	"runtime"
 	"strings"
+	"sync"
 	"termtyper/key"
 	"time"
 )
 
 const webdebug bool = true
-const loglevel int = 1
+const loglevel int = 5
 const defaultcmdtype string = "bash"
 const appName string = "termtyper"
 const regexMatch string = "{:[A-Za-z0-9!._ -]+?:}"
@@ -450,23 +451,49 @@ func importAll(filename string) {
 	fmt.Println(len(items), "total items to import,", written, "items imported successfully and", skipped, "items skipped")
 }
 
-func localSearch(hash string, data string) {
+//func localSearch(ch chan []snipItem, hash string, data string) {
+func localSearch(wg *sync.WaitGroup, request searchRequest) {
+	defer wg.Done() //update the wait counter on function exit
 
 	var foundSnips []snipItem
-	logDebug("F:snip_search:start")
+	logDebug("F:localSearch:start")
 
-	if len(data) <= 0 {
-		sendResultsToJS(hash, "")
+	if len(request.query) <= 0 {
+		//TODO: now need to close the channel to quit
+		close(request.channel)
+		//sendResultsToJS(request.hash, "")
 	}
 
-	snips := dbFind("name", data) //search the name field in the snip table
+	snips := dbFind("name", request.query) //search the name field in the snip table
 	for _, itm := range snips {
 		itmarg := getArguments(itm.Code)
 		itm.Argument = itmarg
 		foundSnips = append(foundSnips, itm)
 	}
-	str, _ := json.Marshal(foundSnips)
+	//str, _ := json.Marshal(foundSnips)
+
+	request.channel <- foundSnips
+	//close(request.channel)
 
 	//need to move sendResultsToJs to a collector function that will read from a channel
-	sendResultsToJS(hash, string(str))
+	//sendResultsToJS(hash, string(str))
+}
+
+func remoteSearch(wg *sync.WaitGroup, request searchRequest) {
+	defer wg.Done()
+
+	var foundSnips []snipItem
+
+	singlesnip := snipItem{
+		Name:     "who on the web",
+		Hash:     "64c42bc9-87e2-4771-85fe-07d05f9c0042",
+		Code:     "curl google.com",
+		Argument: nil,
+		CmdType:  "bash",
+	}
+	foundSnips = append(foundSnips, singlesnip)
+	time.Sleep(800 * time.Millisecond)
+
+	request.channel <- foundSnips
+
 }

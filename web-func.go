@@ -4,9 +4,11 @@ import (
 	"bufio"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/atotto/clipboard"
 	"github.com/pborman/uuid"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -105,11 +107,64 @@ func snipGetClipboard() string {
 	return ""
 }
 
+type searchRequest struct {
+	hash    string
+	query   string
+	channel chan []snipItem
+}
+
 //async search given a search id and query
 // perform a search on seperate threads
 func snipAsyncSearch(hash string, query string) error {
 
-	go localSearch(hash, query)
+	var requestList []searchRequest
 
+	remoteActive := true
+
+	wg := sync.WaitGroup{}
+	if remoteActive == true {
+		ch := make(chan []snipItem)
+		newRequest := searchRequest{
+			hash:    hash,
+			query:   query,
+			channel: ch,
+		}
+		requestList = append(requestList, newRequest)
+		wg.Add(1)
+		go remoteSearch(&wg, newRequest)
+	}
+	ch := make(chan []snipItem)
+	newRequest := searchRequest{
+		hash:    hash,
+		query:   query,
+		channel: ch,
+	}
+	requestList = append(requestList, newRequest)
+	wg.Add(1)
+	go localSearch(&wg, newRequest)
+
+	go waitAndMerge(&wg, requestList)
 	return nil
+}
+
+func waitAndMerge(wg *sync.WaitGroup, requestList []searchRequest) {
+	var totalSnips []snipItem
+	//TODO: loop through each searchRequest item, wait for
+	// channels to timeout and close or recieve data, then merge data
+	// and send the data back with its hash using
+	// sendResultsToJS(hash, string(str)) this must be a json string though
+
+	fmt.Println("*** Waiting....")
+	for _, request := range requestList {
+		items := <-request.channel
+		totalSnips = append(totalSnips, items...)
+		fmt.Println(items[0].Name)
+	}
+
+	wg.Wait() //wait for all search functions to finish
+
+	hash := requestList[0].hash
+	str, _ := json.Marshal(totalSnips)
+	sendResultsToJS(hash, string(str))
+	fmt.Println("* Ready")
 }
