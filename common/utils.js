@@ -158,7 +158,6 @@ $( "#searchbox" ).keypress(function(event){
             asyncJob.SendJob(request.term)
         ).then(
             function(data) {
-                let list = [];
                 if (data == undefined) return;
                 let json = JSON.parse(data);
                 if (json == null) return;
@@ -166,7 +165,7 @@ $( "#searchbox" ).keypress(function(event){
             }
         );
     },
-    minLength: 1,
+    minLength: 0,
     delay: 0,
     select: function( event, ui ) {
         populateVarsList(ui.item);

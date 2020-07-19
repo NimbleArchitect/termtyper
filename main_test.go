@@ -1,8 +1,7 @@
 package main
 
 import "testing"
-
-//import "fmt"
+import "fmt"
 
 func TestValidCmdType(t *testing.T) {
 
@@ -101,6 +100,30 @@ func BenchmarkGetArgumentsNone(b *testing.B) {
 	benchGetArguments("test spaces   value 3 with spaces   and with ip  ip  6.6.6.123 ", b)
 }
 
+func BenchmarkGetArgumentsIP(b *testing.B) {
+	benchGetArguments("ping -t5 {:ip!8.8.8.8:}", b)
+}
+
+func TestGetArgumentList(t *testing.T) {
+	in := "ping {:ip!8.8.8.8:}"
+
+	out, ok := getArgumentList(in)
+	if ok != true {
+		t.Errorf("getArgumentsList returned false")
+	}
+
+	fmt.Println("!!", out)
+}
+
+func BenchmarkGetArgumentList(b *testing.B) {
+	in := "ping {:ip!8.8.8.8:}"
+
+	for n := 0; n < b.N; n++ {
+		_, _ = getArgumentList(in)
+	}
+
+}
+
 func TestArgumentReplace(t *testing.T) {
 	//argumentReplace(vars []snipArgs, code string) string
 	//setup snipArgs
@@ -129,6 +152,8 @@ func BenchmarkArgumentReplace(b *testing.B) {
 	}
 
 	in := "ping -t5 {:ip!8.8.8.8:}"
-	_ = argumentReplace(args, in)
+	for n := 0; n < b.N; n++ {
+		_ = argumentReplace(args, in)
+	}
 
 }

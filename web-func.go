@@ -95,10 +95,11 @@ func snipGetClipboard() string {
 func snipAsyncSearch(hash string, query string) error {
 	var requestList []searchRequest
 
-	remoteActive := false
+	remoteActive := true
 
 	wg := sync.WaitGroup{}
-	if remoteActive == true {
+	if remoteActive == true && len(query) >= 2 {
+
 		ch := make(chan []snipItem)
 		newRequest := searchRequest{
 			hash:    hash,

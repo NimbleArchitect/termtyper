@@ -223,18 +223,19 @@ func getArguments(text string) []snipArgs {
 		logDebug("F:getArguments:varname =", varname)
 		logDebug("F:getArguments:len(varname) =", len(varname))
 		strName := cleanString(varname[0], "[^A-Za-z0-9_. -]") //remove invalid chars from name
-		if len(varname) == 1 {                                 // ! is optional so check if argument dosent have a default value
+		namelen := len(varname)
+		if namelen == 1 { // ! is optional so check if argument dosent have a default value
 			varitem = snipArgs{
 				Name:  strings.TrimSpace(strName),
 				Value: "",
 			}
-		} else if len(varname) == 2 { //argument has a default value
+		} else if namelen == 2 { //argument has a default value
 			varitem = snipArgs{
 				Name:  strings.TrimSpace(strName),
 				Value: strings.TrimSpace(varname[1]),
 			}
 		} else {
-			// multipule defaults values have been suppilied so write warning
+			// multiple defaults values have been suppilied so write warning
 			logWarn("multipule default values detected.")
 		}
 
@@ -512,7 +513,7 @@ func remoteSearch(wg *sync.WaitGroup, request searchRequest) {
 		CmdType:  "bash",
 	}
 	foundSnips = append(foundSnips, singlesnip)
-	//time.Sleep(150 * time.Millisecond)
+	time.Sleep(350 * time.Millisecond)
 
 	request.channel <- foundSnips
 
