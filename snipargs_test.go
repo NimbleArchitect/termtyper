@@ -1,7 +1,8 @@
 package main
 
 import "testing"
-import "fmt"
+
+//import "fmt"
 
 func TestCleanString(t *testing.T) {
 	str := "Test.String_with-dash"
@@ -94,14 +95,16 @@ func BenchmarkGetArgumentsIP(b *testing.B) {
 }
 
 func TestGetArgumentList(t *testing.T) {
-	in := "ping {:ip!8.8.8.8:}"
+	in := "ping {:ip!8.8.8.8:} -t 5"
+	expect := "{:ip!8.8.8.8:}"
 
 	out, ok := getArgumentList(in)
 	if ok != true {
 		t.Errorf("getArgumentsList returned false")
 	}
-
-	fmt.Println("!!", out)
+	if out[0] != expect {
+		t.Errorf("getArguments return incorrect arg default, got: %s, want: %s.", out[0], expect)
+	}
 }
 
 func BenchmarkGetArgumentList(b *testing.B) {

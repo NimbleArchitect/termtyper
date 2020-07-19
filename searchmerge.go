@@ -23,7 +23,7 @@ func waitAndMerge(wg *sync.WaitGroup, requestList []searchRequest) {
 	hash := requestList[0].hash
 	str, _ := json.Marshal(totalSnips)
 	sendResultsToJS(hash, string(str))
-	//fmt.Println("* Ready")
+
 }
 
 func localSearch(wg *sync.WaitGroup, request searchRequest) {

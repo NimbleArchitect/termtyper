@@ -15,7 +15,7 @@ $( document ).ready(function() {
         hash = $( '#searchbox' ).data('hashid');
         //make sure we have something as a value
         if (hash != "") {
-            snipWrite(''+hash); //snipwrite expects a string so we force js using sing;e quotes
+            snipWrite(''+hash); //snipwrite expects a string so we force js using single quotes
         }
     });
 
@@ -130,53 +130,49 @@ $( document ).ready(function() {
     }
 
     $(function() {
-    $( "#searchbox" ).keypress(function(event){
-        if (event.which == 13) {
-            writeFromHash($( "#searchbox" ).data("hashid"));
-        }
-    }).autocomplete({
-        autoFocus: true,
-        source: function( request, response ) {
-            $.when(
-                asyncJob.SendJob(request.term)
-            ).then(
-                function(data) {
-                    if (data == undefined) return;
-                    let json = JSON.parse(data);
-                    if (json == null) return;
-                    response(json);
-                }
-            );
-        },
-        minLength: 0,
-        delay: 0,
-        select: function( event, ui ) {
-            populateVarsList(ui.item);
-            $( "#searchbox" ).data( "hashid", ''+ui.item.hash);
-        },
-        open: function() {
-            $( "#searchbox" ).data('isopen', true);
-            $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
-        },
-        close: function() {
-            $( "#searchbox" ).data('isopen', false);
-            $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
-        }
-    }).data('ui-autocomplete')._renderItem = function(ul, item) {
-        //if cmdtype in bash add class to searchcmdlinux and typename to bash
-        //typename = "bash";
-        typename = item.cmdtype 
-        cmdtype = "searchcmd_" + typename;
-        //the above should really be a function
-        schtype = "<div class='searchcmdtype " + cmdtype + "'>" + typename + "</div>";
-        schname = "<div class='searchname'>" + item.value + schtype + "</div>";
-        schcmd = "<div class='searchcmd'>" + item.code + "</div>";
-        schinfo = "<div class='searchinfo'>" + schname + schcmd + "</div>";
-        lstitm = "<div class='listitem-div'>" + schinfo + "</div>";
-        return $('<li>')
-        .append(lstitm)
-        .appendTo(ul);
-    };
+        $( "#searchbox" ).autocomplete({
+            autoFocus: true,
+            source: function( request, response ) {
+                $.when(
+                    asyncJob.SendJob(request.term)
+                ).then(
+                    function(data) {
+                        if (data == undefined) return;
+                        let json = JSON.parse(data);
+                        if (json == null) return;
+                        response(json);
+                    }
+                );
+            },
+            minLength: 0,
+            delay: 0,
+            select: function( event, ui ) {
+                populateVarsList(ui.item);
+                $( "#searchbox" ).data( "hashid", ''+ui.item.hash);
+            },
+            open: function() {
+                $( "#searchbox" ).data('isopen', true);
+                $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
+            },
+            close: function() {
+                $( "#searchbox" ).data('isopen', false);
+                $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+            }
+        }).data('ui-autocomplete')._renderItem = function(ul, item) {
+            //if cmdtype in bash add class to searchcmdlinux and typename to bash
+            //typename = "bash";
+            typename = item.cmdtype 
+            cmdtype = "searchcmd_" + typename;
+            //the above should really be a function
+            schtype = "<div class='searchcmdtype " + cmdtype + "'>" + typename + "</div>";
+            schname = "<div class='searchname'>" + item.value + schtype + "</div>";
+            schcmd = "<div class='searchcmd'>" + item.code + "</div>";
+            schinfo = "<div class='searchinfo'>" + schname + schcmd + "</div>";
+            lstitm = "<div class='listitem-div'>" + schinfo + "</div>";
+            return $('<li>')
+                .append(lstitm)
+                .appendTo(ul);
+        };
     });
 });
 

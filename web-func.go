@@ -31,6 +31,10 @@ func snipWrite(hash string, vars ...string) error {
 	if len(hash) <= 0 {
 		return errors.New("no hash id specified")
 	}
+
+	messages := make(chan bool)
+	defer close(messages)
+
 	logDebug("F:snip_write:hash =", hash)
 	snips, _ := dbGetID(hash)
 	logDebug("F:snip_write:snips =", snips)
@@ -50,10 +54,12 @@ func snipWrite(hash string, vars ...string) error {
 	_, sep := validCmdType(snips.CmdType) //get multiline seperator
 	//set up channel to wait on, this fixes a crash where the window
 	// was closing before the fucntion had finished
-	messages := make(chan bool)
 	go typeSnippet(messages, sep, code)
+	dbUpdatePopular(hash) //update usage counter
+
 	//wait for completion signal
 	<-messages
+
 	snipClose()
 
 	return nil
