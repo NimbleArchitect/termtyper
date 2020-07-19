@@ -102,12 +102,6 @@ $( document ).ready(function() {
         }
     }
 
-    function clearform() {
-        $('#code').val('');
-        $('#title').val('')
-        $('#cmdtypselect').prop('selectedIndex', 0);
-    }
-
     function populateVarsList(item) {
         let args = item.argument;
         var hotkey = "";
@@ -133,17 +127,6 @@ $( document ).ready(function() {
                 }
             }
         });
-    }
-
-    function getCodeFromArguments(e) {
-        snipCodeFromArg().then(function(result) { 
-            return function(data) {
-                if (data == undefined) return;
-                let json = JSON.parse(data);
-                if (json == null) return;
-                document.getElementById("code").value = json.code;
-            } (result);
-        })
     }
 
     $(function() {
@@ -216,4 +199,22 @@ function uuid() {
     return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
     (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
     );
+}
+
+//called from go code, part of func newfromcommand()
+function getCodeFromArguments(e) {
+    snipCodeFromArg().then(function(result) { 
+        return function(data) {
+            if (data == undefined) return;
+            let json = JSON.parse(data);
+            if (json == null) return;
+            document.getElementById("code").value = json.code;
+        } (result);
+    })
+}
+
+function clearform() {
+    $('#code').val('');
+    $('#title').val('')
+    $('#cmdtypselect').prop('selectedIndex', 0);
 }
