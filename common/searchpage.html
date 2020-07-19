@@ -10,13 +10,13 @@
     <script src="utils.js"></script>
 </head><body>
 <div id="menu">
-    <button id="btnNew" class="button" onclick="$( '#box-addnew' ).css('display', 'block');"><u>N</u>ew</button>
-    <button id="btnWithArgs" class="button" onclick="$( '#box-vars' ).css('display', 'block');">Type With <u>A</u>rgs</button>
+    <button id="btnNew" class="button"><u>N</u>ew</button>
+    <button id="btnWithArgs" class="button">Type With <u>A</u>rgs</button>
 </div>
 <div id="box-search">
     <form autocomplete="off" action="#">
         <input id="searchbox" type="text" name="searchbox" placeholder="Search for names.." autofocus>
-        <button id="btnRun" class="button" onclick="writeFromHash($( '#searchbox' ).data('hashid'));"><u>R</u>un</button>
+        <button id="btnRun" class="button"><u>R</u>un</button>
     </form>
 </div>
 <div id="box-addnew">
@@ -31,15 +31,15 @@
             <option value="dos">dos</option>
         </select>
         <div>
-            <button id="myBtn" class="button" onclick="$( '#box-addnew' ).css('display', 'none');$( '#searchbox' ).focus(); clearform();">Cancel</button>
-            <button id="btnsavenew" class="button" onclick="saveform();">Save</button>
+            <button id="btnAddNew" class="button">Cancel</button>
+            <button id="btnSaveNew" class="button">Save</button>
         </div>
 </div>
 <div id="box-vars">
     <div id="argument-list"></div>
     <div id="varsButtons">
-        <button id="myBtn" class="button" onclick="$( '#box-vars' ).css('display', 'none');$( '#searchbox' ).focus();">Cancel</button>
-        <button id="btnOkVars" class="button" onclick="runwithvars();">OK</button>
+        <button id="btnCancelVars" class="button">Cancel</button>
+        <button id="btnOkVars" class="button">OK</button>
     </div>
 </div>
 </body></html>

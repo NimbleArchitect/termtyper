@@ -53,15 +53,28 @@ func remoteSearch(wg *sync.WaitGroup, request searchRequest) {
 
 	var foundSnips []snipItem
 
+	var isLoggedIn bool = false
+	if isLoggedIn != true {
+		return
+	}
 	singlesnip := snipItem{
-		Name:     "who on the web",
+		Name:     "Z who on the web",
 		Hash:     "64c42bc9-87e2-4771-85fe-07d05f9c0042",
 		Code:     "curl google.com",
 		Argument: nil,
 		CmdType:  "bash",
 	}
 	foundSnips = append(foundSnips, singlesnip)
-	time.Sleep(350 * time.Millisecond)
+
+	singlesnip = snipItem{
+		Name:     "A who in the house",
+		Hash:     "64bcc429-87e2-4771-85fe-07d05f9c0042",
+		Code:     "curl google.com",
+		Argument: nil,
+		CmdType:  "bash",
+	}
+	foundSnips = append(foundSnips, singlesnip)
+	time.Sleep(150 * time.Millisecond)
 
 	request.channel <- foundSnips
 

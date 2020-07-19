@@ -15,7 +15,10 @@ Press your selected keyboard combination to open termtyper, search for your sele
 I have way too many terminal commands to remember and I got fed up storing them all in a text editor.
 
 ## Getting Started
-termtype doesn't have any commands stored by default so you will have to add them yourself to do so open the app and click on the new button (alt + n), once saved you can search the commands by name.
+termtype doesn't have any commands stored by default so you will have to add them yourself to do so open the app and click on the new button (alt + n), once saved you can search the commands by name.  
+
+Arguments can be added between "{:" and ":}" at a minmum you must supply an argument name i.e "{:host_name:}", arguments also support default values by specifying an "!" after the argument name following by your choice of value ie "{:host_name!demo.example.org:}".  Once you have selected the command from the searchbox press alt+a to see the list of arguments for that command. Type in your values and select the ok button to have termtyper type out the command with the defauls used or values replaced as specified.
+
 
 ## Installation
 

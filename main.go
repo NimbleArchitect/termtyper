@@ -22,6 +22,7 @@ import (
 )
 
 const webdebug bool = true
+const remoteActive bool = false
 const loglevel int = 1
 const defaultcmdtype string = "bash"
 const appName string = "termtyper"

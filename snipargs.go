@@ -64,9 +64,9 @@ func getArgumentList(text string) ([]string, bool) {
 
 //search text looking for arguments returns array of snipArgs
 func getArguments(text string) []snipArgs {
-	var namelist []snipArgs
 	var varlist []string
 	var varitem snipArgs
+	var namelist []snipArgs
 
 	logDebug("F:getArguments:start")
 	varlist, ok := getArgumentList(text)
