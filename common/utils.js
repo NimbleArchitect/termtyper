@@ -146,33 +146,6 @@ $( document ).ready(function() {
         })
     }
 
-
-    let asyncJob = {
-        deferredQueue : [],
-        fullName      : function() {
-            return this.firstName + " " + this.lastName;
-        },
-        GotData   : function(Qid, result) {
-            dq = this.deferredQueue[Qid];
-            dq.resolve(result);
-        },
-        SendJob : function(query) {
-            var dfquery = $.Deferred();
-
-            Qid = uuid();
-            snipAsyncSearch(Qid, query); //sending the query and a unique id
-            this.deferredQueue[Qid] = dfquery; //we save the query for our snipGotData function
-            return dfquery.promise();
-        }
-    };
-
-    function uuid() {
-        return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
-        (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
-        );
-    }
-
-
     $(function() {
     $( "#searchbox" ).keypress(function(event){
         if (event.which == 13) {
@@ -223,3 +196,24 @@ $( document ).ready(function() {
     };
     });
 });
+
+let asyncJob = {
+    deferredQueue : [],
+    GotData   : function(Qid, result) {
+        dq = this.deferredQueue[Qid];
+        dq.resolve(result);
+    },
+    SendJob : function(query) {
+        var dfquery = $.Deferred();
+        Qid = uuid();
+        snipAsyncSearch(Qid, query); //sending the query and a unique id
+        this.deferredQueue[Qid] = dfquery; //we save the query for our snipGotData function
+        return dfquery.promise();
+    }
+};
+
+function uuid() {
+    return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+    );
+}
