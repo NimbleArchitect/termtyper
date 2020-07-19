@@ -6,6 +6,10 @@ import (
 	"strings"
 )
 
+const regexMatch string = "{:[A-Za-z0-9!._ -]+?:}"
+
+var regexstring = regexp.MustCompile(regexMatch)
+
 func cleanString(data string, regex string) string {
 	logDebug("F:cleanString:start")
 	logDebug("F:cleanString:data =", data)
@@ -25,7 +29,7 @@ func getArgumentPos(text string) ([][]int, bool) {
 	var matches [][]int
 	logDebug("F:getArgumentPos:start")
 	if len(text) > 0 {
-		regexstring := regexp.MustCompile(regexMatch)
+		//regexstring = regexp.MustCompile(regexMatch)
 		matches = regexstring.FindAllStringIndex(text, -1)
 		ok = true
 	} else {
@@ -45,7 +49,7 @@ func getArgumentList(text string) ([]string, bool) {
 	logDebug("F:getArgumentList:start =", text)
 
 	if len(text) > 0 {
-		regexstring := regexp.MustCompile(regexMatch)
+		//regexstring := regexp.MustCompile(regexMatch)
 		matches = regexstring.FindAllString(text, -1)
 		ok = true
 	} else {

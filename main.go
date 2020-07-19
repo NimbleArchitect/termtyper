@@ -25,7 +25,6 @@ const webdebug bool = true
 const loglevel int = 1
 const defaultcmdtype string = "bash"
 const appName string = "termtyper"
-const regexMatch string = "{:[A-Za-z0-9!._ -]+?:}"
 
 var codefromarg string = ""
 
