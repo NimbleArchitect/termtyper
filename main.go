@@ -160,6 +160,8 @@ func getprogPath() string {
 }
 
 func typeSnippet(messages chan bool, lineSeperator string, text []string) {
+	logDebug("F:typeSnippet:start")
+
 	if len(text) == 0 {
 		logError("no text avaliable to type")
 		messages <- true
@@ -169,8 +171,6 @@ func typeSnippet(messages chan bool, lineSeperator string, text []string) {
 		_, lineSeperator = validCmdType(defaultcmdtype)
 	}
 
-	logDebug("F:typeSnippet:start")
-	//runtime.LockOSThread()
 	logDebug("F:typeSnippet:switching window")
 	key.SwitchWindow()
 
@@ -186,7 +186,6 @@ func typeSnippet(messages chan bool, lineSeperator string, text []string) {
 			key.SendLine(singleline) //write the last or only line
 		}
 	}
-	//runtime.UnlockOSThread()
 
 	messages <- true
 }
