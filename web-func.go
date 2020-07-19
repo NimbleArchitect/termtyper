@@ -95,7 +95,7 @@ func snipGetClipboard() string {
 func snipAsyncSearch(hash string, query string) error {
 	var requestList []searchRequest
 
-	remoteActive := true
+	remoteActive := false
 
 	wg := sync.WaitGroup{}
 	if remoteActive == true && len(query) >= 2 {
