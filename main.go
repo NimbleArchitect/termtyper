@@ -26,6 +26,9 @@ const remoteActive bool = false
 const loglevel int = 1
 const defaultcmdtype string = "bash"
 const appName string = "termtyper"
+const maxRows int = 20
+const typeSpeed int = 20       //time to wait between key presses, in milliseconds
+const newLineSpeed int64 = 200 //time to wait after pressing enter, in milliseconds
 
 var codefromarg string = ""
 
@@ -36,6 +39,7 @@ type snipItem struct {
 	Code     string     `json:"code"`
 	Argument []snipArgs `json:"argument"`
 	CmdType  string     `json:"cmdtype"`
+	Summary  string     `json:"summary"`
 }
 
 type snipArgs struct {
@@ -131,6 +135,7 @@ func showHelp() {
 	fmt.Print(`
   -a                    open the autotype window
   -h, --help            show this help message
+
       --export FILE     export the local database to FILE
       --import FILE     import previously exported FILE into the local database
 
@@ -162,7 +167,7 @@ func getprogPath() string {
 
 func typeSnippet(messages chan bool, lineSeperator string, text []string) {
 	logDebug("F:typeSnippet:start")
-
+	delay := time.Duration(newLineSpeed)
 	if len(text) == 0 {
 		logError("no text avaliable to type")
 		messages <- true
@@ -182,9 +187,10 @@ func typeSnippet(messages chan bool, lineSeperator string, text []string) {
 	for i := 0; i < count; i++ {
 		singleline := text[i]
 		if i < (count - 1) { //more than one line and we are not on the last
-			key.SendLine(singleline + lineSeperator + "\n") //sent line of text
+			key.SendLine(singleline+lineSeperator+"\n", typeSpeed) //sent line of text
+			time.Sleep(delay * time.Millisecond)                   //sleep after pressing enter
 		} else {
-			key.SendLine(singleline) //write the last or only line
+			key.SendLine(singleline, typeSpeed) //write the last or only line
 		}
 	}
 
@@ -263,6 +269,7 @@ func exportAll(filename string) {
 			"name":    itm.Name,
 			"code":    itm.Code,
 			"cmdtype": itm.CmdType,
+			"summary": itm.Summary,
 		}
 
 		out = append(out, m)
@@ -289,7 +296,7 @@ func importAll(filename string) {
 		_, count := dbGetID(items[i].Hash)
 		if count == 0 {
 			//TODO: need to sanity check the data
-			dbWrite(items[i].Hash, items[i].Time, items[i].Name, items[i].Code, items[i].CmdType)
+			dbWrite(items[i].Hash, items[i].Time, items[i].Name, items[i].Code, items[i].CmdType, items[i].Summary)
 			written++
 		} else {
 			skipped++

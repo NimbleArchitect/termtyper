@@ -8,6 +8,7 @@ package key
 import "C"
 import (
 	//"fmt"
+	"time"
 	"unsafe"
 )
 
@@ -19,8 +20,10 @@ func SwitchWindow() {
 }
 
 //SendLine types a single line of text into the active window
-func SendLine(text string) {
+func SendLine(text string, keyDelay int) {
 	//fmt.Println("F:SendLine:start")
+	delay := time.Duration(keyDelay)
+
 	for _, c := range text {
 		code, shift := char2keyCode(string(c))
 
@@ -30,6 +33,7 @@ func SendLine(text string) {
 		//fmt.Println("F:SendLine:sendkey =", c)
 
 		C.Sendkey(name, mod)
+		time.Sleep(delay * time.Millisecond)
 	}
 	//fmt.Println("F:SendLine:end")
 

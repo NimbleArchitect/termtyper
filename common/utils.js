@@ -28,11 +28,12 @@ $( document ).ready(function() {
 
     $("#btnSaveNew").on("click", function(){
         //save new snippet
-        let txttitle = document.getElementById('title').value;
-        let txtcode = document.getElementById('code').value;
-        let txtcmdtyp = document.getElementById('cmdtypselect').value;
+        let txttitle = $( '#title' ).val();
+        let txtcode = $( '#code' ).val();
+        let txtcmdtyp = $( '#cmdtypselect' ).val();
+        let txtsummary = $( '#summary' ).val();
 
-        snipSave(txttitle, txtcode, txtcmdtyp);
+        snipSave(txttitle, txtcode, txtcmdtyp, txtsummary);
         $( '#box-addnew' ).hide();
         $( '#searchbox' ).focus();
         clearform();
@@ -137,10 +138,7 @@ $( document ).ready(function() {
                     asyncJob.SendJob(request.term)
                 ).then(
                     function(data) {
-                        if (data == undefined) return;
-                        let json = JSON.parse(data);
-                        if (json == null) return;
-                        response(json);
+                        response(JSON.parse(data));
                     }
                 );
             },

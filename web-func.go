@@ -66,14 +66,14 @@ func snipWrite(hash string, vars ...string) error {
 }
 
 //save to db
-func snipSave(title string, code string, commandtype string) {
+func snipSave(title string, code string, commandtype string, summary string) {
 	logDebug("F:snip_save:start")
 
 	hash := uuid.New()
 
 	cmdtype, _ := validCmdType(commandtype)
 
-	dbWrite(hash, time.Now(), title, code, cmdtype)
+	dbWrite(hash, time.Now(), title, code, cmdtype, summary)
 
 }
 

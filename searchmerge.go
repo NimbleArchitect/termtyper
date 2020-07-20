@@ -37,7 +37,7 @@ func localSearch(wg *sync.WaitGroup, request searchRequest) {
 		return
 	}
 
-	snips := dbFind("name", request.query) //search the name field in the snip table
+	snips := dbFind("name", request.query, 0) //search the name field in the snip table
 	for _, itm := range snips {
 		itmarg := getArguments(itm.Code)
 		itm.Argument = itmarg

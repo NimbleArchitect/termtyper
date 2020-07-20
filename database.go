@@ -33,10 +33,13 @@ func dbOpen(dbpath string) (*sql.DB, bool) {
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS "popular" (
 		"hash"	TEXT UNIQUE,
 		"timesused"	INTEGER,
-		"lastused"	TEXT,
+		"lastused"	INTEGER,
 		PRIMARY KEY("hash")
 	);`,
 	)
+
+	_, _ = db.Exec(`ALTER TABLE snips ADD summary TEXT;`)
+	//_, _ = db.Exec(`ALTER TABLE snips ADD summary text;`)
 
 	return db, true
 }
@@ -45,12 +48,12 @@ func dbOpen(dbpath string) (*sql.DB, bool) {
 func dbGetID(hash string) (snipItem, int) {
 	var snip snipItem
 
-	var name string
-	var code string
-	var created string
-	var cmdtype string
+	var name string = ""
+	var code string = ""
+	var created string = ""
+	var cmdtype string = ""
 
-	qry := string("SELECT * FROM snips WHERE hash = '" + hash + "'")
+	qry := string("SELECT hash,created,name,code,cmdtype FROM snips WHERE hash = '" + hash + "'")
 	rows, err := database.Query(qry)
 	if err != nil {
 		logError("ERROR: unable to query db")
@@ -69,6 +72,7 @@ func dbGetID(hash string) (snipItem, int) {
 			Name:    name,
 			Code:    code,
 			CmdType: cmdtype,
+			//Summary: summary,
 		}
 		count++
 	}
@@ -78,24 +82,37 @@ func dbGetID(hash string) (snipItem, int) {
 }
 
 // search for a record name that has a wildcard match to field and return a Snipitem that represents the match
-func dbFind(field string, searchfor string) []snipItem {
+func dbFind(field string, searchfor string, rowStart int) []snipItem {
 	//TODO: search for matching tags
 	var snip []snipItem
 	var hash string
-	var name string
-	var code string
+	var name string = ""
+	var code string = ""
 	var created string
 	var cmdtype string
+	var dbSummary sql.NullString
+	var strSummary string
 	var qry string = ""
+	var strRowStart string = ""
+	var err error
+	var rows *sql.Rows
 
+	if rowStart > 0 {
+		strRowStart = "OFFSET ?"
+	}
 	// query
 	if field == "name" {
-		qry = string("SELECT * FROM snips WHERE name LIKE ?")
+		qry = string("SELECT * FROM snips WHERE name LIKE ? LIMIT ?" + strRowStart)
 	}
 	if field == "code" {
-		qry = string("SELECT * FROM snips WHERE code LIKE ?")
+		qry = string("SELECT * FROM snips WHERE code LIKE ? LIMIT ?" + strRowStart)
 	}
-	rows, err := database.Query(qry, "%"+searchfor+"%")
+
+	if strRowStart == "" {
+		rows, err = database.Query(qry, "%"+searchfor+"%", maxRows)
+	} else {
+		rows, err = database.Query(qry, "%"+searchfor+"%", maxRows, rowStart)
+	}
 
 	if err != nil {
 		logError("ERROR: unable to query db")
@@ -103,9 +120,14 @@ func dbFind(field string, searchfor string) []snipItem {
 	}
 
 	for rows.Next() {
-		err = rows.Scan(&hash, &created, &name, &code, &cmdtype)
+		err = rows.Scan(&hash, &created, &name, &code, &cmdtype, &dbSummary)
 		if err != nil {
 			panic(err)
+		}
+		if dbSummary.Valid {
+			strSummary = dbSummary.String
+		} else {
+			strSummary = ""
 		}
 		//tags := len(getVars(code))
 		//TODO: convert created string to time object
@@ -115,6 +137,7 @@ func dbFind(field string, searchfor string) []snipItem {
 			Name:    name,
 			Code:    code,
 			CmdType: cmdtype,
+			Summary: strSummary,
 		}
 
 		snip = append(snip, item)
@@ -124,11 +147,11 @@ func dbFind(field string, searchfor string) []snipItem {
 	return snip
 }
 
-func dbWrite(hash string, created time.Time, title string, code string, cmdtype string) error {
-
+func dbWrite(hash string, created time.Time, title string, code string, cmdtype string, summary string) error {
+	//TODO: check values are valid before saving
 	tx, _ := database.Begin()
-	stmt, _ := tx.Prepare("insert into snips (hash,created,name,code,cmdtype) values (?,?,?,?,?)")
-	_, err := stmt.Exec(hash, time.Now(), title, code, cmdtype)
+	stmt, _ := tx.Prepare("insert into snips (hash,created,name,code,cmdtype,summary) values (?,?,?,?,?,?)")
+	_, err := stmt.Exec(hash, time.Now(), title, code, cmdtype, summary)
 	if err != nil {
 		logError("error saving")
 	}
@@ -192,6 +215,7 @@ func dbGetAll() []snipItem {
 	var code string
 	var created string
 	var cmdtype string
+	var summary string
 
 	qry := string("SELECT * FROM snips")
 	rows, err := database.Query(qry)
@@ -201,7 +225,7 @@ func dbGetAll() []snipItem {
 	}
 
 	for rows.Next() {
-		err = rows.Scan(&hash, &created, &name, &code, &cmdtype)
+		err = rows.Scan(&hash, &created, &name, &code, &cmdtype, &summary)
 		if err != nil {
 			panic(err)
 		}
@@ -212,6 +236,7 @@ func dbGetAll() []snipItem {
 			Name:    name,
 			Code:    code,
 			CmdType: cmdtype,
+			Summary: summary,
 		}
 		snip = append(snip, item)
 	}
