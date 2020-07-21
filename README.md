@@ -7,6 +7,7 @@ An autotyping assistant that eases the burdern of manually typing long commands
 * custom argument support with default values
 * copy from the clipboard to specified argument using shortcut keys alt+1, alt+2, etc
 * import and export commands to/from json
+* uses line continuation to type multiple lines as a one line, mening you press enter once
 
 ## How it works
 Press your selected keyboard combination to open termtyper, search for your selected command using the arrow keys to navigate press enter to select the command and enter again to type the command into your active window
