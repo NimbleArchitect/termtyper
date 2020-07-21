@@ -20,22 +20,29 @@
     </form>
 </div>
 <div id="box-addnew">
-        <label for="title">title:</label><br>
-        <input type="text" id="title" name="title"><br>
-        <label for="code">code:</label><br>
-        <textarea id="code" name="code"></textarea><br>
-        <label for="summary">summary:</label><br>
-        <input type="text" id="summary" name="summary">
-
-        <select id="cmdtypselect">
-            <option value="bash" selected>bash</option>
-            <option value="powershell">powershell</option>
-            <option value="dos">dos</option>
-        </select>
-        <div>
-            <button id="btnAddNew" class="button">Cancel</button>
-            <button id="btnSaveNew" class="button">Save</button>
+    <div id="codecontainer">
+        <div id="codebox">
+            <div id="code" class="code" contenteditable="true"></div>
         </div>
+        <div id="argbox">Arguments (drag or click insert)
+            <div id="argumentdrag" draggable="true">
+                {:<input type="text" id="argname" name="argname" class="arg" placeholder="argument name">!<input type="text" id="argdefault" name="argdefault" class="arg" placeholder="default value">:}
+                <img id="draganddrop" src="dragdrop.png" src="drag and drop" draggable="false">
+            </div>
+            <button id="btnInsertArg" class="add">Insert</button>
+        </div>
+    </div>
+    <label for="summary">summary:</label><br>
+    <input type="text" id="summary" name="summary">
+    <select id="cmdtypselect">
+        <option value="bash" selected>bash</option>
+        <option value="powershell">powershell</option>
+        <option value="dos">dos</option>
+    </select>
+    <div>
+        <button id="btnAddNew" class="button">Cancel</button>
+        <button id="btnSaveNew" class="button">Save</button>
+    </div>
 </div>
 <div id="box-vars">
     <div id="argument-list"></div>

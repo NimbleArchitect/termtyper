@@ -53,8 +53,8 @@ func dbGetID(hash string) (snipItem, int) {
 	var created string = ""
 	var cmdtype string = ""
 
-	qry := string("SELECT hash,created,name,code,cmdtype FROM snips WHERE hash = '" + hash + "'")
-	rows, err := database.Query(qry)
+	qry := string("SELECT hash,created,name,code,cmdtype FROM snips WHERE hash=?")
+	rows, err := database.Query(qry, hash)
 	if err != nil {
 		logError("ERROR: unable to query db")
 		panic(err)
@@ -72,7 +72,6 @@ func dbGetID(hash string) (snipItem, int) {
 			Name:    name,
 			Code:    code,
 			CmdType: cmdtype,
-			//Summary: summary,
 		}
 		count++
 	}

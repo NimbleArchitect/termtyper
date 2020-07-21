@@ -62,6 +62,54 @@ input[type=text] {
 	right: 15px;
 	top: 15px;
 }
+.codetext {
+    padding: 0px;
+    margin: 0px;
+}
+#codebox {
+    left: 30px;
+    top: 20px;
+    width: 650px;
+    height: 200px;
+    position: relative;
+}
+.arg{
+    border: 0px;
+    padding: 2px;
+    margin: 0px;
+}
+#argdefault {
+    border: 0px;
+    width: 100px;
+}
+#argname {
+    border: 0px;
+    width: 100px;
+}
+#argumentdrag {
+    padding: 10px;
+}
+#argbox {
+	background-color: #678ffe;
+	border: 1px solid #091534;
+    position: absolute;
+    width: 340px;
+    left: 45px;
+    height: 90px;
+    padding: 10px;
+}
+.argbutton{
+    background-color: yellowgreen;
+    margin: 2px;
+    display: inline-block;
+}
+#draganddrop {
+    float: right;
+}
+#codecontainer {
+    height: 350px;
+    width: 650px;
+}
 /* add new item code box */
 #code {
 	background-color: #dbe5ff;

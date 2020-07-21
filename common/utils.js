@@ -59,6 +59,27 @@ $( document ).ready(function() {
         snipWrite(''+hash, JSON.stringify(args));
     });
 
+    function buildArg() {
+        argname = $( "#argname").val();
+        argvalue = $( "#argdefault" ).val();
+        if (argvalue.length == 0) {
+            data = "{:" + argname + ":}";
+        } else { 
+            data = "{:" + argname + "!" + argvalue + ":}";
+        }
+        return data;
+    }
+
+    $( "#argumentdrag" ).on("dragstart", function() {
+        event.dataTransfer.setData("text", buildArg());
+    });
+    $( "#argumentdrag" ).on("drop", function(ev) {
+        ev.preventDefault();
+    });
+    $( "#btnInsertArg" ).on("click", function() {
+        $( "#code" ).append(buildArg());
+    });
+    
     document.addEventListener('keydown', (e) => {
         if (e.altKey == true) { //alt key is pressed so these are modifires
             if (e.keyCode == 65 ) { //A - run with args
