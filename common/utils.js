@@ -79,7 +79,7 @@ $( document ).ready(function() {
     $( "#btnInsertArg" ).on("click", function() {
         $( "#code" ).append(buildArg());
     });
-    
+
     document.addEventListener('keydown', (e) => {
         if (e.altKey == true) { //alt key is pressed so these are modifires
             if (e.keyCode == 65 ) { //A - run with args
@@ -127,72 +127,66 @@ $( document ).ready(function() {
     function populateVarsList(item) {
         let args = item.argument;
         var hotkey = "";
-
-        $(document).ready(function() {
-            let strautofocus = "autofocus";
-            $("#argument-list").empty();
-            for (var key in args) {
-            n = args[key].name;
-                if (n != undefined && n.length >= 1) {
-                    v = args[key].value;
-                    if (v == undefined) { v = "" }
-                    if (key == 10) {
-                        hotkey = "<u>0</u>.) ";
-                    } else {
-                        let k = parseInt(key, 10) + 1;
-                        hotkey = "<u>" + k + "</u>.) ";
-                    }
-                    let txtlabel = "<label class='varList' for='var" + key + "'>" + hotkey + n + ":</label><br>";
-                    let txtbox = "<input class='varList' type='text' id='var" + key + "' value='" + v + "' " + strautofocus + ">";
-                    $( "#argument-list" ).append("<div>" + txtlabel + txtbox + "</div>")
-                    $( '#var' + key ).data('argname', n);
+        let strautofocus = "autofocus";
+        $("#argument-list").empty();
+        for (var key in args) {
+        n = args[key].name;
+            if (n != undefined && n.length >= 1) {
+                v = args[key].value;
+                if (v == undefined) { v = "" }
+                if (key == 10) {
+                    hotkey = "<u>0</u>.) ";
+                } else {
+                    let k = parseInt(key, 10) + 1;
+                    hotkey = "<u>" + k + "</u>.) ";
                 }
+                let txtlabel = "<label class='varList' for='var" + key + "'>" + hotkey + n + ":</label><br>";
+                let txtbox = "<input class='varList' type='text' id='var" + key + "' value='" + v + "' " + strautofocus + ">";
+                $( "#argument-list" ).append("<div>" + txtlabel + txtbox + "</div>")
+                $( '#var' + key ).data('argname', n);
             }
-        });
+        }
     }
-
-    $(function() {
-        $( "#searchbox" ).autocomplete({
-            autoFocus: true,
-            source: function( request, response ) {
-                $.when(
-                    asyncJob.SendJob(request.term)
-                ).then(
-                    function(data) {
-                        response(JSON.parse(data));
-                    }
-                );
-            },
-            minLength: 0,
-            delay: 0,
-            select: function( event, ui ) {
-                populateVarsList(ui.item);
-                $( "#searchbox" ).data( "hashid", ''+ui.item.hash);
-            },
-            open: function() {
-                $( "#searchbox" ).data('isopen', true);
-                $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
-            },
-            close: function() {
-                $( "#searchbox" ).data('isopen', false);
-                $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
-            }
-        }).data('ui-autocomplete')._renderItem = function(ul, item) {
-            //if cmdtype in bash add class to searchcmdlinux and typename to bash
-            //typename = "bash";
-            typename = item.cmdtype 
-            cmdtype = "searchcmd_" + typename;
-            //the above should really be a function
-            schtype = "<div class='searchcmdtype " + cmdtype + "'>" + typename + "</div>";
-            schname = "<div class='searchname'>" + item.value + schtype + "</div>";
-            schcmd = "<div class='searchcmd'>" + item.code + "</div>";
-            schinfo = "<div class='searchinfo'>" + schname + schcmd + "</div>";
-            lstitm = "<div class='listitem-div'>" + schinfo + "</div>";
-            return $('<li>')
-                .append(lstitm)
-                .appendTo(ul);
-        };
-    });
+    $( "#searchbox" ).autocomplete({
+        autoFocus: true,
+        source: function( request, response ) {
+            $.when(
+                asyncJob.SendJob(request.term)
+            ).then(
+                function(data) {
+                    response(JSON.parse(data));
+                }
+            );
+        },
+        minLength: 0,
+        delay: 0,
+        select: function( event, ui ) {
+            populateVarsList(ui.item);
+            $( "#searchbox" ).data( "hashid", ''+ui.item.hash);
+        },
+        open: function() {
+            $( "#searchbox" ).data('isopen', true);
+            $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
+        },
+        close: function() {
+            $( "#searchbox" ).data('isopen', false);
+            $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+        }
+    }).data('ui-autocomplete')._renderItem = function(ul, item) {
+        //if cmdtype in bash add class to searchcmdlinux and typename to bash
+        //typename = "bash";
+        typename = item.cmdtype 
+        cmdtype = "searchcmd_" + typename;
+        //the above should really be a function
+        schtype = "<div class='searchcmdtype " + cmdtype + "'>" + typename + "</div>";
+        schname = "<div class='searchname'>" + item.value + schtype + "</div>";
+        schcmd = "<div class='searchcmd'>" + item.code + "</div>";
+        schinfo = "<div class='searchinfo'>" + schname + schcmd + "</div>";
+        lstitm = "<div class='listitem-div'>" + schinfo + "</div>";
+        return $('<li>')
+            .append(lstitm)
+            .appendTo(ul);
+    };
 });
 
 let asyncJob = {
