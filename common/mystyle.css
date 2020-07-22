@@ -70,7 +70,7 @@ input[type=text] {
     left: 30px;
     top: 20px;
     width: 650px;
-    height: 200px;
+    height: 150px;
     position: relative;
 }
 .arg{
@@ -107,7 +107,7 @@ input[type=text] {
     float: right;
 }
 #codecontainer {
-    height: 350px;
+    height: 270px;
     width: 650px;
 }
 /* add new item code box */
@@ -115,7 +115,7 @@ input[type=text] {
 	background-color: #dbe5ff;
 	border: 1px solid #012998; /* Add a grey border */
 	font-size: 16px; /* Increase font-size */
-	height: 150px;
+	height: 100px;
 	margin-bottom: 2px; /* Add some space below the input */
 	padding: 12px 20px 12px 20px; /* Add some padding */
 	width: 88%; /* Full-width */
