@@ -29,7 +29,7 @@ $( document ).ready(function() {
     $("#btnSaveNew").on("click", function(){
         //save new snippet
         let txttitle = $( '#title' ).val();
-        let txtcode = $( '#code' ).val();
+        let txtcode = $( '#code' ).text();
         let txtcmdtyp = $( '#cmdtypselect' ).val();
         let txtsummary = $( '#summary' ).val();
 
@@ -223,7 +223,7 @@ function getCodeFromArguments(e) {
 }
 
 function clearform() {
-    $('#code').val('');
+    $('#code').text('');
     $('#title').val('')
     $('#cmdtypselect').prop('selectedIndex', 0);
 }
