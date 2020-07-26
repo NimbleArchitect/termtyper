@@ -7,4 +7,5 @@ require (
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/pborman/uuid v1.2.0
 	github.com/zserge/webview v0.0.0-20200712095716-5ad0afda173f
+	gopkg.in/yaml.v2 v2.3.0
 )

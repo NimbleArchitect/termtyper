@@ -1,5 +1,5 @@
 termtyper:
-    #debug: true
+    debug: true
     #loglevel: 1
     #remote: false
     #cmdtype: bash
@@ -7,4 +7,3 @@ termtyper:
     #path: ~/.termtyper
     #typedelay: 20 
     #linedelay: 200
-    

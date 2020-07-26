@@ -25,7 +25,7 @@ import (
 const appName string = "termtyper"
 
 // Config struct for webapp config
-type Config struct {
+type config struct {
 	termtyper struct {
 		Debug        bool   `yaml:"debug"`
 		LogLevel     int    `yaml:"loglevel"`
@@ -42,7 +42,7 @@ type Config struct {
 	} `yaml:"termtyper"`
 }
 
-var settings Config = Config{}
+var settings config = config{}
 var codefromarg string = ""
 
 type snipItem struct {
@@ -76,7 +76,7 @@ var datapath string
 
 var queryQueue chan command
 
-func loadSettings() {
+func loadSettings() config {
 	//set defaults
 	settings.termtyper.Debug = false
 	settings.termtyper.LogLevel = 1

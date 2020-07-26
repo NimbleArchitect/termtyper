@@ -9,7 +9,7 @@ import (
 	"unsafe"
 )
 
-func SwitchWindow() {
+func SwitchWindow(ptr unsafe.Pointer) {
 
 }
 
