@@ -37,13 +37,13 @@ you will need to insall the following dependicies first
 
 #### Fedora
 ```
-sudo dnf install gtk3-devel webkit2gtk3-devel libxkbcommon-devel libXtst-devel libxkbcommon-x11-devel xorg-x11-xkb-utils-devel libpng-devel xsel xclip
+sudo dnf install gtk3-devel webkit2gtk3-devel libxkbcommon-devel libXtst-devel libxkbcommon-x11-devel xorg-x11-xkb-utils-devel libpng-devel xsel xclip gtk3-devel
 go build
 ```
 
 #### Ubuntu
 ```
-sudo apt-get install libwebkit2gtk-4.0
+sudo apt-get install libwebkit2gtk-4.0 libgtk-3-dev
 ```
 
 then you can cd into the source folder and build with
@@ -53,7 +53,7 @@ go build
 
 ### Arch
 ```
-sudo pacman -S go pkg-config sqlite gcc
+sudo pacman -S go pkg-config sqlite gcc gtk3
 ```
 then cd into the source folder and run the following
 ```
