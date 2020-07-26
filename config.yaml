@@ -1,0 +1,10 @@
+termtyper:
+    #debug: true
+    #loglevel: 1
+    #remote: false
+    #cmdtype: bash
+    #maxrows: 20
+    #path: ~/.termtyper
+    #typedelay: 20 
+    #linedelay: 200
+    
