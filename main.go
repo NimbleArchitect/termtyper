@@ -22,15 +22,27 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-const webdebug bool = true
-const remoteActive bool = false
-const loglevel int = 1
-const defaultcmdtype string = "bash"
 const appName string = "termtyper"
-const maxRows int = 20
-const typeSpeed int = 20       //time to wait between key presses, in milliseconds
-const newLineSpeed int64 = 200 //time to wait after pressing enter, in milliseconds
 
+// Config struct for webapp config
+type Config struct {
+	termtyper struct {
+		Debug        bool   `yaml:"debug"`
+		LogLevel     int    `yaml:"loglevel"`
+		EnableRemote bool   `yaml:"remote"`
+		CmdType      string `yaml:"cmdtype"`
+		maxRows      int    `yaml:"maxrows"`
+		Path         string `yaml:"path"`
+		TypeDelay    int    `yaml:"typedelay"` //time to wait between key presses, in milliseconds
+		LineDelay    int64  `yaml:"linedelay"` //time to wait after pressing enter, in milliseconds
+		// Timeout      struct {
+		// 	Server time.Duration `yaml:"server"`
+		// 	Write  time.Duration `yaml:"write"`
+		// } `yaml:"timeout"`
+	} `yaml:"termtyper"`
+}
+
+var settings Config = Config{}
 var codefromarg string = ""
 
 type snipItem struct {
@@ -64,6 +76,19 @@ var datapath string
 
 var queryQueue chan command
 
+func loadSettings() {
+	//set defaults
+	settings.termtyper.Debug = false
+	settings.termtyper.LogLevel = 1
+	settings.termtyper.EnableRemote = false
+	settings.termtyper.CmdType = "bash"
+	settings.termtyper.maxRows = 20
+	settings.termtyper.Path = ""
+	settings.termtyper.TypeDelay = 20
+	settings.termtyper.LineDelay = 200
+
+}
+
 func main() {
 	var argument string
 	const html = `
@@ -71,14 +96,18 @@ func main() {
 	Move along nothing to see here
 	</body></html>`
 
-	var pathSep = "/"
-	appFolder := "." + appName
+	loadSettings()
 
-	datapath, err := os.UserHomeDir()
-	if err != nil {
-		panic("Unable to get users profile folder")
+	if settings.termtyper.Path == "" {
+		var pathSep = "/"
+		appFolder := "." + appName
+		datapath, err := os.UserHomeDir()
+		if err != nil {
+			panic("Unable to get users profile folder")
+		}
+		settings.termtyper.Path = datapath + pathSep + appFolder
 	}
-	fldrName := datapath + pathSep + appFolder
+	fldrName := settings.termtyper.Path
 	if _, err := os.Stat(fldrName); err != nil {
 		err = os.Mkdir(fldrName, 0770)
 		if err != nil {
@@ -168,14 +197,14 @@ func getprogPath() string {
 
 func typeSnippet(lineSeperator string, text []string) {
 	logDebug("F:typeSnippet:start")
-	delay := time.Duration(newLineSpeed)
+	delay := time.Duration(settings.termtyper.LineDelay)
 	if len(text) == 0 {
 		logError("no text avaliable to type")
 		//messages <- true
 		return
 	}
 	if lineSeperator == "" {
-		_, lineSeperator = validCmdType(defaultcmdtype)
+		_, lineSeperator = validCmdType(settings.termtyper.CmdType)
 	}
 
 	logDebug("F:typeSnippet:sending keys =", text)
@@ -185,10 +214,10 @@ func typeSnippet(lineSeperator string, text []string) {
 	for i := 0; i < count; i++ {
 		singleline := text[i]
 		if i < (count - 1) { //more than one line and we are not on the last
-			key.SendLine(singleline+lineSeperator+"\n", typeSpeed) //sent line of text
-			time.Sleep(delay * time.Millisecond)                   //sleep after pressing enter
+			key.SendLine(singleline+lineSeperator+"\n", settings.termtyper.TypeDelay) //sent line of text
+			time.Sleep(delay * time.Millisecond)                                      //sleep after pressing enter
 		} else {
-			key.SendLine(singleline, typeSpeed) //write the last or only line
+			key.SendLine(singleline, settings.termtyper.TypeDelay) //write the last or only line
 		}
 	}
 
@@ -242,7 +271,7 @@ func validCmdType(cmdtype string) (string, string) {
 		sep = " ^"
 
 	default:
-		out, sep = validCmdType(defaultcmdtype)
+		out, sep = validCmdType(settings.termtyper.CmdType)
 	}
 
 	return out, sep

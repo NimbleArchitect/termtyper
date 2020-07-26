@@ -3,8 +3,9 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/mattn/go-sqlite3"
 	"time"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 var database *sql.DB
@@ -108,9 +109,9 @@ func dbFind(field string, searchfor string, rowStart int) []snipItem {
 	}
 
 	if strRowStart == "" {
-		rows, err = database.Query(qry, "%"+searchfor+"%", maxRows)
+		rows, err = database.Query(qry, "%"+searchfor+"%", settings.termtyper.maxRows)
 	} else {
-		rows, err = database.Query(qry, "%"+searchfor+"%", maxRows, rowStart)
+		rows, err = database.Query(qry, "%"+searchfor+"%", settings.termtyper.maxRows, rowStart)
 	}
 
 	if err != nil {

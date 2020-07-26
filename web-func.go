@@ -70,7 +70,7 @@ func snipAsyncSearch(hash string, query string) error {
 	var requestList []searchRequest
 
 	wg := sync.WaitGroup{}
-	if remoteActive == true && len(query) >= 2 {
+	if settings.termtyper.EnableRemote == true && len(query) >= 2 {
 
 		ch := make(chan []snipItem)
 		newRequest := searchRequest{

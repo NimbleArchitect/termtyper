@@ -11,7 +11,7 @@ import (
 var w webview.WebView
 
 func searchandpaste(datapath string) {
-	w = webview.New(webdebug)
+	w = webview.New(settings.termtyper.Debug)
 	//defer w.Destroy()
 	w.SetTitle(appName)
 	w.SetSize(800, 600, webview.HintNone)
@@ -30,7 +30,7 @@ func searchandpaste(datapath string) {
 }
 
 func newfromcommand(datapath string) {
-	w = webview.New(webdebug)
+	w = webview.New(settings.termtyper.Debug)
 	defer w.Destroy()
 	w.SetTitle(appName)
 	w.SetSize(800, 600, webview.HintNone)
@@ -45,7 +45,7 @@ func newfromcommand(datapath string) {
 }
 
 func typemanager(datapath string) {
-	w = webview.New(webdebug)
+	w = webview.New(settings.termtyper.Debug)
 	//defer w.Destroy()
 	w.SetTitle(appName)
 	w.SetSize(1024, 768, webview.HintNone)

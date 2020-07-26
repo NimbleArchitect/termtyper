@@ -7,28 +7,28 @@ import (
 )
 
 func logError(msg ...interface{}) {
-	if loglevel >= 1 {
+	if settings.termtyper.LogLevel >= 1 {
 		log.Print("[ERROR] ", msg)
 		writeFile("[ERROR] ", msg)
 	}
 }
 
 func logWarn(msg ...interface{}) {
-	if loglevel >= 2 {
+	if settings.termtyper.LogLevel >= 2 {
 		log.Print("[WARN]", msg)
 		writeFile("[WARN] ", msg)
 	}
 }
 
 func logInfo(msg ...interface{}) {
-	if loglevel >= 3 {
+	if settings.termtyper.LogLevel >= 3 {
 		log.Print("[INFO] ", msg)
 		writeFile("[INFO] ", msg)
 	}
 }
 
 func logDebug(msg ...interface{}) {
-	if loglevel >= 4 {
+	if settings.termtyper.LogLevel >= 4 {
 		log.Print("[DEBUG] ", msg)
 		writeFile("[DEBUG] ", msg)
 	}
