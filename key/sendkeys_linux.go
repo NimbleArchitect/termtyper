@@ -14,10 +14,7 @@ import (
 
 //SwitchWindow hides this programs window
 func SwitchWindow(ptr unsafe.Pointer) {
-	//TODO: alt tab doesn't always work needs fixing
-	//C.SendAltTabKeys()
 	C.LowerWindow(ptr)
-
 }
 
 //SendLine types a single line of text into the active window

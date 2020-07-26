@@ -24,7 +24,7 @@ import (
 
 const webdebug bool = true
 const remoteActive bool = false
-const loglevel int = 5
+const loglevel int = 1
 const defaultcmdtype string = "bash"
 const appName string = "termtyper"
 const maxRows int = 20
@@ -177,9 +177,6 @@ func typeSnippet(lineSeperator string, text []string) {
 	if lineSeperator == "" {
 		_, lineSeperator = validCmdType(defaultcmdtype)
 	}
-
-	logDebug("F:typeSnippet:switching window")
-	go minimizeWindow()
 
 	logDebug("F:typeSnippet:sending keys =", text)
 	time.Sleep(2 * time.Second)

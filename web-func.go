@@ -119,6 +119,7 @@ func asyncWrite(hash string, vars []string) {
 	}
 
 	_, sep := validCmdType(snips.CmdType) //get multiline seperator
+	logDebug("F:asyncWrite:switching window")
 	minimizeWindow()
 
 	typeSnippet(sep, code)

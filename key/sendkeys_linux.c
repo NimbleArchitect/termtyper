@@ -14,7 +14,7 @@ Display* OpenDisplay() {
     Display* display = NULL;
     char *displayname = NULL;
 
-    fprintf(stderr, "C:OpenDisplay:start\n");
+    //fprintf(stderr, "C:OpenDisplay:start\n");
     if (displayname == NULL) {
 	    displayname = getenv("DISPLAY");
     }
@@ -34,6 +34,7 @@ Display* OpenDisplay() {
     return display;
 
 }
+
 
 void SendKeyEvent(Display* display, KeySym keysym, unsigned int shift) {
     // shift key down if needed
@@ -58,13 +59,14 @@ void SendKeyEvent(Display* display, KeySym keysym, unsigned int shift) {
     }
 }
 
+
 int SendAltTabKeys() {
     Display* display = NULL;
     //Window window = 0;
     XSetErrorHandler(handle_error);
 
     XInitThreads();
-    fprintf(stderr, "C:SendAltTabKeys:start\n");
+    //fprintf(stderr, "C:SendAltTabKeys:start\n");
     display = OpenDisplay();
     if (display == NULL) {
         printf("Failed to open display");
@@ -74,7 +76,7 @@ int SendAltTabKeys() {
     //window = GetFocusWindow(display);
 
 
-    fprintf(stderr, "C:SendAltTabKeys:sending keys\n");
+    //fprintf(stderr, "C:SendAltTabKeys:sending keys\n");
     XTestFakeKeyEvent(display, XKeysymToKeycode(display, XK_Alt_L), True, CurrentTime);
     XSync(display, False);
     XTestFakeKeyEvent(display, XKeysymToKeycode(display, XK_Tab), True, CurrentTime);
@@ -86,11 +88,12 @@ int SendAltTabKeys() {
     XSync(display, False);
     XTestFakeKeyEvent(display, XKeysymToKeycode(display, XK_Alt_L), False, CurrentTime);
     XSync(display, False);
-    fprintf(stderr, "C:SendAltTabKeys:keys sent\n");
+    //fprintf(stderr, "C:SendAltTabKeys:keys sent\n");
     XCloseDisplay(display);
-    fprintf(stderr, "C:SendAltTabKeys:display closed\n");
+    //fprintf(stderr, "C:SendAltTabKeys:display closed\n");
     return 0;
 }
+
 
 int Sendkey(const char *letter, int shift) {
     Display* display = NULL;
@@ -102,9 +105,6 @@ int Sendkey(const char *letter, int shift) {
         printf("Failed to open display");
         return 0;
     }
-
-    //window = GetFocusWindow(display);
-
 
     if(shift == 1) {
         shift |= ShiftMask;
@@ -118,47 +118,11 @@ int Sendkey(const char *letter, int shift) {
     return 0;
 }
 
+
 int handle_error(Display* display, XErrorEvent* error){
   printf("ERROR: X11 error\n");
   xerror = True;
   return 1;
-}
-
-unsigned int getWindowCount( Display *display, Window parent_window, int depth )
-{
-    Window  root_return;
-    Window  parent_return;
-    Window *children_list = NULL;
-    Window top_window;
-    unsigned int list_length = 0;
-    //unsigned int total_list_length = 0;
-
-    // query the window list recursively, until each window reports no sub-windows
-    printf( "getWindowCount() - Window %lu\n", parent_window );
-    if ( 0 != XQueryTree( display, parent_window, &root_return, &parent_return, &children_list, &list_length ) )
-    {
-        //printf( "getWindowCount() - %s    %d window handle returned\n", indent, list_length );
-        if ( list_length > 0 && children_list != NULL )
-        {
-            // for ( int i=0; i<list_length; i++)
-            // {
-            //     // But typically the "top-level" window is not what the user sees, so query any children
-            //     // Only the odd window has child-windows.  XEyes does.
-            //     if ( children_list[i] != 0 )
-            //     {
-            //         unsigned int child_length = getWindowCount( display, children_list[i], depth+1 );
-            //         total_list_length += child_length;  
-            //     }
-            // }
-            top_window = children_list[list_length -3];
-            XRaiseWindow(display, top_window);
-            printf( "getWindowCount() - Window %lu\n", top_window );
-            XSync(display, False);
-            XFree( children_list ); // cleanup
-        }
-    }
-
-    return list_length; 
 }
 
 
