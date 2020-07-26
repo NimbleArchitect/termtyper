@@ -4,11 +4,12 @@ import (
 	"bufio"
 	"encoding/json"
 	"errors"
-	"github.com/atotto/clipboard"
-	"github.com/pborman/uuid"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/atotto/clipboard"
+	"github.com/pborman/uuid"
 )
 
 //copy data into clipboard
@@ -23,44 +24,11 @@ func snipCopy(data string) error {
 // accepts given hash matching snip record and
 // a json string representing argument name and value
 func snipWrite(hash string, vars ...string) error {
-	var code []string
-	var data string
-	var args []snipArgs
-	logDebug("F:snip_write:start")
-
 	if len(hash) <= 0 {
 		return errors.New("no hash id specified")
 	}
 
-	messages := make(chan bool)
-	defer close(messages)
-
-	logDebug("F:snip_write:hash =", hash)
-	snips, _ := dbGetID(hash)
-	logDebug("F:snip_write:snips =", snips)
-	logDebug("F:snip_write:len(vars) =", len(vars))
-
-	if len(vars) > 0 {
-		json.Unmarshal([]byte(vars[0]), &args)
-	}
-	data = argumentReplace(args, snips.Code)
-	scanner := bufio.NewScanner(strings.NewReader(data))
-
-	for scanner.Scan() {
-		singleline := scanner.Text()
-		code = append(code, singleline)
-	}
-
-	_, sep := validCmdType(snips.CmdType) //get multiline seperator
-	//set up channel to wait on, this fixes a crash where the window
-	// was closing before the fucntion had finished
-	go typeSnippet(messages, sep, code)
-	dbUpdatePopular(hash) //update usage counter
-
-	//wait for completion signal
-	<-messages
-
-	snipClose()
+	go asyncWrite(hash, vars)
 
 	return nil
 }
@@ -125,5 +93,45 @@ func snipAsyncSearch(hash string, query string) error {
 	go localSearch(&wg, newRequest)
 
 	go waitAndMerge(&wg, requestList)
+	return nil
+}
+
+func asyncWrite(hash string, vars []string) {
+	var code []string
+	var data string
+	var args []snipArgs
+	logDebug("F:snip_write:start")
+
+	logDebug("F:snip_write:hash =", hash)
+	snips, _ := dbGetID(hash)
+	logDebug("F:snip_write:snips =", snips)
+	logDebug("F:snip_write:len(vars) =", len(vars))
+
+	if len(vars) > 0 {
+		json.Unmarshal([]byte(vars[0]), &args)
+	}
+	data = argumentReplace(args, snips.Code)
+	scanner := bufio.NewScanner(strings.NewReader(data))
+
+	for scanner.Scan() {
+		singleline := scanner.Text()
+		code = append(code, singleline)
+	}
+
+	_, sep := validCmdType(snips.CmdType) //get multiline seperator
+	minimizeWindow()
+
+	typeSnippet(sep, code)
+	dbUpdatePopular(hash) //update usage counter
+
+	snipClose()
+}
+
+func snipClose() error {
+	logDebug("F:snip_close:start")
+
+	w.Dispatch(func() {
+		w.Terminate()
+	})
 	return nil
 }

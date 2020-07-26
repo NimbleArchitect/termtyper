@@ -1,6 +1,6 @@
 package key
 
-// #cgo linux openbsd freebsd pkg-config: x11
+// #cgo linux openbsd freebsd pkg-config: x11 gtk+-3.0
 // #cgo CFLAGS: -g -Wall
 // #cgo LDFLAGS: -L. -lXtst
 // #include <stdlib.h>
@@ -13,10 +13,11 @@ import (
 )
 
 //SwitchWindow hides this programs window
-func SwitchWindow() {
+func SwitchWindow(ptr unsafe.Pointer) {
 	//TODO: alt tab doesn't always work needs fixing
-	C.SendAltTabKeys()
-	//C.LowerWindow()
+	//C.SendAltTabKeys()
+	C.LowerWindow(ptr)
+
 }
 
 //SendLine types a single line of text into the active window

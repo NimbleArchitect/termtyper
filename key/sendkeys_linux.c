@@ -1,33 +1,20 @@
-#include "sendkeys_linux.h"
 
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#  define NeedFunctionPrototypes 1
-#  include <X11/Xlib.h>
-#  include <X11/keysym.h>
-#  include <X11/extensions/XTest.h>
-#  include <X11/Xmu/WinUtil.h>
-#  if XlibSpecificationRelease != 6
-#      error Requires X11R6
-#  endif
+#include "sendkeys_linux.h"
 
 static int keysym = 0;
-
-
 Bool xerror = False;
 
-void print_window_name(Display* d, Window w);
-Window GetFocusWindow(Display* display);
-void SendKeyEvent(Display* display, KeySym keysym, unsigned int shift);
 
 Display* OpenDisplay() {
     Display* display = NULL;
     char *displayname = NULL;
 
-    //fprintf(stderr, "C:OpenDisplay:start\n");
+    fprintf(stderr, "C:OpenDisplay:start\n");
     if (displayname == NULL) {
 	    displayname = getenv("DISPLAY");
     }
@@ -74,9 +61,10 @@ void SendKeyEvent(Display* display, KeySym keysym, unsigned int shift) {
 int SendAltTabKeys() {
     Display* display = NULL;
     //Window window = 0;
+    XSetErrorHandler(handle_error);
 
     XInitThreads();
-    //fprintf(stderr, "C:SendAltTabKeys:start\n");
+    fprintf(stderr, "C:SendAltTabKeys:start\n");
     display = OpenDisplay();
     if (display == NULL) {
         printf("Failed to open display");
@@ -86,7 +74,7 @@ int SendAltTabKeys() {
     //window = GetFocusWindow(display);
 
 
-    //fprintf(stderr, "C:SendAltTabKeys:sending keys\n");
+    fprintf(stderr, "C:SendAltTabKeys:sending keys\n");
     XTestFakeKeyEvent(display, XKeysymToKeycode(display, XK_Alt_L), True, CurrentTime);
     XSync(display, False);
     XTestFakeKeyEvent(display, XKeysymToKeycode(display, XK_Tab), True, CurrentTime);
@@ -98,15 +86,16 @@ int SendAltTabKeys() {
     XSync(display, False);
     XTestFakeKeyEvent(display, XKeysymToKeycode(display, XK_Alt_L), False, CurrentTime);
     XSync(display, False);
-    //(stderr, "C:SendAltTabKeys:keys sent\n");
+    fprintf(stderr, "C:SendAltTabKeys:keys sent\n");
     XCloseDisplay(display);
-    //fprintf(stderr, "C:SendAltTabKeys:display closed\n");
+    fprintf(stderr, "C:SendAltTabKeys:display closed\n");
     return 0;
 }
 
 int Sendkey(const char *letter, int shift) {
     Display* display = NULL;
 
+    XSetErrorHandler(handle_error);
     XInitThreads();
     display = OpenDisplay();
     if (display == NULL) {
@@ -187,31 +176,9 @@ Window GetFocusWindow(Display* display) {
     return window;
 }
 
-int LowerWindow() {
-    //sdosent work...why?
-    Display* display = NULL;
-    Window window = 0;
-    Window root_window;
+int LowerWindow(void* ptr) {
 
-    XInitThreads();
-    display = OpenDisplay();
-    XSetErrorHandler(handle_error);
-    if (display == NULL) {
-        printf("Failed to open display");
-        return 0;
-    }
-
-    window = GetFocusWindow(display);
-
-    root_window = XRootWindow( display, 0 );
-    XLowerWindow(display, window);
-    
-    getWindowCount(display, root_window, 0);
-
-    printf( "- Window %lu\n", window );
-    usleep( 12000 );
-    XSync(display, False);
-    XCloseDisplay(display);
+    gtk_window_iconify (ptr);
 
     return 0;
 }

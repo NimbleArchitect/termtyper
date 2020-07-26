@@ -11,7 +11,6 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	_ "github.com/mattn/go-sqlite3"
 	"io"
 	"io/ioutil"
 	"os"
@@ -19,11 +18,13 @@ import (
 	"strings"
 	"termtyper/key"
 	"time"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 const webdebug bool = true
 const remoteActive bool = false
-const loglevel int = 1
+const loglevel int = 5
 const defaultcmdtype string = "bash"
 const appName string = "termtyper"
 const maxRows int = 20
@@ -165,12 +166,12 @@ func getprogPath() string {
 	return dirAbsPath
 }
 
-func typeSnippet(messages chan bool, lineSeperator string, text []string) {
+func typeSnippet(lineSeperator string, text []string) {
 	logDebug("F:typeSnippet:start")
 	delay := time.Duration(newLineSpeed)
 	if len(text) == 0 {
 		logError("no text avaliable to type")
-		messages <- true
+		//messages <- true
 		return
 	}
 	if lineSeperator == "" {
@@ -178,7 +179,7 @@ func typeSnippet(messages chan bool, lineSeperator string, text []string) {
 	}
 
 	logDebug("F:typeSnippet:switching window")
-	key.SwitchWindow()
+	go minimizeWindow()
 
 	logDebug("F:typeSnippet:sending keys =", text)
 	time.Sleep(2 * time.Second)
@@ -194,7 +195,6 @@ func typeSnippet(messages chan bool, lineSeperator string, text []string) {
 		}
 	}
 
-	messages <- true
 }
 
 func readStdin() string {

@@ -2,8 +2,10 @@ package main
 
 import (
 	//"fmt"
-	"github.com/zserge/webview"
 	"strings"
+	"termtyper/key"
+
+	"github.com/zserge/webview"
 )
 
 var w webview.WebView
@@ -66,4 +68,9 @@ func sendResultsToJS(hash string, results string) {
 	w.Dispatch(func() {
 		w.Eval("asyncJob.GotData('" + hash + "','" + out + "');")
 	})
+}
+
+func minimizeWindow() {
+	ptr := w.Window()
+	key.SwitchWindow(ptr)
 }
