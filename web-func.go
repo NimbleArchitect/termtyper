@@ -122,6 +122,7 @@ func asyncWrite(hash string, vars []string) {
 	logDebug("F:asyncWrite:switching window")
 	minimizeWindow()
 
+	time.Sleep(3 * time.Second)
 	typeSnippet(sep, code)
 	dbUpdatePopular(hash) //update usage counter
 

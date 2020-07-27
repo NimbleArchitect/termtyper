@@ -208,7 +208,6 @@ func typeSnippet(lineSeperator string, text []string) {
 	}
 
 	logDebug("F:typeSnippet:sending keys =", text)
-	time.Sleep(2 * time.Second)
 	//send keys to type to stdin of python script :(
 	count := len(text)
 	for i := 0; i < count; i++ {

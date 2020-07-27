@@ -40,7 +40,6 @@ func dbOpen(dbpath string) (*sql.DB, bool) {
 	)
 
 	_, _ = db.Exec(`ALTER TABLE snips ADD summary TEXT;`)
-	//_, _ = db.Exec(`ALTER TABLE snips ADD summary text;`)
 
 	return db, true
 }
