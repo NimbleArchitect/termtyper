@@ -76,7 +76,7 @@ var datapath string
 
 var queryQueue chan command
 
-func loadSettings() config {
+func loadSettings() {
 	//set defaults
 	settings.termtyper.Debug = false
 	settings.termtyper.LogLevel = 1
