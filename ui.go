@@ -11,13 +11,13 @@ import (
 var w webview.WebView
 
 func searchandpaste(datapath string) {
-	w = webview.New(settings.termtyper.Debug)
+	w = webview.New(settings.Termtyper.Debug)
 	//defer w.Destroy()
 	w.SetTitle(appName)
 	w.SetSize(800, 600, webview.HintNone)
 	w.Navigate("data:text/html,<html><body>Loading...</body></html>")
 	//w.Navigate("https://nimblearchitect.github.io/termtyper/common/searchpage.html")
-	w.Navigate("file://" + datapath + "/common/searchpage.html")
+	w.Navigate("file://" + datapath + "/common/listsearch.html")
 	w.Bind("snipAsyncSearch", snipAsyncSearch)
 	w.Bind("snipFromClip", snipGetClipboard)
 	w.Bind("snipWrite", snipWrite)
@@ -30,7 +30,7 @@ func searchandpaste(datapath string) {
 }
 
 func newfromcommand(datapath string) {
-	w = webview.New(settings.termtyper.Debug)
+	w = webview.New(settings.Termtyper.Debug)
 	defer w.Destroy()
 	w.SetTitle(appName)
 	w.SetSize(800, 600, webview.HintNone)
@@ -45,7 +45,7 @@ func newfromcommand(datapath string) {
 }
 
 func typemanager(datapath string) {
-	w = webview.New(settings.termtyper.Debug)
+	w = webview.New(settings.Termtyper.Debug)
 	//defer w.Destroy()
 	w.SetTitle(appName)
 	w.SetSize(1024, 768, webview.HintNone)
