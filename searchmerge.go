@@ -31,13 +31,18 @@ func localSearch(wg *sync.WaitGroup, request searchRequest) {
 	defer close(request.channel)
 
 	var foundSnips []snipItem
+	var snips []snipItem
+
 	logDebug("F:localSearch:start")
 
-	if len(request.query) <= 0 {
+	if len(request.query) < 0 {
 		return
+	} else if len(request.query) == 0 {
+		snips = dbGetAll()
+	} else {
+		snips = dbFind("name", request.query, 0) //search the name field in the snip table
 	}
 
-	snips := dbFind("name", request.query, 0) //search the name field in the snip table
 	for _, itm := range snips {
 		itmarg := getArguments(itm.Code)
 		itm.Argument = itmarg

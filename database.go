@@ -214,7 +214,8 @@ func dbGetAll() []snipItem {
 	var code string
 	var created string
 	var cmdtype string
-	var summary string
+	var dbSummary sql.NullString
+	var strSummary string
 
 	qry := string("SELECT * FROM snips")
 	rows, err := database.Query(qry)
@@ -224,9 +225,14 @@ func dbGetAll() []snipItem {
 	}
 
 	for rows.Next() {
-		err = rows.Scan(&hash, &created, &name, &code, &cmdtype, &summary)
+		err = rows.Scan(&hash, &created, &name, &code, &cmdtype, &dbSummary)
 		if err != nil {
 			panic(err)
+		}
+		if dbSummary.Valid {
+			strSummary = dbSummary.String
+		} else {
+			strSummary = ""
 		}
 		//tags := len(getVars(code))
 		item = snipItem{
@@ -235,7 +241,7 @@ func dbGetAll() []snipItem {
 			Name:    name,
 			Code:    code,
 			CmdType: cmdtype,
-			Summary: summary,
+			Summary: strSummary,
 		}
 		snip = append(snip, item)
 	}

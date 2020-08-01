@@ -203,25 +203,23 @@ input.varList {
 .autocomplete {
 	display: inline-block;
 	position: relative;
-	width: 80%;
+	width: 100%;
 }
 /* search results item */
 .listitem-div {
-	background-color: #dbe5ff; 
 	background-image: url('search.png');
 	background-position: 10px 12px;
 	background-repeat: no-repeat;
 	border-bottom: 1px solid #091534; 
 	cursor: pointer;
 	font-size: 14px;
-	padding: 10px;
+	padding: 5px;
 	padding-left: 40px;
-	width: 100%;
+	min-height: 60px;
 }
 /* search results inner-div */
 .searchinfo {
 	background-color: transparent;
-	padding-left: 25px;
 	margin-bottom: 5px;
 	/* color: #6d8ee8; */
 	overflow: hidden;
@@ -269,7 +267,6 @@ input.varList {
 
 .ui-autocomplete {
 	max-height: 300px;
-	max-width: 90%;
 	overflow-y: clip;
 	/* prevent horizontal scrollbar */
 	overflow-x: hidden;
@@ -280,4 +277,55 @@ input.varList {
 * html .ui-autocomplete {
 	height: 300px;
 	width: 1px;
+}
+
+
+
+table, td, tr{
+    border-collapse:collapse;
+    /* border: solid 1px #ccc; */
+    padding: 0px 0px;
+	text-align: left;
+	display: inline-block;
+	width: 100%;
+	cursor: pointer;
+}
+th {
+    background: #0f4871;
+    color: #fff;
+}
+
+tr {
+	background-color: #dbe5ff; 
+}
+
+tr:hover{
+    color: #fff;
+    background-color: #c7d3f5;
+}
+tr:hover .searchcmd{
+    color: #fff;
+    background-color: #c7d3f5;
+
+}
+.row-selected {
+	color: #fff;
+    background: #3644c4;
+}
+
+#list {
+	width: 100%;
+}
+
+#codelist {
+	background-color: #dbe5ff;
+	height: 400px;
+}
+
+#resultstable {
+	display:block;
+	overflow-y:auto;
+	overflow-x: hidden;
+	height:400px;
+	width:100%;
 }
