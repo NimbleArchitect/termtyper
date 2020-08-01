@@ -108,9 +108,9 @@ func dbFind(field string, searchfor string, rowStart int) []snipItem {
 	}
 
 	if strRowStart == "" {
-		rows, err = database.Query(qry, "%"+searchfor+"%", settings.termtyper.maxRows)
+		rows, err = database.Query(qry, "%"+searchfor+"%", settings.Termtyper.maxRows)
 	} else {
-		rows, err = database.Query(qry, "%"+searchfor+"%", settings.termtyper.maxRows, rowStart)
+		rows, err = database.Query(qry, "%"+searchfor+"%", settings.Termtyper.maxRows, rowStart)
 	}
 
 	if err != nil {

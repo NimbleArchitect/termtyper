@@ -11,6 +11,8 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	_ "github.com/mattn/go-sqlite3"
+	"gopkg.in/yaml.v2"
 	"io"
 	"io/ioutil"
 	"os"
@@ -18,15 +20,13 @@ import (
 	"strings"
 	"termtyper/key"
 	"time"
-
-	_ "github.com/mattn/go-sqlite3"
 )
 
 const appName string = "termtyper"
 
 // Config struct for webapp config
 type config struct {
-	termtyper struct {
+	Termtyper struct {
 		Debug        bool   `yaml:"debug"`
 		LogLevel     int    `yaml:"loglevel"`
 		EnableRemote bool   `yaml:"remote"`
@@ -42,7 +42,7 @@ type config struct {
 	} `yaml:"termtyper"`
 }
 
-var settings config = config{}
+var settings config
 var codefromarg string = ""
 
 type snipItem struct {
@@ -76,16 +76,31 @@ var datapath string
 
 var queryQueue chan command
 
-func loadSettings() {
+func loadSettings(filename string) {
 	//set defaults
-	settings.termtyper.Debug = false
-	settings.termtyper.LogLevel = 1
-	settings.termtyper.EnableRemote = false
-	settings.termtyper.CmdType = "bash"
-	settings.termtyper.maxRows = 20
-	settings.termtyper.Path = ""
-	settings.termtyper.TypeDelay = 20
-	settings.termtyper.LineDelay = 200
+	settings.Termtyper.Debug = false
+	settings.Termtyper.LogLevel = 1
+	settings.Termtyper.EnableRemote = false
+	settings.Termtyper.CmdType = "bash"
+	settings.Termtyper.maxRows = 20
+	settings.Termtyper.Path = ""
+	settings.Termtyper.TypeDelay = 20
+	settings.Termtyper.LineDelay = 200
+
+	data, err := ioutil.ReadFile(filename)
+	fmt.Println(err)
+
+	if err != nil {
+		//TODO: panic here
+	}
+
+	//var conf config
+	err = yaml.Unmarshal([]byte(data), &settings)
+	if err != nil {
+		//TODO: panic here also
+	}
+	fmt.Println(err)
+	//fmt.Println(conf)
 
 }
 
@@ -96,24 +111,24 @@ func main() {
 	Move along nothing to see here
 	</body></html>`
 
-	loadSettings()
-
-	if settings.termtyper.Path == "" {
+	if settings.Termtyper.Path == "" {
 		var pathSep = "/"
 		appFolder := "." + appName
 		datapath, err := os.UserHomeDir()
 		if err != nil {
 			panic("Unable to get users profile folder")
 		}
-		settings.termtyper.Path = datapath + pathSep + appFolder
+		settings.Termtyper.Path = datapath + pathSep + appFolder
 	}
-	fldrName := settings.termtyper.Path
+	fldrName := settings.Termtyper.Path
 	if _, err := os.Stat(fldrName); err != nil {
 		err = os.Mkdir(fldrName, 0770)
 		if err != nil {
 			panic("unable to create folder " + fldrName)
 		}
 	}
+
+	loadSettings(fldrName + "/config.yaml")
 
 	database, _ = dbOpen(fldrName + "/termtyper.db")
 	// if ok == true {
@@ -197,14 +212,14 @@ func getprogPath() string {
 
 func typeSnippet(lineSeperator string, text []string) {
 	logDebug("F:typeSnippet:start")
-	delay := time.Duration(settings.termtyper.LineDelay)
+	delay := time.Duration(settings.Termtyper.LineDelay)
 	if len(text) == 0 {
 		logError("no text avaliable to type")
 		//messages <- true
 		return
 	}
 	if lineSeperator == "" {
-		_, lineSeperator = validCmdType(settings.termtyper.CmdType)
+		_, lineSeperator = validCmdType(settings.Termtyper.CmdType)
 	}
 
 	logDebug("F:typeSnippet:sending keys =", text)
@@ -213,10 +228,10 @@ func typeSnippet(lineSeperator string, text []string) {
 	for i := 0; i < count; i++ {
 		singleline := text[i]
 		if i < (count - 1) { //more than one line and we are not on the last
-			key.SendLine(singleline+lineSeperator+"\n", settings.termtyper.TypeDelay) //sent line of text
+			key.SendLine(singleline+lineSeperator+"\n", settings.Termtyper.TypeDelay) //sent line of text
 			time.Sleep(delay * time.Millisecond)                                      //sleep after pressing enter
 		} else {
-			key.SendLine(singleline, settings.termtyper.TypeDelay) //write the last or only line
+			key.SendLine(singleline, settings.Termtyper.TypeDelay) //write the last or only line
 		}
 	}
 
@@ -270,7 +285,7 @@ func validCmdType(cmdtype string) (string, string) {
 		sep = " ^"
 
 	default:
-		out, sep = validCmdType(settings.termtyper.CmdType)
+		out, sep = validCmdType(settings.Termtyper.CmdType)
 	}
 
 	return out, sep
