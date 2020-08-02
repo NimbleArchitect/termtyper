@@ -10,7 +10,7 @@ import (
 )
 
 func SwitchWindow(ptr unsafe.Pointer) {
-
+	C.SendAltTab()
 }
 
 func SendLine(text string, keyDelay int) {
@@ -23,7 +23,7 @@ func SendLine(text string, keyDelay int) {
 		name := C.CString(string(code))
 		defer C.free(unsafe.Pointer(name))
 
-		C.Sendkey(name, 0)
+		C.Sendkey(name)
 		time.Sleep(delay * time.Millisecond)
 	}
 }
