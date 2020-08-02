@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head>
     <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="mystyle.css">
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
@@ -14,10 +15,14 @@
     <button id="btnWithArgs" class="button">Type With <u>A</u>rgs</button>
 </div>
 <div id="box-search">
-    <form autocomplete="off" action="#">
-        <input id="searchbox" type="text" name="searchbox" placeholder="Search for names.." autofocus>
-        <button id="btnRun" class="button"><u>R</u>un</button>
-    </form>
+    <input id="searchbox" type="text" name="searchbox" placeholder="Search for names.." autofocus>
+    <button id="btnRun" class="button"><u>R</u>un</button>
+    <div id="list">
+        <table id="codelist" class="autocomplete" tabindex="1">
+            <tbody id="resultstable">
+            </tbody>
+        </table>
+    </div>
 </div>
 <div id="box-addnew">
     <label for="title">title:</label><br>
@@ -36,15 +41,15 @@
     </div>
     <label for="summary">summary:</label><br>
     <input type="text" id="summary" name="summary">
-    <select id="cmdtypselect">
-        <option value="bash" selected>bash</option>
-        <option value="powershell">powershell</option>
-        <option value="dos">dos</option>
-    </select>
-    <div>
-        <button id="btnAddNew" class="button">Cancel</button>
-        <button id="btnSaveNew" class="button">Save</button>
-    </div>
+        <select id="cmdtypselect">
+            <option value="bash" selected>bash</option>
+            <option value="powershell">powershell</option>
+            <option value="dos">dos</option>
+        </select>
+        <div>
+            <button id="btnAddNew" class="button">Cancel</button>
+            <button id="btnSaveNew" class="button">Save</button>
+        </div>
 </div>
 <div id="box-vars">
     <div id="argument-list"></div>

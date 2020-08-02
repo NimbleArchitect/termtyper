@@ -22,7 +22,7 @@ func searchandpaste(datapath string) {
 	w.Bind("snipSave", snipSave)
 
 	w.Navigate("data:text/html,<html><body>Loading...</body></html>")
-	w.Navigate("https://nimblearchitect.github.io/termtyper/common/listsearch.html")
+	w.Navigate("https://nimblearchitect.github.io/termtyper/common/searchpage.html")
 	//w.Navigate("file://" + datapath + "/common/listsearch.html")
 	//w.Init(snipSearchRemote())
 	w.Run()
@@ -38,7 +38,7 @@ func newfromcommand(datapath string) {
 	w.Bind("snipCodeFromArg", snipCodeFromArg)
 
 	w.Navigate("data:text/html,<html><body>Loading...</body></html>")
-	w.Navigate("https://nimblearchitect.github.io/termtyper/common/listsearch.html")
+	w.Navigate("https://nimblearchitect.github.io/termtyper/common/searchpage.html")
 	w.Eval("window.addEventListener('load', function () { getCodeFromArguments(); });")
 	//w.Navigate("file://" + datapath + "/common/createnew.html")
 	w.Run()
