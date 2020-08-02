@@ -88,18 +88,16 @@ func loadSettings(filename string) {
 	settings.Termtyper.LineDelay = 200
 
 	data, err := ioutil.ReadFile(filename)
-	fmt.Println(err)
 
 	if err != nil {
-		//TODO: panic here
+		logWarn("unable to open config file", filename)
 	}
-
 	//var conf config
 	err = yaml.Unmarshal([]byte(data), &settings)
 	if err != nil {
 		//TODO: panic here also
+		logWarn("unable to process config file")
 	}
-	fmt.Println(err)
 	//fmt.Println(conf)
 
 }
