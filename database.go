@@ -65,10 +65,13 @@ func dbGetID(hash string) (snipItem, int) {
 		if err != nil {
 			panic(err)
 		}
-		//tags := len(getVars(code))
+		t, err := time.Parse(time.RFC3339, created)
+		if err != nil {
+			t = time.Now()
+		}
 		snip = snipItem{
 			Hash:    hash,
-			Time:    time.Now(),
+			Time:    t,
 			Name:    name,
 			Code:    code,
 			CmdType: cmdtype,
@@ -129,10 +132,15 @@ func dbFind(field string, searchfor string, rowStart int) []snipItem {
 			strSummary = ""
 		}
 		//tags := len(getVars(code))
-		//TODO: convert created string to time object
+		//convert created string to time object
+		t, err := time.Parse(time.RFC3339, created)
+		if err != nil {
+			t = time.Now()
+		}
+
 		item := snipItem{
 			Hash:    hash,
-			Time:    time.Now(),
+			Time:    t,
 			Name:    name,
 			Code:    code,
 			CmdType: cmdtype,
@@ -148,9 +156,11 @@ func dbFind(field string, searchfor string, rowStart int) []snipItem {
 
 func dbWrite(hash string, created time.Time, title string, code string, cmdtype string, summary string) error {
 	//TODO: check values are valid before saving
+	t := string(created.Format(time.RFC3339))
+
 	tx, _ := database.Begin()
 	stmt, _ := tx.Prepare("insert into snips (hash,created,name,code,cmdtype,summary) values (?,?,?,?,?,?)")
-	_, err := stmt.Exec(hash, time.Now(), title, code, cmdtype, summary)
+	_, err := stmt.Exec(hash, t, title, code, cmdtype, summary)
 	if err != nil {
 		logError("error saving")
 	}
@@ -181,7 +191,7 @@ func dbUpdatePopular(hash string) error {
 	rows.Close()
 
 	if matches > 1 {
-		//more than one match for a given hash mes something fishy is happening...
+		//more than one match for a given hash meas something fishy is happening...
 		fmt.Println("Error: too many matches found for a single hash, the offending hash is", hash, ".")
 		panic("Refusing to continue")
 	}
@@ -206,6 +216,62 @@ func dbUpdatePopular(hash string) error {
 	return nil
 }
 
+func dbGetPopular(count int) []snipItem {
+	var snip []snipItem
+	var item snipItem
+	var hash string
+	var name string
+	var code string
+	var created string
+	var cmdtype string
+	var dbSummary sql.NullString
+	var strSummary string
+
+	qry := string(
+		`SELECT popular.hash, lastused, name, code, cmdtype, summary
+		FROM popular
+		INNER JOIN snips ON popular.hash = snips.hash 
+		ORDER BY timesused DESC LIMIT ?;`)
+
+	if count <= 0 {
+		return snip
+	}
+
+	rows, err := database.Query(qry, count)
+	if err != nil {
+		logError("ERROR: unable to query db")
+		panic(err)
+	}
+
+	for rows.Next() {
+		err = rows.Scan(&hash, &created, &name, &code, &cmdtype, &dbSummary)
+		if err != nil {
+			panic(err)
+		}
+		if dbSummary.Valid {
+			strSummary = dbSummary.String
+		} else {
+			strSummary = ""
+		}
+		t, err := time.Parse(time.RFC3339, created)
+		if err != nil {
+			t = time.Now()
+		}
+		item = snipItem{
+			Hash:    hash,
+			Time:    t,
+			Name:    name,
+			Code:    code,
+			CmdType: cmdtype,
+			Summary: strSummary,
+		}
+		snip = append(snip, item)
+	}
+	rows.Close() //good habit to close
+	return snip
+
+}
+
 func dbGetAll() []snipItem {
 	var snip []snipItem
 	var item snipItem
@@ -214,7 +280,8 @@ func dbGetAll() []snipItem {
 	var code string
 	var created string
 	var cmdtype string
-	var summary string
+	var dbSummary sql.NullString
+	var strSummary string
 
 	qry := string("SELECT * FROM snips")
 	rows, err := database.Query(qry)
@@ -224,18 +291,27 @@ func dbGetAll() []snipItem {
 	}
 
 	for rows.Next() {
-		err = rows.Scan(&hash, &created, &name, &code, &cmdtype, &summary)
+		err = rows.Scan(&hash, &created, &name, &code, &cmdtype, &dbSummary)
 		if err != nil {
 			panic(err)
 		}
+		if dbSummary.Valid {
+			strSummary = dbSummary.String
+		} else {
+			strSummary = ""
+		}
 		//tags := len(getVars(code))
+		t, err := time.Parse(time.RFC3339, created)
+		if err != nil {
+			t = time.Now()
+		}
 		item = snipItem{
 			Hash:    hash,
-			Time:    time.Now(),
+			Time:    t,
 			Name:    name,
 			Code:    code,
 			CmdType: cmdtype,
-			Summary: summary,
+			Summary: strSummary,
 		}
 		snip = append(snip, item)
 	}

@@ -4,12 +4,10 @@ import (
 	"bufio"
 	"encoding/json"
 	"errors"
-	"strings"
-	"sync"
-	"time"
-
 	"github.com/atotto/clipboard"
 	"github.com/pborman/uuid"
+	"strings"
+	"time"
 )
 
 //copy data into clipboard
@@ -23,12 +21,12 @@ func snipCopy(data string) error {
 //auto type function
 // accepts given hash matching snip record and
 // a json string representing argument name and value
-func snipWrite(hash string, vars ...string) error {
+func snipTyper(hash string, vars ...string) error {
 	if len(hash) <= 0 {
 		return errors.New("no hash id specified")
 	}
 
-	go asyncWrite(hash, vars)
+	go asyncTyper(hash, vars)
 
 	return nil
 }
@@ -64,48 +62,38 @@ func snipGetClipboard() string {
 	return ""
 }
 
-//async search given a search id and query
-// perform a search on seperate threads
-func snipAsyncSearch(hash string, query string) error {
-	var requestList []searchRequest
+func snipAsyncRequest(hash string, jsonQuery string) error {
+	type asyncRequest struct {
+		Operation string `json:"operation"`
+		Value     string `json:"value"`
+	}
+	var request asyncRequest
+	json.Unmarshal([]byte(jsonQuery), &request)
 
-	wg := sync.WaitGroup{}
-	if settings.Termtyper.EnableRemote == true && len(query) >= 2 {
-
-		ch := make(chan []snipItem)
-		newRequest := searchRequest{
-			hash:    hash,
-			query:   query,
-			channel: ch,
+	switch request.Operation {
+	case "search":
+		go asyncSearch(hash, request.Value)
+	case "get":
+		switch request.Value {
+		case "popular":
+			go getPopular(hash)
+		case "all":
+			go getAllSnips(hash)
 		}
-		requestList = append(requestList, newRequest)
-		wg.Add(1)
-		go remoteSearch(&wg, newRequest)
 	}
-	ch := make(chan []snipItem)
-	newRequest := searchRequest{
-		hash:    hash,
-		query:   query,
-		channel: ch,
-	}
-	requestList = append(requestList, newRequest)
-	wg.Add(1)
-	go localSearch(&wg, newRequest)
-
-	go waitAndMerge(&wg, requestList)
 	return nil
 }
 
-func asyncWrite(hash string, vars []string) {
+func asyncTyper(hash string, vars []string) {
 	var code []string
 	var data string
 	var args []snipArgs
-	logDebug("F:snip_write:start")
+	logDebug("F:asyncTyper:start")
 
-	logDebug("F:snip_write:hash =", hash)
+	logDebug("F:asyncTyper:hash =", hash)
 	snips, _ := dbGetID(hash)
-	logDebug("F:snip_write:snips =", snips)
-	logDebug("F:snip_write:len(vars) =", len(vars))
+	logDebug("F:asyncTyper:snips =", snips)
+	logDebug("F:asyncTyper:len(vars) =", len(vars))
 
 	if len(vars) > 0 {
 		json.Unmarshal([]byte(vars[0]), &args)
@@ -119,7 +107,7 @@ func asyncWrite(hash string, vars []string) {
 	}
 
 	_, sep := validCmdType(snips.CmdType) //get multiline seperator
-	logDebug("F:asyncWrite:switching window")
+	logDebug("F:asyncTyper:switching window")
 	minimizeWindow()
 
 	time.Sleep(3 * time.Second)

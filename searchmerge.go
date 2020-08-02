@@ -6,6 +6,38 @@ import (
 	"time"
 )
 
+//async search given a search id and query
+// perform a search on seperate threads
+func asyncSearch(hash string, query string) {
+	var requestList []searchRequest
+
+	wg := sync.WaitGroup{}
+	if settings.Termtyper.EnableRemote == true && len(query) >= 2 {
+
+		ch := make(chan []snipItem)
+		newRequest := searchRequest{
+			hash:    hash,
+			query:   query,
+			channel: ch,
+		}
+		requestList = append(requestList, newRequest)
+		wg.Add(1)
+		go remoteSearch(&wg, newRequest)
+	}
+	ch := make(chan []snipItem)
+	newRequest := searchRequest{
+		hash:    hash,
+		query:   query,
+		channel: ch,
+	}
+	requestList = append(requestList, newRequest)
+	wg.Add(1)
+	go localSearch(&wg, newRequest)
+
+	go waitAndMerge(&wg, requestList)
+
+}
+
 //loop through each searchRequest item, wait for
 // channels to timeout and close or recieve data, then merge data
 // and send the data back with its hash using
@@ -31,13 +63,18 @@ func localSearch(wg *sync.WaitGroup, request searchRequest) {
 	defer close(request.channel)
 
 	var foundSnips []snipItem
+	var snips []snipItem
+
 	logDebug("F:localSearch:start")
 
-	if len(request.query) <= 0 {
+	if len(request.query) < 0 {
 		return
+	} else if len(request.query) == 0 {
+		snips = dbGetAll()
+	} else {
+		snips = dbFind("name", request.query, 0) //search the name field in the snip table
 	}
 
-	snips := dbFind("name", request.query, 0) //search the name field in the snip table
 	for _, itm := range snips {
 		itmarg := getArguments(itm.Code)
 		itm.Argument = itmarg
@@ -78,4 +115,21 @@ func remoteSearch(wg *sync.WaitGroup, request searchRequest) {
 
 	request.channel <- foundSnips
 
+}
+
+//returns a list of items sorted by popularity, defaults to top 20
+func getPopular(hash string) {
+
+	totalSnips := dbGetPopular(20)
+	str, _ := json.Marshal(totalSnips)
+
+	sendResultsToJS(hash, string(str))
+}
+
+func getAllSnips(hash string) {
+
+	totalSnips := dbGetAll()
+	str, _ := json.Marshal(totalSnips)
+
+	sendResultsToJS(hash, string(str))
 }

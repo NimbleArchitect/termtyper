@@ -1,5 +1,7 @@
 $( document ).ready(function() {
 
+    doRequest('{"operation": "get", "value": "all"}');
+
     $("#btnNew").on("click", function(){
         //show new snip form
         $( '#box-addnew' ).css('display', 'block');
@@ -12,11 +14,12 @@ $( document ).ready(function() {
 
     $("#btnRun").on("click", function(){
         //autotype the selected snippet
-        hash = $( '#searchbox' ).data('hashid');
-        //make sure we have something as a value
-        if (hash != "") {
-            snipWrite(''+hash); //snipwrite expects a string so we force js using single quotes
-        }
+        doType( $('tr.row-selected') )
+        // hash = $( '#searchbox' ).data('hashid');
+        // //make sure we have something as a value
+        // if (hash != "") {
+        //     snipTyper(''+hash); //snipTyper expects a string so we force js using single quotes
+        // }
     });
 
     $("#btnAddNew").on("click", function(){
@@ -47,7 +50,7 @@ $( document ).ready(function() {
     $("#btnOkVars").on("click", function(){
         //run with selected vars
         let args = [];
-        let hash = $( "#searchbox" ).data('hashid');
+        let hash = $('tr.row-selected').data('tt-list-item').hash;
         let nodes = document.getElementById("argument-list").childNodes
         for (let i=0; i<nodes.length; i++) {
             //get argument name
@@ -56,7 +59,7 @@ $( document ).ready(function() {
             let v = nodes[i].getElementsByTagName("input")[0].value;
             args[i] = {"name": n, "value": v};
         }
-        snipWrite(''+hash, JSON.stringify(args));
+        snipTyper(''+hash, JSON.stringify(args));
     });
 
     function buildArg() {
@@ -124,7 +127,16 @@ $( document ).ready(function() {
         }
     }
 
-    function populateVarsList(item) {
+    function doType(listitem) {
+        let item = listitem.data('tt-list-item');
+
+        if (item.hash != "") {
+            snipTyper(''+item.hash); //snipTyper expects a string so we force js using single quotes
+        }
+    }
+
+    function populateVarsList(listitem) {
+        let item = listitem.data('tt-list-item');
         let args = item.argument;
         var hotkey = "";
         let strautofocus = "autofocus";
@@ -147,46 +159,88 @@ $( document ).ready(function() {
             }
         }
     }
-    $( "#searchbox" ).autocomplete({
-        autoFocus: true,
-        source: function( request, response ) {
-            $.when(
-                asyncJob.SendJob(request.term)
-            ).then(
-                function(data) {
-                    response(JSON.parse(data));
-                }
-            );
-        },
-        minLength: 0,
-        delay: 0,
-        select: function( event, ui ) {
-            populateVarsList(ui.item);
-            $( "#searchbox" ).data( "hashid", ''+ui.item.hash);
-        },
-        open: function() {
-            $( "#searchbox" ).data('isopen', true);
-            $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
-        },
-        close: function() {
-            $( "#searchbox" ).data('isopen', false);
-            $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+
+    function doRequest(query) {
+
+        $.when(
+            asyncJob.SendJob( query )
+        ).then(
+            function(data) {
+                $('#resultstable').empty()
+                JSON.parse(data).forEach(function(item){
+                    
+                    typename = item.cmdtype
+                    cmdtype = "searchcmd_" + typename;
+                    //the above should really be a function
+                    schtype = "<div class='searchcmdtype " + cmdtype + "'>" + typename + "</div>";
+                    schname = "<div class='searchname'>" + item.value + schtype + "</div>";
+                    schcmd = "<div class='searchcmd'>" + item.code + "</div>";
+                    schinfo = "<div class='searchinfo'>" + schname + schcmd + "</div>";
+                    lstitm = "<div class='listitem-div'>" + schinfo + "</div>";
+                    itmout = $( "<tr>" ).append( lstitm ).data('tt-list-item', item);
+                    itmout.on("click", function () {
+                        //console.log("clock");
+                        $('tr.row-selected').removeClass("row-selected")
+                        $(this).addClass("row-selected")  
+                        populateVarsList($(this))
+                    });
+        
+                    $('#resultstable').append( itmout )
+                })
+            }
+        );
+    }
+
+    $('table').keydown(function (e) {
+        if (e.which == 13) {
+            doType( $('tr.row-selected') )
+            return
         }
-    }).data('ui-autocomplete')._renderItem = function(ul, item) {
-        //if cmdtype in bash add class to searchcmdlinux and typename to bash
-        //typename = "bash";
-        typename = item.cmdtype 
-        cmdtype = "searchcmd_" + typename;
-        //the above should really be a function
-        schtype = "<div class='searchcmdtype " + cmdtype + "'>" + typename + "</div>";
-        schname = "<div class='searchname'>" + item.value + schtype + "</div>";
-        schcmd = "<div class='searchcmd'>" + item.code + "</div>";
-        schinfo = "<div class='searchinfo'>" + schname + schcmd + "</div>";
-        lstitm = "<div class='listitem-div'>" + schinfo + "</div>";
-        return $('<li>')
-            .append(lstitm)
-            .appendTo(ul);
-    };
+        if (e.which == 38) {
+            // Up Arrow
+            currItm = $('tr.row-selected').prev();
+            if (currItm.length == 0) {
+                currItm = $('tr').last();
+            }
+        } else if (e.which == 40) {
+            // Down Arrow
+            currItm = $('tr.row-selected').next();
+            if (currItm.length == 0) {
+                currItm = $('tr').first();
+            }
+        }
+        $('tr.row-selected').removeClass("row-selected")
+        if (currItm.length == 0) {
+            currItm = $('tr').first();
+        }
+        currItm.addClass("row-selected")
+        //deal with scrolling
+        let rowTop = currItm.position().top;
+        let rowHeight = currItm.height();
+        let rowBot = rowTop + currItm.height();
+        
+        let tblHeight = $('#resultstable').height();
+        if (rowTop <= 0 ) {
+            //row is out of bounds, need to move it back into view
+            $('#resultstable').scrollTop(currItm[0].offsetTop-6)
+        } else if (rowBot >= tblHeight) {
+            $('#resultstable').scrollTop(currItm[0].offsetTop + rowHeight - tblHeight - 5);
+        }
+        populateVarsList($('tr.row-selected'))
+        
+    });
+
+    $( '#searchbox' ).on('keyup', function (e) {
+        doRequest( '{"operation": "search", "value": "' + $('#searchbox').val() + '"}' );
+
+        if (e.which == 40) {
+            // Down Arrow
+            $('tr.row-selected').removeClass("row-selected");
+            $('#codelist').focus();
+            currItm = $('tr').first();
+            currItm.addClass("row-selected");
+        }
+    })
 });
 
 let asyncJob = {
@@ -198,7 +252,7 @@ let asyncJob = {
     SendJob : function(query) {
         var dfquery = $.Deferred();
         Qid = uuid();
-        snipAsyncSearch(Qid, query); //sending the query and a unique id
+        snipAsyncRequest(Qid, query); //sending the query and a unique id
         this.deferredQueue[Qid] = dfquery; //we save the query for our snipGotData function
         return dfquery.promise();
     }
