@@ -15,17 +15,16 @@ func searchandpaste(datapath string) {
 	//defer w.Destroy()
 	w.SetTitle(appName)
 	w.SetSize(800, 600, webview.HintNone)
-	w.Navigate("data:text/html,<html><body>Loading...</body></html>")
-	//w.Navigate("https://nimblearchitect.github.io/termtyper/common/searchpage.html")
-	w.Navigate("file://" + datapath + "/common/listsearch.html")
 	w.Bind("snipAsyncRequest", snipAsyncRequest)
 	w.Bind("snipFromClip", snipGetClipboard)
 	w.Bind("snipTyper", snipTyper)
 	w.Bind("snipClose", snipClose)
 	w.Bind("snipSave", snipSave)
 
+	w.Navigate("data:text/html,<html><body>Loading...</body></html>")
+	w.Navigate("https://nimblearchitect.github.io/termtyper/common/listsearch.html")
+	//w.Navigate("file://" + datapath + "/common/listsearch.html")
 	//w.Init(snipSearchRemote())
-
 	w.Run()
 }
 
@@ -34,13 +33,14 @@ func newfromcommand(datapath string) {
 	defer w.Destroy()
 	w.SetTitle(appName)
 	w.SetSize(800, 600, webview.HintNone)
-	w.Navigate("data:text/html,<html><body>Loading...</body></html>")
-	w.Navigate("https://nimblearchitect.github.io/termtyper/common/createnew.html")
-	//w.Navigate("file://" + datapath + "/common/createnew.html")
 	w.Bind("snipClose", snipClose)
 	w.Bind("snipSave", snipSave)
 	w.Bind("snipCodeFromArg", snipCodeFromArg)
+
+	w.Navigate("data:text/html,<html><body>Loading...</body></html>")
+	w.Navigate("https://nimblearchitect.github.io/termtyper/common/listsearch.html")
 	w.Eval("window.addEventListener('load', function () { getCodeFromArguments(); });")
+	//w.Navigate("file://" + datapath + "/common/createnew.html")
 	w.Run()
 }
 
@@ -49,14 +49,14 @@ func typemanager(datapath string) {
 	//defer w.Destroy()
 	w.SetTitle(appName)
 	w.SetSize(1024, 768, webview.HintNone)
-	w.Navigate("data:text/html,<html><body>Loading...</body></html>")
-	//w.Navigate("https://nimblearchitect.github.io/termtyper/common/manager.html")
-	w.Navigate("file://" + datapath + "/common/manager.html")
 	w.Bind("snipAsyncRequest", snipAsyncRequest)
 	w.Bind("snipFromClip", snipCopy)
 	w.Bind("snipClose", snipClose)
 	w.Bind("snipSave", snipSave)
 
+	w.Navigate("data:text/html,<html><body>Loading...</body></html>")
+	//w.Navigate("https://nimblearchitect.github.io/termtyper/common/manager.html")
+	w.Navigate("file://" + datapath + "/common/manager.html")
 	w.Run()
 }
 
