@@ -1,6 +1,6 @@
 $( document ).ready(function() {
 
-    doSearch("");
+    doRequest('{"operation": "get", "value": "all"}');
 
     $("#btnNew").on("click", function(){
         //show new snip form
@@ -18,7 +18,7 @@ $( document ).ready(function() {
         // hash = $( '#searchbox' ).data('hashid');
         // //make sure we have something as a value
         // if (hash != "") {
-        //     snipWrite(''+hash); //snipwrite expects a string so we force js using single quotes
+        //     snipTyper(''+hash); //snipTyper expects a string so we force js using single quotes
         // }
     });
 
@@ -50,7 +50,7 @@ $( document ).ready(function() {
     $("#btnOkVars").on("click", function(){
         //run with selected vars
         let args = [];
-        let hash = $( "#searchbox" ).data('hashid');
+        let hash = $('tr.row-selected').data('tt-list-item').hash;
         let nodes = document.getElementById("argument-list").childNodes
         for (let i=0; i<nodes.length; i++) {
             //get argument name
@@ -59,7 +59,7 @@ $( document ).ready(function() {
             let v = nodes[i].getElementsByTagName("input")[0].value;
             args[i] = {"name": n, "value": v};
         }
-        snipWrite(''+hash, JSON.stringify(args));
+        snipTyper(''+hash, JSON.stringify(args));
     });
 
     function buildArg() {
@@ -131,8 +131,7 @@ $( document ).ready(function() {
         let item = listitem.data('tt-list-item');
 
         if (item.hash != "") {
-            console.log("hash-id:" + item.hash);
-            //snipWrite(''+item.hash); //snipwrite expects a string so we force js using single quotes
+            snipTyper(''+item.hash); //snipTyper expects a string so we force js using single quotes
         }
     }
 
@@ -161,7 +160,8 @@ $( document ).ready(function() {
         }
     }
 
-    function doSearch(query) {
+    function doRequest(query) {
+
         $.when(
             asyncJob.SendJob( query )
         ).then(
@@ -182,7 +182,7 @@ $( document ).ready(function() {
                         //console.log("clock");
                         $('tr.row-selected').removeClass("row-selected")
                         $(this).addClass("row-selected")  
-                        populateVarsList($(this))     
+                        populateVarsList($(this))
                     });
         
                     $('#resultstable').append( itmout )
@@ -231,15 +231,14 @@ $( document ).ready(function() {
     });
 
     $( '#searchbox' ).on('keyup', function (e) {
-        //console.log("Searchbox: " + $('#searchbox').val())
-        doSearch( $('#searchbox').val() );
+        doRequest( '{"operation": "search", "value": "' + $('#searchbox').val() + '"}' );
 
         if (e.which == 40) {
             // Down Arrow
             $('tr.row-selected').removeClass("row-selected");
+            $('#codelist').focus();
             currItm = $('tr').first();
             currItm.addClass("row-selected");
-            $('#codelist').focus();
         }
     })
 });
@@ -253,7 +252,7 @@ let asyncJob = {
     SendJob : function(query) {
         var dfquery = $.Deferred();
         Qid = uuid();
-        snipAsyncSearch(Qid, query); //sending the query and a unique id
+        snipAsyncRequest(Qid, query); //sending the query and a unique id
         this.deferredQueue[Qid] = dfquery; //we save the query for our snipGotData function
         return dfquery.promise();
     }
