@@ -1,5 +1,5 @@
 termtyper:
-    debug: true
+    #debug: false
     #loglevel: 1
     #remote: false
     #cmdtype: bash

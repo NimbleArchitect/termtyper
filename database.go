@@ -8,7 +8,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-var database *sql.DB
+var localDbList []*sql.DB
 
 func dbOpen(dbpath string) (*sql.DB, bool) {
 	logInfo("* open: " + dbpath)
@@ -19,7 +19,7 @@ func dbOpen(dbpath string) (*sql.DB, bool) {
 	}
 	ok := db.Ping()
 	if ok != nil {
-		panic(err)
+		panic(ok)
 	}
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS "snips" (
 		"hash"	TEXT UNIQUE,
@@ -45,7 +45,7 @@ func dbOpen(dbpath string) (*sql.DB, bool) {
 }
 
 // returns a Snipitem that represents the hashid from the database table
-func dbGetID(hash string) (snipItem, int) {
+func dbGetID(database *sql.DB, hash string) (snipItem, int) {
 	var snip snipItem
 
 	var name string = ""
@@ -84,7 +84,7 @@ func dbGetID(hash string) (snipItem, int) {
 }
 
 // search for a record name that has a wildcard match to field and return a Snipitem that represents the match
-func dbFind(field string, searchfor string, rowStart int) []snipItem {
+func dbFind(database *sql.DB, field string, searchfor string, rowStart int) []snipItem {
 	//TODO: search for matching tags
 	var snip []snipItem
 	var hash string
@@ -154,7 +154,7 @@ func dbFind(field string, searchfor string, rowStart int) []snipItem {
 	return snip
 }
 
-func dbWrite(hash string, created time.Time, title string, code string, cmdtype string, summary string) error {
+func dbWrite(database *sql.DB, hash string, created time.Time, title string, code string, cmdtype string, summary string) error {
 	//TODO: check values are valid before saving
 	t := string(created.Format(time.RFC3339))
 
@@ -169,7 +169,7 @@ func dbWrite(hash string, created time.Time, title string, code string, cmdtype 
 	return nil
 }
 
-func dbUpdatePopular(hash string) error {
+func dbUpdatePopular(database *sql.DB, hash string) error {
 	var matches int = 0
 	var timesused int = 0
 	var lastused string = ""
@@ -216,7 +216,7 @@ func dbUpdatePopular(hash string) error {
 	return nil
 }
 
-func dbGetPopular(count int) []snipItem {
+func dbGetPopular(database *sql.DB, count int) []snipItem {
 	var snip []snipItem
 	var item snipItem
 	var hash string
@@ -272,7 +272,7 @@ func dbGetPopular(count int) []snipItem {
 
 }
 
-func dbGetAll() []snipItem {
+func dbGetAll(database *sql.DB) []snipItem {
 	var snip []snipItem
 	var item snipItem
 	var hash string

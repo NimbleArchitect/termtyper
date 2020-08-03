@@ -9,6 +9,7 @@ package main
 
 import (
 	"bufio"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
@@ -39,6 +40,11 @@ type config struct {
 		// 	Server time.Duration `yaml:"server"`
 		// 	Write  time.Duration `yaml:"write"`
 		// } `yaml:"timeout"`
+		Database []struct {
+			Name string `yaml:"name"`
+			Path string `yaml:"path"`
+			Type string `yaml:"type"`
+		}
 	} `yaml:"termtyper"`
 }
 
@@ -84,14 +90,15 @@ func loadSettings(filename string) {
 	settings.Termtyper.EnableRemote = false
 	settings.Termtyper.CmdType = "bash"
 	settings.Termtyper.maxRows = 20
-	settings.Termtyper.Path = ""
+	settings.Termtyper.Path = "~/.termtyper/"
 	settings.Termtyper.TypeDelay = 20
 	settings.Termtyper.LineDelay = 200
 
-	data, err := ioutil.ReadFile(filename)
+	settings.Termtyper.Path = convertPath(settings.Termtyper.Path)
+	data, err := ioutil.ReadFile(settings.Termtyper.Path + filename)
 
 	if err != nil {
-		logWarn("unable to open config file", filename)
+		logWarn("unable to open config file", settings.Termtyper.Path+filename)
 	}
 	//var conf config
 	err = yaml.Unmarshal([]byte(data), &settings)
@@ -100,6 +107,20 @@ func loadSettings(filename string) {
 		logWarn("unable to process config file")
 	}
 	//fmt.Println(conf)
+	if len(settings.Termtyper.Database) <= 0 {
+		//this is a bit hacky, could do with fixing
+		settings.Termtyper.Database = append(
+			settings.Termtyper.Database, struct {
+				Name string "yaml:\"name\""
+				Path string "yaml:\"path\""
+				Type string "yaml:\"type\""
+			}{"default", "~/.termtyper/termtyper.db", "local"},
+		)
+	}
+	//loop through each database correcting the path
+	for i, database := range settings.Termtyper.Database {
+		settings.Termtyper.Database[i].Path = convertPath(database.Path)
+	}
 
 }
 
@@ -110,16 +131,10 @@ func main() {
 	Move along nothing to see here
 	</body></html>`
 
-	if settings.Termtyper.Path == "" {
-		var pathSep = "/"
-		appFolder := "." + appName
-		datapath, err := os.UserHomeDir()
-		if err != nil {
-			panic("Unable to get users profile folder")
-		}
-		settings.Termtyper.Path = datapath + pathSep + appFolder
-	}
 	fldrName := settings.Termtyper.Path
+	loadSettings("config.yaml")
+	fldrName = settings.Termtyper.Path
+
 	if _, err := os.Stat(fldrName); err != nil {
 		err = os.Mkdir(fldrName, 0770)
 		if err != nil {
@@ -127,16 +142,18 @@ func main() {
 		}
 	}
 
-	loadSettings(fldrName + "/config.yaml")
-
-	database, _ = dbOpen(fldrName + "/termtyper.db")
-	// if ok == true {
-	// 	//defer database.Close()
-	// }
-	logDebug("F:main:db ping")
-	if database.Ping() != nil {
-		logError("F:main:unable to ping db")
+	count := openDatabases()
+	if count <= 0 {
+		panic("unable to open any listed databases")
 	}
+	// database, _ = dbOpen(settings.Termtyper.Database[0].Path)
+	// // if ok == true {
+	// // 	//defer database.Close()
+	// // }
+	// logDebug("F:main:db ping")
+	// if database.Ping() != nil {
+	// 	logError("F:main:unable to ping db")
+	// }
 	logDebug("F:main:call getprogPath")
 	execpath := getprogPath()
 	//TODO: set up to support arguments to show the search window, I can then show a managment window by default
@@ -171,7 +188,8 @@ func main() {
 		searchandpaste(execpath)
 	}
 
-	database.Close()
+	closeDatabases()
+	//database.Close()
 }
 
 func showHelp() {
@@ -291,7 +309,8 @@ func validCmdType(cmdtype string) (string, string) {
 }
 
 func exportAll(filename string) {
-	foundSnips := dbGetAll()
+	//FIXME: currently this will only export the first database in the list
+	foundSnips := dbGetAll(localDbList[0])
 	// {"hash":"000000-0000-0000-0000-000000000000",
 	//  "name":"name for this command",
 	//  "code":"actual command to type",
@@ -322,6 +341,7 @@ func exportAll(filename string) {
 }
 
 func importAll(filename string) {
+	//FIXME: currently this will only import into the first database in the list
 
 	file, _ := ioutil.ReadFile(filename)
 
@@ -332,10 +352,10 @@ func importAll(filename string) {
 	skipped := 0
 
 	for i := 0; i < len(items); i++ {
-		_, count := dbGetID(items[i].Hash)
+		_, count := dbGetID(localDbList[0], items[i].Hash)
 		if count == 0 {
 			//TODO: need to sanity check the data
-			dbWrite(items[i].Hash, items[i].Time, items[i].Name, items[i].Code, items[i].CmdType, items[i].Summary)
+			dbWrite(localDbList[0], items[i].Hash, items[i].Time, items[i].Name, items[i].Code, items[i].CmdType, items[i].Summary)
 			written++
 		} else {
 			skipped++
@@ -343,4 +363,44 @@ func importAll(filename string) {
 	}
 
 	fmt.Println(len(items), "total items to import,", written, "items imported successfully and", skipped, "items skipped")
+}
+
+func openDatabases() int {
+	var database *sql.DB
+	var count int = 0
+
+	for _, db := range settings.Termtyper.Database {
+		database, _ = dbOpen(db.Path)
+		// if ok == true {
+		// 	//defer database.Close()
+		// }
+		logDebug("F:main:db ping")
+		//check db is valid and opens
+		if database.Ping() != nil {
+			logError("F:main:unable to ping db")
+		} else {
+			//append to this array localDbList
+			localDbList = append(localDbList, database)
+			count++
+		}
+	}
+	return count
+}
+
+func closeDatabases() {
+	for _, database := range localDbList {
+		database.Close()
+	}
+}
+
+func convertPath(path string) string {
+	newpath := path
+	if strings.HasPrefix(path, "~") {
+		datapath, err := os.UserHomeDir()
+		if err != nil {
+			panic("Unable to get users profile folder")
+		}
+		newpath = strings.Replace(path, "~", datapath, 1)
+	}
+	return newpath
 }

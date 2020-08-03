@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"sync"
 	"time"
@@ -25,17 +26,24 @@ func asyncSearch(hash string, searchfield string, query string) {
 		wg.Add(1)
 		go remoteSearch(&wg, newRequest)
 	}
-	ch := make(chan []snipItem)
-	newRequest := searchRequest{
-		hash:        hash,
-		searchfield: searchfield,
-		query:       query,
-		channel:     ch,
+	//loop through each local db
+	for _, database := range localDbList {
+		//make a new channel that will hold the search response
+		ch := make(chan []snipItem)
+		newRequest := searchRequest{
+			hash:        hash,
+			searchfield: searchfield,
+			query:       query,
+			channel:     ch,
+		}
+		//add the channel to the requestList array
+		requestList = append(requestList, newRequest)
+		wg.Add(1) //increment wait group
+		//and run the search
+		go localSearch(&wg, database, newRequest)
 	}
-	requestList = append(requestList, newRequest)
-	wg.Add(1)
-	go localSearch(&wg, newRequest)
 
+	//now we sit an wait for everyone to get back to us
 	go waitAndMerge(&wg, requestList)
 
 }
@@ -60,7 +68,7 @@ func waitAndMerge(wg *sync.WaitGroup, requestList []searchRequest) {
 
 }
 
-func localSearch(wg *sync.WaitGroup, request searchRequest) {
+func localSearch(wg *sync.WaitGroup, database *sql.DB, request searchRequest) {
 	defer wg.Done() //update the wait counter on function exit
 	defer close(request.channel)
 
@@ -73,7 +81,7 @@ func localSearch(wg *sync.WaitGroup, request searchRequest) {
 		return
 	}
 
-	snips = dbFind(request.searchfield, request.query, 0) //search the name field in the snip table
+	snips = dbFind(database, request.searchfield, request.query, 0) //search the name field in the snip table
 
 	for _, itm := range snips {
 		itmarg := getArguments(itm.Code)
@@ -120,7 +128,7 @@ func remoteSearch(wg *sync.WaitGroup, request searchRequest) {
 //returns a list of items sorted by popularity, defaults to top 20
 func getPopular(hash string) {
 
-	totalSnips := dbGetPopular(20)
+	totalSnips := dbGetPopular(localDbList[0], 20)
 	str, _ := json.Marshal(totalSnips)
 
 	sendResultsToJS(hash, string(str))
@@ -128,7 +136,7 @@ func getPopular(hash string) {
 
 func getAllSnips(hash string) {
 
-	totalSnips := dbGetAll()
+	totalSnips := dbGetAll(localDbList[0])
 	str, _ := json.Marshal(totalSnips)
 
 	sendResultsToJS(hash, string(str))

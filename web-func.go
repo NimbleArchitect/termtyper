@@ -39,7 +39,7 @@ func snipSave(title string, code string, commandtype string, summary string) {
 
 	cmdtype, _ := validCmdType(commandtype)
 
-	dbWrite(hash, time.Now(), title, code, cmdtype, summary)
+	dbWrite(localDbList[0], hash, time.Now(), title, code, cmdtype, summary)
 
 }
 
@@ -94,7 +94,7 @@ func asyncTyper(hash string, vars []string) {
 	logDebug("F:asyncTyper:start")
 
 	logDebug("F:asyncTyper:hash =", hash)
-	snips, _ := dbGetID(hash)
+	snips, _ := dbGetID(localDbList[0], hash)
 	logDebug("F:asyncTyper:snips =", snips)
 	logDebug("F:asyncTyper:len(vars) =", len(vars))
 
@@ -115,7 +115,7 @@ func asyncTyper(hash string, vars []string) {
 
 	time.Sleep(3 * time.Second)
 	typeSnippet(sep, code)
-	dbUpdatePopular(hash) //update usage counter
+	dbUpdatePopular(localDbList[0], hash) //update usage counter
 
 	snipClose()
 }
