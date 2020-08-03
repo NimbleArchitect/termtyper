@@ -72,7 +72,10 @@ func snipAsyncRequest(hash string, jsonQuery string) error {
 
 	switch request.Operation {
 	case "search":
-		go asyncSearch(hash, request.Value)
+		go asyncSearch(hash, "name", request.Value)
+	case "searchcode":
+		go asyncSearch(hash, "code", request.Value)
+
 	case "get":
 		switch request.Value {
 		case "popular":

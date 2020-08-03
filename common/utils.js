@@ -231,7 +231,7 @@ $( document ).ready(function() {
     });
 
     $( '#searchbox' ).on('keyup', function (e) {
-        doRequest( '{"operation": "search", "value": "' + $('#searchbox').val() + '"}' );
+        doRequest( '{"operation": "' + $('#searchfor').val() + '", "value": "' + $('#searchbox').val() + '"}' );
 
         if (e.which == 40) {
             // Down Arrow

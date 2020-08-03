@@ -15,8 +15,16 @@
     <button id="btnWithArgs" class="button">Type With <u>A</u>rgs</button>
 </div>
 <div id="box-search">
-    <input id="searchbox" type="text" name="searchbox" placeholder="Search for names.." autofocus>
-    <button id="btnRun" class="button"><u>R</u>un</button>
+    <div id="searchoptions">
+        Search: <select id="searchfor">
+            <option value="search">name</option>
+            <option value="searchcode">code</option>
+        </select>
+    </div>
+    <div id="containerSearch">
+        <input id="searchbox" type="text" name="searchbox" placeholder="Search for names.." autofocus>
+        <button id="btnRun" class="button"><u>R</u>un</button>
+    </div>
     <div id="list">
         <table id="codelist" class="autocomplete" tabindex="1">
             <tbody id="resultstable">

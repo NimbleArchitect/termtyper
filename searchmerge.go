@@ -8,7 +8,7 @@ import (
 
 //async search given a search id and query
 // perform a search on seperate threads
-func asyncSearch(hash string, query string) {
+func asyncSearch(hash string, searchfield string, query string) {
 	var requestList []searchRequest
 
 	wg := sync.WaitGroup{}
@@ -16,9 +16,10 @@ func asyncSearch(hash string, query string) {
 
 		ch := make(chan []snipItem)
 		newRequest := searchRequest{
-			hash:    hash,
-			query:   query,
-			channel: ch,
+			hash:        hash,
+			searchfield: searchfield,
+			query:       query,
+			channel:     ch,
 		}
 		requestList = append(requestList, newRequest)
 		wg.Add(1)
@@ -26,9 +27,10 @@ func asyncSearch(hash string, query string) {
 	}
 	ch := make(chan []snipItem)
 	newRequest := searchRequest{
-		hash:    hash,
-		query:   query,
-		channel: ch,
+		hash:        hash,
+		searchfield: searchfield,
+		query:       query,
+		channel:     ch,
 	}
 	requestList = append(requestList, newRequest)
 	wg.Add(1)
@@ -67,13 +69,11 @@ func localSearch(wg *sync.WaitGroup, request searchRequest) {
 
 	logDebug("F:localSearch:start")
 
-	if len(request.query) < 0 {
+	if len(request.query) <= 0 {
 		return
-	} else if len(request.query) == 0 {
-		snips = dbGetAll()
-	} else {
-		snips = dbFind("name", request.query, 0) //search the name field in the snip table
 	}
+
+	snips = dbFind(request.searchfield, request.query, 0) //search the name field in the snip table
 
 	for _, itm := range snips {
 		itmarg := getArguments(itm.Code)

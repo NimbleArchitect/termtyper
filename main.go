@@ -66,9 +66,10 @@ type command struct {
 }
 
 type searchRequest struct {
-	hash    string
-	query   string
-	channel chan []snipItem
+	hash        string
+	searchfield string
+	query       string
+	channel     chan []snipItem
 }
 
 var action int
