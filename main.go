@@ -29,6 +29,7 @@ const appName string = "termtyper"
 type config struct {
 	Termtyper struct {
 		Debug        bool   `yaml:"debug"`
+		WebLocal     bool   `yaml:"weblocal"`
 		LogLevel     int    `yaml:"loglevel"`
 		EnableRemote bool   `yaml:"remote"`
 		CmdType      string `yaml:"cmdtype"`
@@ -86,6 +87,7 @@ var queryQueue chan command
 func loadSettings(filename string) {
 	//set defaults
 	settings.Termtyper.Debug = false
+	settings.Termtyper.WebLocal = false
 	settings.Termtyper.LogLevel = 1
 	settings.Termtyper.EnableRemote = false
 	settings.Termtyper.CmdType = "bash"

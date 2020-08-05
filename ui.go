@@ -22,8 +22,11 @@ func searchandpaste(datapath string) {
 	w.Bind("snipSave", snipSave)
 
 	w.Navigate("data:text/html,<html><body>Loading...</body></html>")
-	//w.Navigate("https://nimblearchitect.github.io/termtyper/common/searchpage.html")
-	w.Navigate("file://" + datapath + "/common/searchpage.html")
+	if settings.Termtyper.WebLocal == false {
+		w.Navigate("https://nimblearchitect.github.io/termtyper/common/searchpage.html")
+	} else {
+		w.Navigate("file://" + datapath + "/common/searchpage.html")
+	}
 	//w.Init(snipSearchRemote())
 	w.Run()
 }
