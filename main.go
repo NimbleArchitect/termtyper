@@ -52,7 +52,7 @@ var settings config
 var codefromarg string = ""
 
 type snipItem struct {
-	Hash     string     `json:"hash"`
+	Hash     string     `json:"-"` // we dont need this in json output as the map key is the hash id also
 	Time     time.Time  `json:"-"` // - hides the output from json
 	Name     string     `json:"value"`
 	Code     string     `json:"code"`

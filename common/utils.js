@@ -161,14 +161,19 @@ $( document ).ready(function() {
     }
 
     function doRequest(query) {
-
         $.when(
             asyncJob.SendJob( query )
         ).then(
             function(data) {
                 $('#resultstable').empty()
-                JSON.parse(data).forEach(function(item){
-                    
+                jsonout = JSON.parse(data)
+                if (jsonout.length == "") {
+                    return
+                } 
+                Object.entries(jsonout).forEach(([k,v]) => {
+                    item = v;
+                    item.hash = k;
+                    //item = itemarray
                     typename = item.cmdtype
                     cmdtype = "searchcmd_" + typename;
                     //the above should really be a function

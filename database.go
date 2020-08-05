@@ -3,9 +3,9 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"time"
-
 	_ "github.com/mattn/go-sqlite3"
+	"strings"
+	"time"
 )
 
 var localDbList []*sql.DB
@@ -41,6 +41,18 @@ func dbOpen(dbpath string) (*sql.DB, bool) {
 
 	_, _ = db.Exec(`ALTER TABLE snips ADD summary TEXT;`)
 
+	_, _ = db.Exec(`CREATE VIEW textsearch
+	AS
+	SELECT 
+		hash,
+		name || ' ' || code AS search,
+		created,	
+		name,
+		code,
+		cmdtype,
+		summary
+	FROM snips;
+	`)
 	return db, true
 }
 
@@ -104,11 +116,30 @@ func dbFind(database *sql.DB, field string, searchfor string, rowStart int) []sn
 	}
 	// query
 	if field == "name" {
-		qry = string("SELECT * FROM snips WHERE name LIKE ? LIMIT ?" + strRowStart)
+		qry = string(`
+		SELECT
+			hash,created,name,code,cmdtype,summary 
+		FROM textsearch 
+		WHERE name LIKE ? LIMIT ?` + strRowStart)
 	}
 	if field == "code" {
-		qry = string("SELECT * FROM snips WHERE code LIKE ? LIMIT ?" + strRowStart)
+		qry = string(`
+		SELECT
+			hash,created,name,code,cmdtype,summary 
+		FROM textsearch 
+		WHERE code LIKE ? LIMIT ?` + strRowStart)
 	}
+	if field == "all" {
+		qry = string(`
+		SELECT 
+			hash,created,name,code,cmdtype,summary 
+		FROM textsearch 
+		WHERE search LIKE ? LIMIT ?` + strRowStart)
+	}
+
+	//FIXME:  the next two lines are really silly and need a proper fix, im just too lazy atm
+	searchfor = strings.ReplaceAll(searchfor, " ", "%")
+	logDebug("F:dbFind:searchfor =", searchfor)
 
 	if strRowStart == "" {
 		rows, err = database.Query(qry, "%"+searchfor+"%", settings.Termtyper.maxRows)

@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
+
 	"sync"
 	"time"
 )
@@ -50,20 +51,26 @@ func asyncSearch(hash string, searchfield string, query string) {
 
 //loop through each searchRequest item, wait for
 // channels to timeout and close or recieve data, then merge data
-// and send the data back with its hash using
+// filter out duplicates based on item hash id and send the data back with its request hash using
 // sendResultsToJS(hash, string(str)) this must be a json string though
 func waitAndMerge(wg *sync.WaitGroup, requestList []searchRequest) {
-	var totalSnips []snipItem
+	totalSnips := make(map[string]snipItem)
 
 	for _, request := range requestList {
 		items := <-request.channel
-		totalSnips = append(totalSnips, items...)
+		for _, singleItem := range items {
+			_, ok := totalSnips[singleItem.Hash]
+			if ok == false {
+				totalSnips[singleItem.Hash] = singleItem
+			}
+		}
 	}
 
 	wg.Wait() //wait for all search functions to finish
 
 	hash := requestList[0].hash
 	str, _ := json.Marshal(totalSnips)
+
 	sendResultsToJS(hash, string(str))
 
 }
@@ -127,16 +134,31 @@ func remoteSearch(wg *sync.WaitGroup, request searchRequest) {
 
 //returns a list of items sorted by popularity, defaults to top 20
 func getPopular(hash string) {
+	totalSnips := make(map[string]snipItem)
+	items := dbGetPopular(localDbList[0], 20)
 
-	totalSnips := dbGetPopular(localDbList[0], 20)
+	for _, singleItem := range items {
+		_, ok := totalSnips[singleItem.Hash]
+		if ok == false {
+			totalSnips[singleItem.Hash] = singleItem
+		}
+	}
 	str, _ := json.Marshal(totalSnips)
 
 	sendResultsToJS(hash, string(str))
 }
 
 func getAllSnips(hash string) {
+	totalSnips := make(map[string]snipItem)
 
-	totalSnips := dbGetAll(localDbList[0])
+	items := dbGetAll(localDbList[0])
+	for _, singleItem := range items {
+		_, ok := totalSnips[singleItem.Hash]
+		if ok == false {
+			totalSnips[singleItem.Hash] = singleItem
+		}
+	}
+
 	str, _ := json.Marshal(totalSnips)
 
 	sendResultsToJS(hash, string(str))
