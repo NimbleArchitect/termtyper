@@ -42,6 +42,31 @@ $( document ).ready(function() {
         clearform();
     });
 
+    $("#btnSaveEdit").on("click", function(){
+        //save new snippet
+        let txttitle = $( '#title' ).val();
+        let txtcode = $( '#code' ).text();
+        let txtcmdtyp = $( '#cmdtypselect' ).val();
+        let txtsummary = $( '#summary' ).val();
+        let hashid = $('#btnSaveEdit').data('updatehash');
+
+        snipUpdate(hashid, txttitle, txtcode, txtcmdtyp, txtsummary);
+        $( '#box-addnew' ).hide();
+        $( '#searchbox' ).focus();
+        clearform();
+    });
+    $("#btnDelete").on("click", function(){
+        //save new snippet
+        let txttitle = $( '#title' ).val();
+        let hashid = $('#btnSaveEdit').data('updatehash');
+        let ans = confirm("Im going to delete " + txttitle);
+        if (ans == true) {
+            snipDelete(hashid)
+        };
+        $( '#box-addnew' ).hide();
+        $( '#searchbox' ).focus();
+        clearform();
+    });
     $("#btnCancelVars").on("click", function(){
         $( '#box-vars' ).css('display', 'none');
         $( '#searchbox' ).focus();
@@ -92,7 +117,8 @@ $( document ).ready(function() {
                 document.getElementById("btnNew").click();
             }
             if (e.keyCode == 69 ) { //E - edit snippet
-
+                populateEditBox( $('tr.row-selected') );
+                showEditBox();
             }
             if (e.keyCode >= 48 && e.keyCode <= 57) {
                 if ($( '#box-vars' ).css('display') != 'none') {
@@ -181,7 +207,7 @@ $( document ).ready(function() {
                     schname = "<div class='searchname'>" + item.value + schtype + "</div>";
                     schcmd = "<div class='searchcmd'>" + item.code + "</div>";
                     schinfo = "<div class='searchinfo'>" + schname + schcmd + "</div>";
-                    lstitm = "<div class='listitem-div'>" + schinfo + "</div>";
+                    lstitm = "<div class='listitem-div'><div class='edititem'>E</div>" + schinfo + "</div>";
                     itmout = $( "<tr>" ).append( lstitm ).data('tt-list-item', item);
                     itmout.on("click", function () {
                         //console.log("clock");
@@ -192,8 +218,28 @@ $( document ).ready(function() {
         
                     $('#resultstable').append( itmout )
                 })
+                $(".edititem").on('click', function () {
+                    populateEditBox( $(this).parent().parent() );
+                    showEditBox();
+                });
             }
         );
+    }
+
+    function populateEditBox( listitem ) {
+        let item = listitem.data('tt-list-item')
+        $('#code').text(item.code);
+        $('#title').val(item.value);
+        $('#summary').val(item.summary);
+        $('#cmdtypselect').prop('selectedIndex', 0);
+        $('#btnSaveEdit').data('updatehash', item.hash);
+    }
+
+    function showEditBox() {
+        $( '#btnSaveEdit' ).css('display', 'block');
+        $( '#btnDelete' ).css('display', 'block');
+        $( '#btnSaveNew' ).css('display', 'none');
+        $( '#box-addnew' ).css('display', 'block');
     }
 
     $('table').keydown(function (e) {
@@ -282,7 +328,11 @@ function getCodeFromArguments(e) {
 }
 
 function clearform() {
-    $('#code').text('');
-    $('#title').val('')
-    $('#cmdtypselect').prop('selectedIndex', 0);
+    $( '#code' ).text('');
+    $( '#title' ).val('')
+    $( '#summary' ).val('');
+    $( '#cmdtypselect' ).prop('selectedIndex', 0);
+    $( '#btnSaveNew' ).css('display', 'block');
+    $( '#btnSaveEdit' ).css('display', 'none');
+    $( '#btnDelete' ).css('display', 'none');
 }

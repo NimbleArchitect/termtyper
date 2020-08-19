@@ -43,6 +43,17 @@ func snipSave(title string, code string, commandtype string, summary string) {
 
 }
 
+func snipUpdate(hash string, title string, code string, commandtype string, summary string) {
+
+	cmdtype, _ := validCmdType(commandtype)
+
+	dbUpdate(localDbList[0], hash, time.Now(), title, code, cmdtype, summary)
+}
+
+func snipDelete(hash string) {
+	dbDelete(localDbList[0], hash)
+}
+
 //returns json object representing string passed from stdin
 func snipCodeFromArg() string {
 	var thissnip snipItem

@@ -20,6 +20,8 @@ func searchandpaste(datapath string) {
 	w.Bind("snipTyper", snipTyper)
 	w.Bind("snipClose", snipClose)
 	w.Bind("snipSave", snipSave)
+	w.Bind("snipUpdate", snipUpdate)
+	w.Bind("snipDelete", snipDelete)
 
 	w.Navigate("data:text/html,<html><body>Loading...</body></html>")
 	if settings.Termtyper.WebLocal == false {

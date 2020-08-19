@@ -22,11 +22,13 @@ func dbOpen(dbpath string) (*sql.DB, bool) {
 		panic(ok)
 	}
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS "snips" (
-		"hash"	TEXT UNIQUE,
+		"hash"	    TEXT UNIQUE,
 		"created"	INTEGER,
-		"name"	TEXT,
-		"code"	TEXT,
+		"name"	    TEXT,
+		"code"	    TEXT,
 		"cmdtype"	TEXT,
+		"summary"   TEXT,
+		"dead"      INTEGER DEFAULT 0 NOT NULL,
 		PRIMARY KEY("hash")
 	);`,
 	)
@@ -41,7 +43,9 @@ func dbOpen(dbpath string) (*sql.DB, bool) {
 
 	_, _ = db.Exec(`ALTER TABLE snips ADD summary TEXT;`)
 
-	_, _ = db.Exec(`CREATE VIEW textsearch
+	_, _ = db.Exec(`ALTER TABLE snips ADD dead INTEGER DEFAULT 0 NOT NULL;`)
+
+	_, _ = db.Exec(`DROP VIEW IF EXISTS textsearch; CREATE VIEW textsearch
 	AS
 	SELECT 
 		hash,
@@ -51,7 +55,7 @@ func dbOpen(dbpath string) (*sql.DB, bool) {
 		code,
 		cmdtype,
 		summary
-	FROM snips;
+	FROM snips WHERE dead=0;
 	`)
 	return db, true
 }
@@ -65,7 +69,7 @@ func dbGetID(database *sql.DB, hash string) (snipItem, int) {
 	var created string = ""
 	var cmdtype string = ""
 
-	qry := string("SELECT hash,created,name,code,cmdtype FROM snips WHERE hash=?")
+	qry := string("SELECT hash,created,name,code,cmdtype FROM snips WHERE hash=? AND dead=0")
 	rows, err := database.Query(qry, hash)
 	if err != nil {
 		logError("ERROR: unable to query db")
@@ -190,10 +194,39 @@ func dbWrite(database *sql.DB, hash string, created time.Time, title string, cod
 	t := string(created.Format(time.RFC3339))
 
 	tx, _ := database.Begin()
-	stmt, _ := tx.Prepare("insert into snips (hash,created,name,code,cmdtype,summary) values (?,?,?,?,?,?)")
+	stmt, _ := tx.Prepare("insert into snips (hash,created,name,code,cmdtype,summary,dead) values (?,?,?,?,?,?,0)")
 	_, err := stmt.Exec(hash, t, title, code, cmdtype, summary)
 	if err != nil {
 		logError("error saving")
+	}
+	tx.Commit()
+
+	return nil
+}
+
+func dbDelete(database *sql.DB, hash string) error {
+	//TODO: check values are valid before saving
+
+	tx, _ := database.Begin()
+	stmt, _ := tx.Prepare("UPDATE snips set dead=1 WHERE hash=?")
+	_, err := stmt.Exec(hash)
+	if err != nil {
+		logError("error deleteing record")
+	}
+	tx.Commit()
+
+	return nil
+}
+
+func dbUpdate(database *sql.DB, hash string, created time.Time, title string, code string, cmdtype string, summary string) error {
+	//TODO: check values are valid before saving
+	t := string(created.Format(time.RFC3339))
+
+	tx, _ := database.Begin()
+	stmt, _ := tx.Prepare("UPDATE snips set created=?,name=?,code=?,cmdtype=?,summary=?,dead=0 WHERE hash=?")
+	_, err := stmt.Exec(t, title, code, cmdtype, summary, hash)
+	if err != nil {
+		logError("error updating record")
 	}
 	tx.Commit()
 
@@ -205,7 +238,7 @@ func dbUpdatePopular(database *sql.DB, hash string) error {
 	var timesused int = 0
 	var lastused string = ""
 
-	qry := string("SELECT * FROM popular where hash=?")
+	qry := string("SELECT * FROM popular WHERE hash=? AND dead=0")
 	rows, err := database.Query(qry, hash)
 	if err != nil {
 		logError("ERROR: unable to query db")
@@ -314,7 +347,7 @@ func dbGetAll(database *sql.DB) []snipItem {
 	var dbSummary sql.NullString
 	var strSummary string
 
-	qry := string("SELECT * FROM snips")
+	qry := string("SELECT hash,created,name,code,cmdtype,summary FROM snips WHERE dead<>1")
 	rows, err := database.Query(qry)
 	if err != nil {
 		logError("ERROR: unable to query db")

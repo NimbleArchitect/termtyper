@@ -138,7 +138,15 @@ input[type=text] {
 	padding: 2px; /* Add some padding */
 	margin-bottom: 10px;
 }
-
+#btnSaveEdit {
+	display: none;
+}
+#btnDelete {
+	display: none;
+}
+.btnholder {
+	display: flex;
+}
 
 /* 
 ### run with args 
@@ -225,6 +233,18 @@ input.varList {
 	margin-bottom: 5px;
 	/* color: #6d8ee8; */
 	overflow: hidden;
+}
+/* edit item button */
+.edititem {
+	background-image: url('edit.png');
+	background-position: 0px 5px;
+	background-repeat: no-repeat;
+	border-bottom: 0px solid #091534; 
+	cursor: pointer;
+	float: right;
+	height: 30px;
+	width: 24px;
+	padding-right: 10px;
 }
 /* search results item matching tags */
 .searchtag {
