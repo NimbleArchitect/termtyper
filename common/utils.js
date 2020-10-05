@@ -180,8 +180,21 @@ $( document ).ready(function() {
                 }
                 let txtlabel = "<label class='varList' for='var" + key + "'>" + hotkey + n + ":</label><br>";
                 let txtbox = "<input class='varList' type='text' id='var" + key + "' value='" + v + "' " + strautofocus + ">";
-                $( "#argument-list" ).append("<div>" + txtlabel + txtbox + "</div>")
+                $( "#argument-list" ).append("<div>" + txtlabel + txtbox + "</div>");
                 $( '#var' + key ).data('argname', n);
+                //add on enter key press to text box var0, 1, 2 etc that will set the focus to the next text box then the ok button
+                $( '#var' + key ).addEventListener("keydown", event => {
+                    // if (event.isComposing || event.keyCode === 229) {
+                    //   return;
+                    // }
+                //$( '#var' + key ).keydown(function (e) {
+                    if (event.which == 13) {
+                        //move to the next input field
+                        asd = $('this').next('input');
+                        asd.focus();
+                        return
+                    }
+                });
             }
         }
     }
@@ -213,7 +226,7 @@ $( document ).ready(function() {
                         //console.log("clock");
                         $('tr.row-selected').removeClass("row-selected")
                         $(this).addClass("row-selected")  
-                        populateVarsList($(this))
+                        populateVarsList($('tr.row-selected')) //BUG: doesn't have any arguments unless you search something, why?
                     });
         
                     $('#resultstable').append( itmout )
@@ -282,7 +295,12 @@ $( document ).ready(function() {
     });
 
     $( '#searchbox' ).on('keyup', function (e) {
-        doRequest( '{"operation": "' + $('#searchfor').val() + '", "value": "' + $('#searchbox').val() + '"}' );
+        strQuery = $('#searchbox').val()
+        if (strQuery.length > 0) {
+            doRequest( '{"operation": "' + $('#searchfor').val() + '", "value": "' + strQuery + '"}' );
+        } else {
+            doRequest('{"operation": "get", "value": "all"}');
+        }
 
         if (e.which == 40) {
             // Down Arrow

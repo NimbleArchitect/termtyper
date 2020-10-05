@@ -140,6 +140,8 @@ func getPopular(hash string) {
 	for _, singleItem := range items {
 		_, ok := totalSnips[singleItem.Hash]
 		if ok == false {
+			itmarg := getArguments(singleItem.Code)
+			singleItem.Argument = itmarg
 			totalSnips[singleItem.Hash] = singleItem
 		}
 	}
@@ -155,6 +157,8 @@ func getAllSnips(hash string) {
 	for _, singleItem := range items {
 		_, ok := totalSnips[singleItem.Hash]
 		if ok == false {
+			itmarg := getArguments(singleItem.Code)
+			singleItem.Argument = itmarg
 			totalSnips[singleItem.Hash] = singleItem
 		}
 	}
