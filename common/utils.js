@@ -180,23 +180,26 @@ $( document ).ready(function() {
                 }
                 let txtlabel = "<label class='varList' for='var" + key + "'>" + hotkey + n + ":</label><br>";
                 let txtbox = "<input class='varList' type='text' id='var" + key + "' value='" + v + "' " + strautofocus + ">";
+                strautofocus = "";
                 $( "#argument-list" ).append("<div>" + txtlabel + txtbox + "</div>");
                 $( '#var' + key ).data('argname', n);
-                //add on enter key press to text box var0, 1, 2 etc that will set the focus to the next text box then the ok button
-                $( '#var' + key ).addEventListener("keydown", event => {
-                    // if (event.isComposing || event.keyCode === 229) {
-                    //   return;
-                    // }
-                //$( '#var' + key ).keydown(function (e) {
-                    if (event.which == 13) {
-                        //move to the next input field
-                        asd = $('this').next('input');
-                        asd.focus();
-                        return
-                    }
-                });
             }
         }
+        //add on enter key press to text box var0, 1, 2 etc that will set the focus to the next text box then the ok button
+        $( '#argument-list :input').on("keydown", function(event) {
+            if (event.which == 13) {
+                //move to the next input field
+                asd = $(this).parent().next().find(':input');
+                if (asd.length > 0) {
+                    asd.focus();
+                } else {
+                    //if nothing else has focus set focus to the ok button
+                    $('#btnOkVars').focus();
+                    return true;
+                }
+                return true;
+            }
+        });
     }
 
     function doRequest(query) {
